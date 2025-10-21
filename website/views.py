@@ -31,8 +31,8 @@ def about(request):
 def blog(request):
 	return render(request, 'blog.html', {})
 
-def department(request):
-	return render(request, 'department.html', {})
+def services(request):
+	return render(request, 'services.html', {})
 
 def doctor(request):
 	return render(request, 'doctor.html', {})
