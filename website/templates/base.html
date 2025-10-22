@@ -82,10 +82,10 @@
 	      <div class="collapse navbar-collapse" id="ftco-nav">
 	        <ul class="navbar-nav m-auto">
             <li class="nav-item {% if request.path == '/' %}active{% endif %}"><a href=" {% url 'home' %} " class="nav-link pl-0">Home</a></li>
-            <li class="nav-item {% if request.path == '/about.html' %}active{% endif %}"><a href=" {% url 'about' %} " class="nav-link">About</a></li>
-            <li class="nav-item {% if request.path == '/services.html' %}active{% endif %}"><a href=" {% url 'services' %} " class="nav-link">Treatments</a></li>
-            <li class="nav-item {% if request.path == '/blog.html' %}active{% endif %}"><a href=" {% url 'blog' %} " class="nav-link">Blog</a></li>
-            <li class="nav-item {% if request.path == '/contact.html' %}active{% endif %}"><a href=" {% url 'contact' %} " class="nav-link">Contact</a></li></li>
+            <li class="nav-item {% if request.path == '/about/' %}active{% endif %}"><a href=" {% url 'about' %} " class="nav-link">About</a></li>
+            <li class="nav-item {% if request.path == '/services/' %}active{% endif %}"><a href=" {% url 'services' %} " class="nav-link">Treatments</a></li>
+            <li class="nav-item {% if request.path == '/blog/' %}active{% endif %}"><a href=" {% url 'blog' %} " class="nav-link">Blog</a></li>
+            <li class="nav-item {% if request.path == '/contact/' %}active{% endif %}"><a href=" {% url 'contact' %} " class="nav-link">Contact</a></li></li>
 	        </ul>
 	      </div>
 	    </div>
@@ -191,8 +191,7 @@
           <div class="col-md-12 text-center">
 
             <p>
-  Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="icon-heart" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
-  <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p>
+  Copyright &copy;<script>document.write(new Date().getFullYear());</script> Dental Clinic | All rights reserved</a></p>
           </div>
         </div>
       </div>
