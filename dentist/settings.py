@@ -1,6 +1,5 @@
 from pathlib import Path
 import os
-import django_heroku
 import dj_database_url
 from decouple import config
 
@@ -132,6 +131,11 @@ EMAIL_USE_TLS = False
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
-django_heroku.settings(locals())
+#Only if heroku hosting is used
+try:
+    import django_heroku
+    django_heroku.settings(locals())
+except ImportError:
+    pass
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
