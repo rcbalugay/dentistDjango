@@ -42,30 +42,32 @@
 
     <!-- Main stylesheet-->
     <link rel="stylesheet" href=" {% static 'website/css/style.css' %} ">
+
+    <link rel="shortcut icon" href="{% static 'website/images/logo-1.png' %}" />
   </head>
 
 <!-- Start of the Header -->
   <body>
-    <div class="py-md-5 py-4 border-bottom">
+    <div class="py-md-1 py-4 border-bottom">
     	<div class="container">
     		<div class="row no-gutters d-flex align-items-start align-items-center px-3 px-md-0">
     			<div class="col-md-4 order-md-2 mb-2 mb-md-0 align-items-center text-center">
-		    		<a class="navbar-brand" href=" {% url 'home' %} ">NAME<span>Dental Clinic</span></a>
+		    		<a class="navbar-brand" href=" {% url 'home' %} "><img src=" {% static 'website/images/logo-1.png' %} "></a>
 	    		</div>
 	    		<div class="col-md-4 order-md-1 d-flex topper mb-md-0 mb-2 align-items-center text-md-right">
 	    			<div class="icon d-flex justify-content-center align-items-center order-md-last">
 	    				<span class="icon-map"></span>
 	    			</div>
 	    			<div class="pr-md-4 pl-md-0 pl-3 text">
-					    <p class="con"><span>Free Call</span> <span>+63 123 456 78910</span></p>
-					    <p class="con">123 Batong Bakal Street, Barangay Lokal, Makati, Metro Manila 1234</p>
+					    <p class="con"><span>Dial</span> <span>+63 967 406 4184</span></p>
+					    <p class="con">Purok 1 Planas Bridge, Porac, Pampanga 2008</p>
 				    </div>
 			    </div>
 			    <div class="col-md-4 order-md-3 d-flex topper mb-md-0 align-items-center">
 			    	<div class="icon d-flex justify-content-center align-items-center"><span class="icon-paper-plane"></span></div>
 			    	<div class="text pl-3 pl-md-3">
 					    <p class="hr"><span>Open Hours</span></p>
-					    <p class="time"><span>Mon - Sat:</span> <span>8:00am - 9:00pm</span> Sun: Closed</p>
+					    <p class="time"><span>Mon & Wed, Sat - Sun:</span> <span>9:00am - 6:00pm</span></p><p class="time"><span>Tues & Thurs - Fri:</span> <span>Closed</span></p>
 				    </div>
 			    </div>
 		    </div>
@@ -76,6 +78,7 @@
 <!-- Navbar -->
 	  <nav class="navbar navbar-expand-lg navbar-dark bg-dark ftco-navbar-light" id="ftco-navbar">
 	    <div class="container d-flex align-items-center">
+        <!-- Center -->
 				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
 	        <span class="oi oi-menu"></span> Menu
 	      </button>
@@ -84,9 +87,15 @@
             <li class="nav-item {% if request.path == '/' %}active{% endif %}"><a href=" {% url 'home' %} " class="nav-link pl-0">Home</a></li>
             <li class="nav-item {% if request.path == '/about/' %}active{% endif %}"><a href=" {% url 'about' %} " class="nav-link">About</a></li>
             <li class="nav-item {% if request.path == '/services/' %}active{% endif %}"><a href=" {% url 'services' %} " class="nav-link">Treatments</a></li>
-            <li class="nav-item {% if request.path == '/blog/' %}active{% endif %}"><a href=" {% url 'blog' %} " class="nav-link">Blog</a></li>
+            <!--<li class="nav-item {% if request.path == '/blog/' %}active{% endif %}"><a href=" {% url 'blog' %} " class="nav-link">Blog</a></li> -->
             <li class="nav-item {% if request.path == '/contact/' %}active{% endif %}"><a href=" {% url 'contact' %} " class="nav-link">Contact</a></li></li>
 	        </ul>
+
+          <!-- RIGHT -->
+          <div class="navbar-cta">
+            <a href="{% url 'appointment' %}" class="btn btn-pill btn-dark mr-2">BOOK NOW</a>
+            <a href="{% url 'dashboard:login' %}?next={% url 'dashboard:home' %}"
+               class="btn btn-pill btn-outline-dark">SIGN IN</a>
 	      </div>
 	    </div>
 	  </nav>
@@ -96,43 +105,33 @@
 
 {% endblock %}
 
-<!-- Start of Footer Area -->
+<!-- Start of Footer Area (Old Design)
     <footer class="ftco-footer ftco-bg-dark ftco-section">
       <div class="container">
-        <div class="row mb-5">
-          <div class="col-md">
-            <div class="ftco-footer-widget mb-5">
-              <h2 class="ftco-heading-2 logo">Dentista</h2>
+        <div class="row mb-5" style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px; align-items: start;"> 
+          
+          Column 1: Logo and Description
+          <div class="col-md-12">
+            <div class="ftco-footer-widget mb-4">
+              <img src="{% static 'website/images/logo-2.png' %}" alt="Dental Clinic Logo">
               <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
             </div>
-            <div class="ftco-footer-widget mb-5">
-            	<h2 class="ftco-heading-2">Have a Questions?</h2>
-            	<div class="block-23 mb-3">
-	              <ul>
-	                <li><span class="icon icon-map-marker"></span><span class="text">203 Fake St. Mountain View, San Francisco, California, USA</span></li>
-	                <li><a href="#"><span class="icon icon-phone"></span><span class="text">+2 392 3929 210</span></a></li>
-	                <li><a href="#"><span class="icon icon-envelope"></span><span class="text">info@yourdomain.com</span></a></li>
-	              </ul>
-	            </div>
+          </div>
 
-	            <ul class="ftco-footer-social list-unstyled float-md-left float-lft mt-3">
-                <li class="ftco-animate"><a href="#"><span class="icon-twitter"></span></a></li>
-                <li class="ftco-animate"><a href="#"><span class="icon-facebook"></span></a></li>
-                <li class="ftco-animate"><a href="#"><span class="icon-instagram"></span></a></li>
+          Navigation Column
+          <div class="col-md-12">
+            <div class="ftco-footer-widget">
+              <h2 class="ftco-heading-2">Navigation</h2>
+              <ul class="list-unstyled">
+                <li><a href="{% url 'home' %}"><span class="ion-ios-arrow-round-forward mr-2"></span>Home</a></li>
+                <li><a href="{% url 'about' %}"><span class="ion-ios-arrow-round-forward mr-2"></span>About</a></li>
+                <li><a href="{% url 'services' %}"><span class="ion-ios-arrow-round-forward mr-2"></span>Services</a></li>
+                <li><a href="#"><span class="ion-ios-arrow-round-forward mr-2"></span>Departments</a></li>
+                <li><a href="{% url 'contact' %}"><span class="ion-ios-arrow-round-forward mr-2"></span>Contact</a></li>
               </ul>
             </div>
           </div>
-          <div class="col-md">
-            <div class="ftco-footer-widget mb-5 ml-md-4">
-              <h2 class="ftco-heading-2">Links</h2>
-              <ul class="list-unstyled">
-                <li><a href="{% url 'home' %} "><span class="ion-ios-arrow-round-forward mr-2"></span>Home</a></li>
-                <li><a href="#"><span class="ion-ios-arrow-round-forward mr-2"></span>About</a></li>
-                <li><a href="#"><span class="ion-ios-arrow-round-forward mr-2"></span>Services</a></li>
-                <li><a href="#"><span class="ion-ios-arrow-round-forward mr-2"></span>Deparments</a></li>
-                <li><a href="{% url 'contact' %} "><span class="ion-ios-arrow-round-forward mr-2"></span>Contact</a></li>
-              </ul>
-            </div>
+            Services can be added if requested
             <div class="ftco-footer-widget mb-5 ml-md-4">
               <h2 class="ftco-heading-2">Services</h2>
               <ul class="list-unstyled">
@@ -144,6 +143,9 @@
               </ul>
             </div>
           </div>
+          -->
+
+          <!-- Hide blog
           <div class="col-md">
             <div class="ftco-footer-widget mb-5">
               <h2 class="ftco-heading-2">Recent Blog</h2>
@@ -158,6 +160,7 @@
                   </div>
                 </div>
               </div>
+
               <div class="block-21 mb-5 d-flex">
                 <a class="blog-img mr-4" style="background-image: url( {% static 'website/images/image_2.jpg' %} );"></a>
                 <div class="text">
@@ -171,11 +174,28 @@
               </div>
             </div>
           </div>
-          <div class="col-md">
-          	<div class="ftco-footer-widget mb-5">
-            	<h2 class="ftco-heading-2">Opening Hours</h2>
-            	<h3 class="open-hours pl-4"><span class="ion-ios-time mr-3"></span>We are open 24/7</h3>
+
+          Column 3: Contact Us and Social Media
+          <div class="col-md-12">
+            Contact Us
+            <div class="ftco-footer-widget mb-4">
+              <h2 class="ftco-heading-2">Contact Us</h2>
+              <h3 class="open-hours pl-4"><span class="ion-ios-time mr-3"></span>We are open 24/7</h3>
             </div>
+            
+            Social Media
+            <div class="ftco-footer-widget">
+              <h2 class="ftco-heading-2">Social Media</h2>
+              <ul class="ftco-footer-social list-unstyled float-md-left float-lft mt-3">
+                <li class="ftco-animate"><a href="#"><span class="icon-twitter"></span></a></li>
+                <li class="ftco-animate"><a href="#"><span class="icon-facebook"></span></a></li>
+                <li class="ftco-animate"><a href="#"><span class="icon-instagram"></span></a></li>
+              </ul>
+            </div>
+          </div>
+          
+        </div> -->
+            <!-- Subscription for Future use
             <div class="ftco-footer-widget mb-5">
             	<h2 class="ftco-heading-2">Subscribe Us!</h2>
               <form action="#" class="subscribe-form">
@@ -187,20 +207,79 @@
             </div>
           </div>
         </div>
+          
         <div class="row">
           <div class="col-md-12 text-center">
-
-            <p>
-  Copyright &copy;<script>document.write(new Date().getFullYear());</script> Dental Clinic | All rights reserved</a></p>
+            <p>Copyright &copy;<script>document.write(new Date().getFullYear());</script> Dental Clinic | All rights reserved</p>
           </div>
         </div>
       </div>
     </footer>
+End of Footer Area -->
+
+<!-- Start of Footer Area (New) -->
+<footer class="ftco-footer ftco-bg-dark ftco-section">
+  <div class="container">
+    <!-- Top Section: 3 Columns -->
+    <div class="row mb-5" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 60px; text-align: center;">
+      
+      <!-- Contact Us -->
+      <div class="col-md-12">
+        <div class="ftco-footer-widget">
+          <h2 class="ftco-heading-2" style="font-size: 24px; text-transform: uppercase; letter-spacing: 2px;">CONTACT US</h2>
+          <p>Location: <a href="#" style="color: #fff; text-decoration: underline;">Purok 1 Planas Bridge, Porac, Pampanga<br></a>Nearest Landmarks: <a style="color: #fff; text-decoration: none;">Nathaniel’s Water Station, Planas Tricycle Terminal Station, Gasoline Station</a></p>
+          <p style="color: #fff;">(+63) 967 406 4184</p>
+          <p><a href="mailto:EMAIL" style="color: #fff; text-decoration: underline;">EMAIL</a></p>
+        </div>
+      </div>
+
+      <!-- Logo -->
+      <div class="col-md-12">
+        <div class="ftco-footer-widget">
+          <img src="{% static 'website/images/logo-2.png' %}" alt="Dental Clinic Logo" style="max-width: 200px;">
+        </div>
+      </div>
+
+      <!-- Opening Hours & Social Media -->
+      <div class="col-md-12">
+        <div class="ftco-footer-widget">
+          <h2 class="ftco-heading-2" style="font-size: 24px; text-transform: uppercase; letter-spacing: 2px;">OPENING HOURS</h2>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding: 0 20px;">
+            <span>Mon & Wed, Sat - Sun </span>
+            <span>9:00 am - 6:00 pm</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 0 20px; margin-bottom: 30px;">
+            <span>Tuesday & Thurs - Fri</span>
+            <span>Closed</span>
+          </div>
+          
+          <!-- Social Media -->
+          <ul class="ftco-footer-social list-unstyled">
+            <li><a href="#"><span class="icon-facebook"></span></a></li>
+            <li><a href="#"><span class="icon-instagram"></span></a></li>
+            <li><a href="#"><span class="icon-youtube"></span></a></li>
+          </ul>
+        </div>
+      </div>
+      
+    </div>
+
+    <!-- Divider Line -->
+    <div style="height: 1px; background: rgba(255, 255, 255, 0.3); margin: 40px 0;"></div>
+
+    <!-- Copyright -->
+    <div class="row">
+      <div class="col-md-12 text-center">
+        <p style="color: rgba(255, 255, 255, 0.8);">Copyright &copy;<script>document.write(new Date().getFullYear());</script> Dental Clinic | All rights reserved</p>
+      </div>
+    </div>
+  </div>
+</footer>
 <!-- End of Footer Area -->
   
 
 <!-- loader -->
-  <div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/></svg></div>
+  <div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#8e44ad"/></svg></div>
 <!-- End of Loader -->
 
 

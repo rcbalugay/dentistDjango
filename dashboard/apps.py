@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
-class WebsiteConfig(AppConfig):
+
+class DashboardConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'website'
-    verbose_name = 'Clinic Website'
+    name = 'dashboard'

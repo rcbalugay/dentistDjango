@@ -1,0 +1,332 @@
+{% extends "dashboard/dbase.html" %}
+{% block title %}Appointments{% endblock %}
+
+{% block extra_head %}
+  <style>
+    .appointments-wrapper {
+      margin-top: 0.25rem;
+    }
+    .appointments-table {
+      border-collapse: separate;
+      border-spacing: 0 8px;
+    }
+    .appointments-table thead th {
+      border: none;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #a0a3b1;
+      font-weight: 600;
+    }
+    .appointments-table tbody tr {
+      background: #f7f9ff;
+      box-shadow: 0 6px 18px rgba(15, 30, 80, 0.06);
+    }
+    .appointments-table tbody tr td {
+      border: none;
+      padding-top: 0.75rem;
+      padding-bottom: 0.75rem;
+      vertical-align: middle;
+      font-size: 0.9rem;
+    }
+    .appointments-table tbody tr td:first-child {
+      border-top-left-radius: 12px;
+      border-bottom-left-radius: 12px;
+    }
+    .appointments-table tbody tr td:last-child {
+      border-top-right-radius: 12px;
+      border-bottom-right-radius: 12px;
+    }
+    .ap-no { font-weight: 600; width: 60px; }
+    .ap-date { color: #7a7f9a; min-width: 90px; }
+    .ap-time { color: #7a7f9a; min-width: 70px; }
+    .ap-name { font-weight: 600; }
+    .ap-contact,
+    .ap-treatment { color: #4b4f68; }
+    .ap-actions {
+      text-align: right;
+      font-size: 1.2rem;
+      color: #b4b7c9;
+      cursor: pointer;
+      width: 40px;
+    }
+    .ap-empty td {
+      background: transparent;
+      box-shadow: none;
+    }
+
+    /* status badges */
+    .ap-status-badge {
+      display: inline-block;
+      padding: 0.1rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    .ap-status-pending {
+      background: #fff5e6;
+      color: #f59e0b;
+    }
+    .ap-status-confirmed {
+      background: #e6f0ff;
+      color: #6c5ce7;   /* purple-ish */
+    }
+    .ap-status-cancelled {
+      background: #ffe4e6;
+      color: #e11d48;
+    }
+    .ap-status-completed {
+      background: #e7f9ed;
+      color: #059669;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-lg-12">
+
+      <!-- Header + action -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h3 class="mb-1">Appointments</h3>
+          <p class="text-muted mb-0">View and manage all clinic appointments.</p>
+        </div>
+        <a href="{% url 'appointment' %}" class="btn btn-primary rounded-pill px-3">
+          <span class="mr-1">+</span> New Appointment
+        </a>
+      </div>
+
+      {# ==================== 1) REQUESTS (FULL WIDTH, ABOVE) ==================== #}
+      <div class="row">
+        <div class="col-lg-12 mb-4">
+          <h6 class="text-muted text-uppercase mb-2">Requests</h6>
+          <div class="card">
+            <div class="card-body">
+              <table class="table table-sm appointments-table mb-0">
+                <thead>
+                  <tr>
+                    <th>No#</th>
+                    <th>Name</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Contacts</th>
+                    <th>Treatment</th>
+                    <th class="text-center">Status</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for a in pending_requests %}
+                    <tr>
+                      {# Patient ID – two digits #}
+                      <td class="ap-no">C{{ a.id|stringformat:"02d" }}</td>
+
+                      {# Name #}
+                      <td class="ap-name">{{ a.name }}</td>
+
+                      {# Date & time #}
+                      <td class="ap-date">{{ a.date|date:"d/m/Y" }}</td>
+                      <td class="ap-time">{{ a.timeslot }}</td>
+
+                      {# Contacts: phone + email #}
+                      <td class="ap-contact">
+                        <div>{{ a.phone|default:"—" }}</div>
+                        {% if a.email %}
+                          <div class="text-muted small">{{ a.email }}</div>
+                        {% endif %}
+                      </td>
+
+                      {# Treatment (services list) #}
+                      <td class="ap-treatment">
+                        {% if a.services %}
+                          {{ a.services|join:", " }}
+                        {% else %}
+                          —
+                        {% endif %}
+                      </td>
+
+                      {# Status, centered #}
+                      <td class="text-center">
+                        <span class="ap-status-badge ap-status-pending">
+                          {{ a.get_status_display }}
+                        </span>
+                      </td>
+
+                      {# Actions #}
+                      <td class="text-right">
+                        <form method="post" class="d-inline">
+                          {% csrf_token %}
+                          <input type="hidden" name="appointment_id" value="{{ a.id }}">
+                          <button type="submit" name="action" value="approve"
+                                  class="btn btn-sm btn-success">Approve</button>
+                          <button type="submit" name="action" value="cancel"
+                                  class="btn btn-sm btn-outline-danger">Cancel</button>
+                          <button type="button"
+                                  class="btn btn-sm btn-outline-primary" disabled>
+                            Reschedule
+                          </button>
+                        </form>
+                      </td>
+                    </tr>
+                  {% empty %}
+                    <tr class="ap-empty">
+                      <td colspan="8" class="text-muted text-center">
+                        No pending requests.
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# ==================== 2) UPCOMING APPOINTMENTS (FULL WIDTH, BELOW) ==================== #}
+      <div class="row">
+        <div class="col-lg-12 mb-4">
+          <h6 class="text-muted text-uppercase mb-2">Your Appointments</h6>
+          <div class="card">
+            <div class="card-body">
+              <table class="table table-sm appointments-table mb-0">
+                <thead>
+                  <tr>
+                    <th>No#</th>
+                    <th>Name</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Contacts</th>
+                    <th>Treatment</th>
+                    <th class="text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for a in upcoming_appointments %}
+                    <tr>
+                      <td class="ap-no">C{{ a.id|stringformat:"02d" }}</td>
+                      <td class="ap-name">{{ a.name }}</td>
+                      <td class="ap-date">{{ a.date|date:"d/m/Y" }}</td>
+                      <td class="ap-time">{{ a.timeslot }}</td>
+
+                      <td class="ap-contact">
+                        <div>{{ a.phone|default:"—" }}</div>
+                        {% if a.email %}
+                          <div class="text-muted small">{{ a.email }}</div>
+                        {% endif %}
+                      </td>
+
+                      <td class="ap-treatment">
+                        {% if a.services %}
+                          {{ a.services|join:", " }}
+                        {% else %}
+                          —
+                        {% endif %}
+                      </td>
+
+                      <td class="text-center">
+                        {% if a.status == 'confirmed' %}
+                          <span class="ap-status-badge ap-status-confirmed">
+                            {{ a.get_status_display }}
+                          </span>
+                        {% elif a.status == 'pending' %}
+                          <span class="ap-status-badge ap-status-pending">
+                            {{ a.get_status_display }}
+                          </span>
+                        {% elif a.status == 'cancelled' %}
+                          <span class="ap-status-badge ap-status-cancelled">
+                            {{ a.get_status_display }}
+                          </span>
+                        {% elif a.status == 'completed' %}
+                          <span class="ap-status-badge ap-status-completed">
+                            {{ a.get_status_display }}
+                          </span>
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% empty %}
+                    <tr class="ap-empty">
+                      <td colspan="7" class="text-muted text-center">
+                        No upcoming appointments.
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      {# ==================== 3) RECENT HISTORY (OPTIONAL) ==================== #}
+      {% if recent_history %}
+      <div class="row">
+        <div class="col-lg-12 mb-4">
+          <h6 class="text-muted text-uppercase mb-2">Recent history</h6>
+          <div class="card">
+            <div class="card-body">
+              <table class="table table-sm appointments-table mb-0">
+                <thead>
+                  <tr>
+                    <th>No#</th>
+                    <th>Name</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Contacts</th>
+                    <th>Treatment</th>
+                    <th class="text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for a in recent_history %}
+                    <tr>
+                      <td class="ap-no">C{{ a.id|stringformat:"02d" }}</td>
+                      <td class="ap-name">{{ a.name }}</td>
+                      <td class="ap-date">{{ a.date|date:"d/m/Y" }}</td>
+                      <td class="ap-time">{{ a.timeslot }}</td>
+
+                      <td class="ap-contact">
+                        <div>{{ a.phone|default:"—" }}</div>
+                        {% if a.email %}
+                          <div class="text-muted small">{{ a.email }}</div>
+                        {% endif %}
+                      </td>
+
+                      <td class="ap-treatment">
+                        {% if a.services %}
+                          {{ a.services|join:", " }}
+                        {% else %}
+                          —
+                        {% endif %}
+                      </td>
+
+                      <td class="text-center">
+                        {% if a.status == 'cancelled' %}
+                          <span class="ap-status-badge ap-status-cancelled">
+                            {{ a.get_status_display }}
+                          </span>
+                        {% elif a.status == 'completed' %}
+                          <span class="ap-status-badge ap-status-completed">
+                            {{ a.get_status_display }}
+                          </span>
+                        {% else %}
+                          <span class="ap-status-badge">
+                            {{ a.get_status_display }}
+                          </span>
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+{% endblock %}

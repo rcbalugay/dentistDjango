@@ -1,0 +1,768 @@
+{% extends 'dashboard/dbase.html' %}
+{% load static %}
+
+{% block extra_head %}
+  <style>
+    .dash-calendar {
+      font-family: inherit;
+    }
+
+    .dash-calendar__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .dash-calendar__month {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .dash-calendar__nav-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: none;
+      background: transparent;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+
+    .dash-calendar__days {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .dash-calendar-day {
+      min-width: 52px;
+      padding: 0.4rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      text-align: center;
+      cursor: pointer;
+      background: transparent;
+      color: #1b2559;
+      transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .dash-calendar-day__name {
+      display: block;
+      font-size: 0.7rem;
+      text-transform: capitalize;
+      opacity: 0.6;
+      margin-bottom: 0.1rem;
+    }
+
+    .dash-calendar-day__date {
+      display: block;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    /* selected day = dark pill, like your screenshot */
+    .dash-calendar-day--active {
+      background: #6c5ce7;
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(108, 92, 231, 0.35);
+    }
+
+    .dash-calendar-day--active .dash-calendar-day__name {
+      opacity: 0.9;
+    }
+
+    @media (max-width: 576px) {
+      .dash-calendar__days {
+        gap: 0.4rem;
+      }
+
+      .dash-calendar-day {
+        min-width: 46px;
+        padding: 0.3rem 0.5rem;
+      }
+    }
+
+  #apptsViewDropdown {
+    border-color: #6c5ce7;
+    color: #6c5ce7;
+  }
+
+  #apptsViewDropdown:hover {
+    background-color: rgba(108, 92, 231, 0.06);
+  }
+
+
+    /* ===== Latest patients table styling ===== */
+
+  .latest-patients-wrapper {
+    margin-top: 0.5rem;
+  }
+
+  .latest-patients-table {
+    border-collapse: separate;
+    border-spacing: 0 8px; /* gaps between rows to create “cards” */
+  }
+
+  .latest-patients-table thead th {
+    border: none;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #a0a3b1;
+    font-weight: 600;
+  }
+
+  .latest-patients-table tbody tr {
+    background: #f7f9ff;
+    box-shadow: 0 6px 18px rgba(15, 30, 80, 0.06);
+  }
+
+  .latest-patients-table tbody tr td {
+    border: none;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    vertical-align: middle;
+    font-size: 0.9rem;
+  }
+
+  /* rounded corners on first/last cell to look like separate cards */
+  .latest-patients-table tbody tr td:first-child {
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+  }
+
+  .latest-patients-table tbody tr td:last-child {
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+  }
+
+  .lp-no {
+    font-weight: 600;
+    width: 60px;
+  }
+
+  .lp-date {
+    color: #7a7f9a;
+    min-width: 90px;
+  }
+
+  .lp-name {
+    font-weight: 600;
+  }
+
+  .lp-treatment {
+    color: #4b4f68;
+  }
+
+  .lp-actions {
+    text-align: right;
+    font-size: 1.2rem;
+    color: #b4b7c9;
+    cursor: pointer;
+    width: 40px;
+  }
+
+  /* membership pill */
+  .lp-tag {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+
+  .lp-tag-member {
+    background: #ffebe6;
+    color: #ff5f5f;
+  }
+
+  .lp-tag-nonmember {
+    background: #eef1ff;
+    color: #7a80ff;
+  }
+
+  .lp-empty-row td {
+    background: transparent;
+    box-shadow: none;
+    padding-top: 1.5rem;
+  }
+
+  /* ===== Upcoming appointments styling ===== */
+
+  .upcoming-list {
+    margin-top: 0.5rem;
+  }
+
+  .upcoming-day + .upcoming-day {
+    margin-top: 1rem;
+  }
+
+  .upcoming-day-title {
+    font-size: 0.8rem;
+    text-transform: none;
+    letter-spacing: 0.02em;
+    font-weight: 600;
+    color: #9a9ab0;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Each appointment card */
+  .upcoming-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .upcoming-time-col {
+    flex: 0 0 70px;
+    margin-right: 0.3rem;
+    text-align: left;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #7a7f9a;
+  }
+
+  .upcoming-card {
+    flex: 1;
+    display: flex !important;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-radius: 16px;
+    background: #f7f9ff;
+    box-shadow: 0 8px 20px rgba(15, 30, 80, 0.06);
+  }
+
+  /* Avatar circle */
+  .upcoming-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    background: #e0e4ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: #4b4f68;
+    margin-right: 0.75rem;
+    overflow: hidden;
+  }
+
+  .upcoming-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .upcoming-avatar--noimg {
+    color: #1b2559;
+  }
+
+  .upcoming-item:nth-child(3n+1) .upcoming-avatar--noimg {
+    background: #ece4ff;
+  }
+
+  .upcoming-item:nth-child(3n+2) .upcoming-avatar--noimg {
+    background: #e0e4ff;
+  }
+
+  .upcoming-item:nth-child(3n+3) .upcoming-avatar--noimg {
+    background: #ffe4ec;
+  }
+
+  /* Text inside card */
+  .upcoming-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1b2559;
+  }
+
+  .upcoming-treatment {
+    font-size: 0.8rem;
+    color: #7a7f9a;
+  }
+
+  /* Dots on the right */
+  .upcoming-more {
+    font-size: 1.2rem;
+    color: #b4b7c9;
+    margin-left: 0.75rem;
+    cursor: pointer;
+  }
+  </style>
+{% endblock %}
+
+{% block content %}
+          
+<!-- Top actions -->
+<div class="d-flex justify-content-end mb-3">
+  <a href="{% url 'appointment' %}" class="btn btn-primary rounded-pill px-3 mr-2">
+    <span class="mr-1">+</span> Make an Appointment
+  </a>
+  <a href="{% url 'dashboard:patients' %}" class="btn btn-danger rounded-pill px-3">
+    <span class="mr-1">+</span> Add Patient
+  </a>
+</div>
+
+<!-- ================= TOP ROW: Weather + KPIs ================= -->
+<div class="row align-items-stretch mb-3">
+
+          <!-- KPI + hero, rows, tables, charts, etc. -->
+          <div class="row">
+            <div class="col-md-6 grid-margin stretch-card">
+              <div class="card tale-bg">
+                <div class="card-people mt-auto">
+                  <img src=" {% static 'dashboard/images/dashboard/people.svg' %} " alt="people">
+                  <div class="weather-info">
+                    <div class="d-flex">
+                      <div>
+                        <h2 class="mb-0 font-weight-normal"><i class="icon-sun mr-2"></i>{{ weather.temp_c }}<sup>°C</sup></h2>
+                      </div>
+                      <div class="ml-2">
+                        <h4 class="location font-weight-normal">{{ weather.city }}</h4>
+                        <h6 class="font-weight-normal">{{ weather.country }}</h6>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- KPI stack -->
+            <div class="col-md-6 grid-margin transparent">
+              <div class="row">
+                <div class="col-md-6 mb-4 stretch-card transparent">
+                  <div class="card card-tale">
+                    <div class="card-body">
+                      <p class="mb-4">Patients Today</p>
+                      <p class="fs-30 mb-2">{{ kpi_patients_today }}</p>
+                      <p>{{ kpi_patients_today_change }}% (30 days)</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-4 stretch-card transparent">
+                  <div class="card card-dark-blue">
+                    <div class="card-body">
+                      <p class="mb-4">Total Patients</p>
+                      <p class="fs-30 mb-2">{{ kpi_total_patients }}</p>
+                      <p>{{ kpi_total_patients_change }}% (30 days)</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Charts -->
+              <div class="row">
+                <div class="col-md-6 mb-4 mb-lg-0 stretch-card transparent">
+                  <div class="card card-light-blue">
+                    <div class="card-body">
+                      <p class="mb-4">Requests</p>
+                      <p class="fs-30 mb-2">{{ kpi_requests_30 }}</p>
+                      <p>{{ kpi_requests_change }}% (30 days)</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 stretch-card transparent">
+                  <div class="card card-light-danger">
+                    <div class="card-body">
+                      <p class="mb-4">Placeholder</p>
+                      <p class="fs-30 mb-2">{{ kpi_placeholder }}</p>
+                      <p>{{ kpi_placeholder_change }}% (7 days)</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+  <!-- ================= LEFT COLUMN ================= -->
+  <div class="col-lg-8">
+
+    <!-- Appointments statistics (chart) -->
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h4 class="mb-1">Appointments Statistics</h6>
+
+            <!-- Month / year + arrows -->
+            <div class="d-flex align-items-center">
+              <span id="apptsPeriodText" class="font-weight-semibold mr-2">
+                {{ today|date:"F Y" }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Week / Month / Year dropdown -->
+          <div class="dropdown">
+            <button class="btn btn-sm btn-outline-primary dropdown-toggle"
+                    type="button"
+                    id="apptsViewDropdown"
+                    data-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false">
+              <span id="apptsViewLabel">Week</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right"
+                 aria-labelledby="apptsViewDropdown">
+              <a class="dropdown-item" href="#" data-view="week">Week</a>
+              <a class="dropdown-item" href="#" data-view="month">Month</a>
+              <a class="dropdown-item" href="#" data-view="year">Year</a>
+            </div>
+          </div>
+        </div>
+
+        <div style="height: 200px;">
+          <canvas id="appointmentsChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Latest Patients -->
+    <div class="card mt-4">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="mb-0">Latest Patients</h6>
+          <a href="{% url 'dashboard:patients' %}" class="small">View all</a>
+        </div>
+
+        <div class="table-responsive latest-patients-wrapper">
+          <table class="table latest-patients-table mb-0">
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Date</th>
+                <th>Name</th>
+                <th>Contact</th>
+                <th>Treatment</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in latest_patients %}
+                <tr>
+                  <!-- client no. (row number or use p.id if you prefer) -->
+                  <td class="lp-no">{{ p.id }}</td>
+
+                  <!-- appointment date -->
+                  <td class="lp-date">
+                    {{ p.date|date:"d/m/Y" }}
+                  </td>
+
+                  <!-- patient name -->
+                  <td class="lp-name">
+                    {{ p.name }}
+                  </td>
+
+                  <!-- contact: prefer phone, fall back to email -->
+                  <td class="lp-contact">
+                    {% if p.phone %}
+                      {{ p.phone }}
+                    {% elif p.email %}
+                      {{ p.email }}
+                    {% else %}
+                      —
+                    {% endif %}
+                  </td>
+
+                  <!-- treatment / services -->
+                  <td class="lp-treatment">
+                    {% if p.services %}
+                      {{ p.services|join:", " }}
+                    {% else %}
+                      —
+                    {% endif %}
+                  </td>
+
+                  <!-- ... menu -->
+                  <td class="lp-actions">⋯</td>
+                </tr>
+              {% empty %}
+                <tr class="lp-empty-row">
+                  <td colspan="6" class="text-muted text-center">
+                    No patients yet.
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= RIGHT COLUMN ================= -->
+  <div class="col-lg-4">
+
+    <!-- Compact calendar (week strip style) -->
+    <div class="card mb-3">
+      <div class="card-body p-3">
+        <div class="dash-calendar">
+          <div class="dash-calendar__header">
+            <h6 class="dash-calendar__month mb-0" id="dashCalendarMonth"></h6>
+            <div class="dash-calendar__nav">
+              <button type="button" class="dash-calendar__nav-btn" data-calendar-nav="-1">
+                ‹
+              </button>
+              <button type="button" class="dash-calendar__nav-btn" data-calendar-nav="1">
+                ›
+              </button>
+            </div>
+          </div>
+
+          <div class="dash-calendar__days" id="dashCalendarDays"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upcoming appointments -->
+    <div class="card">
+      <div class="card-body">
+        <h6 class="mb-3">Upcoming Appointments</h6>
+
+        {% if upcoming %}
+          {% regroup upcoming by date as upcoming_by_day %}
+
+          <div class="upcoming-list">
+            {% for day in upcoming_by_day %}
+              <div class="upcoming-day">
+                <div class="upcoming-day-title">
+                  {% if day.grouper == today %}
+                    Today, {{ day.grouper|date:"d M" }}
+                  {% else %}
+                    {{ day.grouper|date:"l, d M" }}
+                  {% endif %}
+                </div>
+
+                {% for a in day.list %}
+                <div class="upcoming-item">
+                  <!-- left time column -->
+                  <div class="upcoming-time-col">
+                    {{ a.timeslot }}
+                  </div>
+
+                  <!-- card on the right -->
+                  <div class="upcoming-card">
+                    <div class="upcoming-main flex-grow-1">
+                      <div class="d-flex align-items-center">
+                        <div class="upcoming-avatar {% if not a.photo %}upcoming-avatar--noimg{% endif %}">
+                          {% if a.photo %}
+                            <img src="{{ a.photo.url }}" alt="{{ a.name }}">
+                          {% else %}
+                            {{ a.name|first|upper }}
+                          {% endif %}
+                        </div>
+                        <div>
+                          <div class="upcoming-name">{{ a.name }}</div>
+                          <div class="upcoming-treatment">
+                            {% if a.services %}
+                              {{ a.services|join:", " }}
+                            {% else %}
+                              —
+                            {% endif %}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- more menu dots -->
+                    <div class="upcoming-more">⋯</div>
+                  </div>
+                </div>
+              {% endfor %}
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-muted mb-0">No upcoming appointments this week.</p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var monthEl = document.getElementById('dashCalendarMonth');
+      var daysEl = document.getElementById('dashCalendarDays');
+      var prevBtn = document.querySelector('[data-calendar-nav="-1"]');
+      var nextBtn = document.querySelector('[data-calendar-nav="1"]');
+
+      if (!monthEl || !daysEl) return;
+
+      // Start from today's date (from Django), or today if not set
+      var initialStr = '{{ today|date:"Y-m-d" }}';
+      var selected = initialStr
+        ? new Date(initialStr + 'T00:00:00')
+        : new Date();
+
+      function startOfWeek(date) {
+        // Monday as first day of week
+        var d = new Date(date);
+        var day = d.getDay(); // 0=Sun..6=Sat
+        var diff = (day + 6) % 7; // convert to Mon=0
+        d.setDate(d.getDate() - diff);
+        d.setHours(0, 0, 0, 0);
+        return d;
+      }
+
+      function render() {
+        var weekStart = startOfWeek(selected);
+        var monthOpts = { month: 'long', year: 'numeric' };
+        var dayNameOpts = { weekday: 'short' };
+
+        monthEl.textContent = selected.toLocaleDateString(undefined, monthOpts);
+        daysEl.innerHTML = '';
+
+        for (var i = 0; i < 7; i++) {
+          var d = new Date(weekStart);
+          d.setDate(weekStart.getDate() + i);
+
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'dash-calendar-day';
+
+          if (d.toDateString() === selected.toDateString()) {
+            btn.classList.add('dash-calendar-day--active');
+          }
+
+          btn.innerHTML =
+            '<span class="dash-calendar-day__name">' +
+            d.toLocaleDateString(undefined, dayNameOpts) +
+            '</span>' +
+            '<span class="dash-calendar-day__date">' +
+            d.getDate() +
+            '</span>';
+
+          btn.addEventListener('click', function (dateCopy) {
+            return function () {
+              selected = dateCopy;
+              render();
+              // TODO: here you can filter the "Today / upcoming appointments"
+              //       list based on `selected` if you want.
+            };
+          }(d));
+
+          daysEl.appendChild(btn);
+        }
+      }
+
+      if (prevBtn) {
+        prevBtn.addEventListener('click', function () {
+          selected.setDate(selected.getDate() - 7);
+          render();
+        });
+      }
+
+      if (nextBtn) {
+        nextBtn.addEventListener('click', function () {
+          selected.setDate(selected.getDate() + 7);
+          render();
+        });
+      }
+
+      render();
+    });
+  </script>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var canvas = document.getElementById('appointmentsChart');
+    if (!canvas || typeof Chart === 'undefined') return;
+
+    var labels = {{ appts_chart_labels|default:'[]'|safe }};
+    var values = {{ appts_chart_values|default:'[]'|safe }};
+
+    // make sure they are numbers
+    values = (values || []).map(function (v) {
+      return Number(v) || 0;
+    });
+
+    function calcYMax(vals) {
+      if (!vals || !vals.length) return 5;
+      var max = Math.max.apply(null, vals.concat([0]));
+      var rounded = Math.ceil(max / 5) * 5;
+      return rounded || 5;
+    }
+
+    var ctx = canvas.getContext('2d');
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Appointments',
+          data: values,
+          lineTension: 0.4,
+          borderWidth: 3,
+          fill: true,
+          backgroundColor: 'rgba(108, 92, 231, 0.12)',
+          borderColor: '#6c5ce7',
+          pointRadius: 4,
+          pointBackgroundColor: '#ffffff',
+          pointBorderWidth: 2,
+          pointBorderColor: '#6c5ce7'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+
+        legend: {
+          display: false
+        },
+
+        tooltips: {
+          mode: 'index',
+          intersect: false,
+          callbacks: {
+            label: function (tooltipItem) {
+              var v = tooltipItem.yLabel || 0;
+              return v + (v === 1 ? ' Appointment' : ' Appointments');
+            }
+          }
+        },
+
+        scales: {
+          xAxes: [{
+            gridLines: {
+              display: false,
+              drawBorder: false
+            },
+            ticks: {
+              fontSize: 11,
+              fontColor: '#9a9ab0'
+            }
+          }],
+          yAxes: [{
+            display: true,
+            position: 'left',
+            gridLines: {
+              display: false,
+              drawBorder: false
+            },
+            ticks: {
+              display: true,
+              beginAtZero: true,
+              stepSize: 5,
+              max: calcYMax(values),
+              fontSize: 11,
+              fontColor: '#9a9ab0',
+              padding: 8
+            }
+          }]
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}

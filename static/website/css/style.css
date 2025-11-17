@@ -1,9 +1,3 @@
-/*!
- * Bootstrap v4.2.1 (https://getbootstrap.com/)
- * Copyright 2011-2018 The Bootstrap Authors
- * Copyright 2011-2018 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
- */
 :root {
   --blue: #007bff;
   --indigo: #6610f2;
@@ -687,6 +681,7 @@ pre {
 
 .offset-11 {
   margin-left: 91.66667%; }
+
 /*
 .con span:first-child {
   color: var(--clinic-purple) !important;
@@ -3482,6 +3477,8 @@ input[type="button"].btn-block {
     color: #8e44ad;
     text-decoration: none; }
 
+
+
 .navbar-nav {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -3540,6 +3537,11 @@ input[type="button"].btn-block {
 .navbar-nav .nav-item.active .nav-link {
   color: #8e44ad !important;
   font-weight: 600;
+}
+
+/* Non-active Hover */
+.navbar-nav .nav-link:hover {
+  color: #8e44ad  !important;
 }
 
 /* Active when hovered */
@@ -4127,6 +4129,8 @@ input[type="button"].btn-block {
 .pagination-sm .page-item:last-child .page-link {
   border-top-right-radius: 0.2rem;
   border-bottom-right-radius: 0.2rem; }
+
+
 
 .badge {
   display: inline-block;
@@ -8084,7 +8088,8 @@ h1, h2, h3, h4, h5,
 .ftco-navbar-light {
   background: transparent !important;
   z-index: 3;
-  padding: 0; }
+  padding: 0; 
+  text-align: center;}
   @media (max-width: 991.98px) {
     .ftco-navbar-light {
       background: #000000 !important;
@@ -8249,6 +8254,82 @@ h1, h2, h3, h4, h5,
     color: rgba(0, 0, 0, 0.2);
     text-align: left; }
 
+.navbar-brand img {
+  height: 150px;
+  width: auto;
+  transition: transform 0.3s ease;
+}
+
+/* Button look */
+.btn.btn-pill { padding: .6rem 1.2rem; }
+.btn.btn-dark { background:#8e44ad; border:0; color:#fff; }
+.btn.btn-dark:hover, .btn.btn-dark:focus { background:transparent; border-color:#1f1f1f; color:#1f1f1f; }
+
+/* CTA container */
+.navbar-cta { display:flex; gap:14px; }
+
+.navbar-cta .btn.btn-outline-dark {
+  background: transparent;
+  border: 0;
+  color: #1f1f1f;
+}
+
+/* Match BOOK NOW on hover/focus/active */
+.navbar-cta .btn.btn-outline-dark:hover,
+.navbar-cta .btn.btn-outline-dark:focus,
+.navbar-cta .btn.btn-outline-dark:active,
+.navbar-cta .btn.btn-outline-dark.active {
+  background: #8e44ad;
+  border-color: #8e44ad;
+  color: #fff;
+}
+
+/* Desktop (lg and up): pin CTAs to far right without moving the centered menu */
+@media (min-width: 992px) {
+  #ftco-nav { position: relative; }
+  .navbar-cta {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
+
+/* Responsive tweaks for the CTA buttons only */
+@media (max-width: 991.98px) {
+  .navbar-cta {
+    position: static;          /* stop absolute positioning */
+    transform: none;
+    display: flex;
+    flex-direction: column;    /* stack vertically */
+    align-items: stretch;      /* full width */
+    gap: 10px;
+    padding: 12px 0;
+  }
+  .navbar-cta .btn {
+    width: 100%;               /* full-width buttons */
+    justify-content: center;   /* center the label */
+  }
+
+  /* Optional: if your mobile menu is dark and you use an outline button,
+     bump contrast so it’s readable */
+  .navbar-dark.bg-dark .navbar-cta .btn.btn-outline-dark {
+    border-color: #fff;
+    color: #fff;
+  }
+  .navbar-dark.bg-dark .navbar-cta .btn.btn-outline-dark:hover,
+  .navbar-dark.bg-dark .navbar-cta .btn.btn-outline-dark:focus {
+    background: #fff;
+    color: #2e2e2e;
+  }
+}
+
+@media (max-width: 1023px) {
+  .navbar-brand img {
+    height: 125px;
+  }
+}
+
 .hero-wrap {
   width: 100%;
   height: 100%;
@@ -8268,7 +8349,7 @@ h1, h2, h3, h4, h5,
     bottom: 0;
     content: '';
     opacity: .5;
-    background: #46b7de; }
+    background: #3C006B; }
   .hero-wrap.hero-wrap-2 {
     height: 300px; }
     .hero-wrap.hero-wrap-2 .slider-text {
@@ -8544,11 +8625,11 @@ h1, h2, h3, h4, h5,
         border-color: #fff;
         color: #46b7de; }
   .btn.btn-secondary {
-    background: #a8c337;
-    border: 1px solid #a8c337;
+    background: #8e44ad;
+    border: 1px solid #8e44ad;
     color: #fff; }
     .btn.btn-secondary:hover, .btn.btn-secondary:focus, .btn.btn-secondary:active {
-      border: 1px solid #a8c337;
+      border: 1px solid #8e44ad;
       color: #fff; }
 
 .btn-custom {
@@ -8609,6 +8690,29 @@ h1, h2, h3, h4, h5,
     font-size: 18px;
     color: #000000; }
 
+//* Circular badge that doesn't break the grid */
+.services .icon{
+  width: clamp(96px, 10vw, 140px);
+  height: clamp(96px, 10vw, 140px);
+  margin: 0 auto;
+  border-radius: 50%;
+  background:#f7f7f9;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.06);
+  display:flex; align-items:center; justify-content:center;
+}
+
+.services .service-img{
+  width: 90%;                /* scales inside the circle */
+  height: 90%;
+  object-fit: contain;
+  transition: transform .2s ease;
+}
+
+.services a:hover .service-img{ transform: translateY(-3px); }
+
+.services .text{ margin-top: 1rem; }
+
+
 .intro {
   position: relative;
   background-size: cover;
@@ -8642,7 +8746,7 @@ h1, h2, h3, h4, h5,
     bottom: 0;
     content: '';
     opacity: .8;
-    background: #46b7de; }
+    background: #3C006B; }
 
 .staff {
   overflow: hidden;
@@ -8930,17 +9034,31 @@ textarea.form-control {
 
 .ftco-footer {
   font-size: 14px;
-  background: #8e44ad;
-  padding: 6em 0; }
+  background: #3C006B;
+  color: #f8f8f8;
+  padding: 60px 0 30px 0; }
   .ftco-footer .ftco-footer-widget {
     width: 100%;
+    margin-bottom: 30px;
     display: block; }
+    .ftco-footer .row.mb-5 {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start; }
+    .ftco-footer .row.mb-5 > div {
+      padding: 0 !important;
+      width: 100% !important;
+      max-width: 100% !important; }
+    .ftco-footer .row.mb-5 > .col-md {
+      flex: 0 0 33.333%;
+      max-width: 33.333%; }
     .ftco-footer .ftco-footer-widget h2 {
       font-weight: normal;
       color: #fff;
-      margin-bottom: 40px;
-      font-size: 20px;
-      font-weight: 400; }
+      margin-bottom: 20px;
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0.5px; }
     .ftco-footer .ftco-footer-widget .logo {
       color: #fff; }
     .ftco-footer .ftco-footer-widget ul li a span {
@@ -8952,15 +9070,29 @@ textarea.form-control {
         background: #fff;
         border: 2px solid #fff !important; }
   .ftco-footer p {
-    color: rgba(255, 255, 255, 0.7); }
+    color: rgba(255, 255, 255, 0.7); 
+    line-height: 1.8;
+    font-size: 14px; }
   .ftco-footer a {
-    color: rgba(255, 255, 255, 0.7); }
+    color: rgba(255, 255, 255, 0.7); 
+    font-size: 14px;
+    line-height: 1.8; }
     .ftco-footer a:hover {
-      color: #fff; }
+      color: #fff; 
+      text-decoration: none; }
+  .ftco-footer img {
+    width: 160px !important;
+    height: auto;
+    margin-bottom: 20px;
+    transition: filter 0.3s ease; }
+    /* .ftco-footer img:hover {
+      filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.6)); } */
   .ftco-footer .ftco-heading-2 {
-    font-size: 17px;
-    font-weight: 400;
-    color: #000000; }
+    font-size: 24px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 2px !important;
+    font-weight: 600 !important;
+    margin-bottom: 20px !important; }
   .ftco-footer .categories li {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
     .ftco-footer .categories li a span {
@@ -9038,18 +9170,34 @@ textarea.form-control {
     .ftco-footer .open-hours span {
       color: #fff; }
 
+.ftco-footer .ftco-footer-social {
+  display: flex; 
+  gap: 20px; 
+  justify-content: center; }
+
+.ftco-footer .ftco-footer-social [class^="icon-"],
+.ftco-footer .ftco-footer-social [class*=" icon-"] {
+  position: static !important;
+  left: auto !important;
+  top: auto !important;
+  transform: none !important; }
+
 .ftco-footer-social li {
   list-style: none;
-  margin: 0 10px 0 0;
+  margin: 0;
+  padding: 0;
   display: inline-block; }
   .ftco-footer-social li a {
-    height: 40px;
-    width: 40px;
-    display: block;
-    float: left;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.01);
+    color: #fff !important;
     border-radius: 50%;
-    position: relative; }
+    align-items: center;
+    justify-content: center;
+    height: 50px;
+    width: 50px;
+    font-size: 24px;
+    transition: all 0.3s ease;
+    display: flex;}
     .ftco-footer-social li a span {
       position: absolute;
       font-size: 20px;
@@ -9059,7 +9207,8 @@ textarea.form-control {
       -ms-transform: translate(-50%, -50%);
       transform: translate(-50%, -50%); }
     .ftco-footer-social li a:hover {
-      color: #fff; }
+      color: #4b0082 !important; 
+      transform: translateY(-3px); }
 
 .footer-small-nav > li {
   display: inline-block; }
@@ -9078,6 +9227,70 @@ textarea.form-control {
   @media (max-width: 767.98px) {
     #map {
       height: 300px; } }
+
+@media (max-width: 992px) {
+  .ftco-footer .row.mb-5 > .col-md {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+  /* Make the middle (logo) column span the full width and appear first */
+  .ftco-footer .row.mb-5 > .col-md:nth-of-type(2) {
+    order: -1;                 /* move to top */
+    flex: 0 0 100%;
+    max-width: 100%;
+    text-align: center;
+  }
+  .ftco-footer img {
+    margin: 0 auto 15px;       /* center the logo image */
+  }
+  .ftco-footer .ftco-footer-social {
+    justify-content: center;   /* center social icons under opening hours */
+  }
+}
+
+@media (max-width: 768px) {
+  .ftco-footer .row.mb-5 {
+    display: block !important;           /* stop grid/flex from forcing columns */
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  /* Make every column take full width */
+  .ftco-footer .row.mb-5 > .col-md {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    text-align: center !important;       /* center heading + text */
+    box-sizing: border-box;
+  }
+
+  /* Images should never overflow on small screens */
+  .ftco-footer img {
+    max-width: 160px;
+    width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto 16px !important;
+  }
+
+  /* Make long addresses/lines wrap nicely */
+  .ftco-footer p,
+  .ftco-footer a,
+  .ftco-footer span {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    line-height: 1.6;
+  }
+
+  /* Social icons centered and wrapping if needed */
+  .ftco-footer .ftco-footer-social {
+    justify-content: center !important;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+}
 
 @-webkit-keyframes pulse {
   0% {
@@ -9347,76 +9560,245 @@ textarea.form-control {
     text-transform: uppercase;
     letter-spacing: .1em; }
 
-.consultation {
-  background: #46b7de;
-  color: rgba(255, 255, 255, 0.9);
-  padding-top: 4em;
-  padding-bottom: 4em; }
-  .consultation.consul {
-    background: #24a1cd; }
-  .consultation h3 {
-    font-size: 20px;
-    color: #fff;
-    font-weight: 500; }
-  .consultation .btn-custom {
-    font-size: 12px;
-    text-transform: uppercase;
-    color: #fff;
-    font-weight: 600; }
+/* Appointment Section */
+.appointment-section-custom {
+    padding: 60px 0;
+    background: #f9f9f9;
+}
 
-.appointment-form .form-group {
-  position: relative;
-  width: 100%;
-  display: block; }
-  .appointment-form .form-group .icon {
-    position: absolute;
-    top: 50% !important;
-    right: 0;
-    font-size: 16px;
-    -webkit-transform: translateY(-50%);
-    -ms-transform: translateY(-50%);
-    transform: translateY(-50%); }
-    .appointment-form .form-group .icon span {
-      color: white !important; }
-  .appointment-form .form-group .select-wrap, .appointment-form .form-group .input-wrap {
-    position: relative; }
-    .appointment-form .form-group .select-wrap select, .appointment-form .form-group .input-wrap select {
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none; }
-  .appointment-form .form-group .btn {
+.appointment-title {
+    color: #333;
+    margin-bottom: 30px;
+    text-align: center;
+    font-weight: 400;
+}
+
+/* Form Styling */
+
+.form-control-custom {
     width: 100%;
-    display: block !important; }
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+    box-sizing: border-box;
+    background: #fff;
+    color: #000;
+}
 
-.appointment-form .form-control {
-  border: transparent !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
-  height: 40px !important;
-  padding-left: 0;
-  padding-right: 0;
-  background: transparent !important;
-  color: rgba(255, 255, 255, 0.9) !important;
-  font-size: 13px;
-  border-radius: 0px;
-  -webkit-box-shadow: none !important;
-  box-shadow: none !important; }
-  .appointment-form .form-control::-webkit-input-placeholder {
-    /* Chrome/Opera/Safari */
-    color: rgba(255, 255, 255, 0.9); }
-  .appointment-form .form-control::-moz-placeholder {
-    /* Firefox 19+ */
-    color: rgba(255, 255, 255, 0.9); }
-  .appointment-form .form-control:-ms-input-placeholder {
-    /* IE 10+ */
-    color: rgba(255, 255, 255, 0.9); }
-  .appointment-form .form-control:-moz-placeholder {
-    /* Firefox 18- */
-    color: rgba(255, 255, 255, 0.9); }
-  .appointment-form .form-control:focus, .appointment-form .form-control:active {
-    border-color: #fff; }
+.form-control-custom:focus {
+    outline: none;
+    border-color: #8e44ad;
+}
 
-.appointment-form textarea.form-control {
-  height: inherit !important; }
+.form-label span {
+    font-size: 14px;
+    font-weight: 400;
+    opacity: 0.8;
+}
+
+/* Services Section */
+.section-title{margin:.25rem 0 .75rem;font-weight:600;color:#667;}
+
+.service-grid{
+  display:grid; gap:16px;
+  grid-template-columns:1fr;
+}
+@media (min-width:700px){
+  .service-grid{ grid-template-columns:repeat(2,1fr); }
+}
+
+.svc-card{ display:block; cursor:pointer; user-select:none;}
+.svc-card > input{ position:absolute; opacity:0; pointer-events:none; }
+
+.svc-box{
+  display:flex; align-items:center; gap:12px;
+  padding:14px 16px;
+  border:2px solid #6f4ca7 !important;
+  border-radius:10px; background:#fff;
+  transition: box-shadow .2s, border-color .2s, background .2s;
+}
+.svc-box:hover{ box-shadow:0 1px 0 0 #6f4ca7; }
+
+.svc-tick{
+  width:18px;height:18px;flex:0 0 18px;
+  border:2px solid #6f4ca7;border-radius:3px;background:#fff;position:relative;
+}
+
+.svc-card > input:focus-visible + .svc-box{
+  box-shadow:0 0 0 3px rgba(111,76,167,.25);
+}
+
+.svc-card > input:checked + .svc-box{
+  border-color:#7b4ccf;background:#faf7ff;
+  box-shadow:0 0 0 3px rgba(123,76,207,.12);
+}
+.svc-card > input:checked + .svc-box .svc-tick{
+  background:#7b4ccf;border-color:#7b4ccf;
+}
+.svc-card > input:checked + .svc-box .svc-tick::after{
+  content:"";position:absolute;inset:0;
+  background:
+    linear-gradient(#fff,#fff) center/60% 2px no-repeat,
+    linear-gradient(#fff,#fff) center/2px 60% no-repeat;
+  transform:rotate(45deg);
+}
+
+.appt .col-lg-6 {
+  margin-bottom: 20px;
+}
+
+.flatpickr-day.selected{
+  background-color: #8e44ad !important;
+}
+    
+/* Timeslot Section */
+.timeslot-section {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.date-picker {
+    margin-bottom: 10px;
+}
+
+.no-slots {
+    font-size: 13px;
+    color: #999;
+    margin: 10px 0 0 0;
+    text-align: center;
+}
+
+/* ===== Appointment: Timeslots ===== */
+.timeslots { 
+  background: #faf8fc;
+  border: 1px solid rgba(142,68,173,.15); /* #8e44ad */
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.timeslots--hidden { display: none; }
+
+.muted { color: #7a7a7a; font-size: .95rem; }
+
+.slot-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  margin-top: 8px;
+}
+
+/* Button look */
+.slot-btn {
+  appearance: none;
+  border: 2px solid #8e44ad;
+  background: #fff;
+  color: #8e44ad;
+  padding: 10px 16px;
+  border-radius: 9999px;
+  line-height: 1;
+  letter-spacing: .2px;
+  transition: background .18s ease, color .18s ease, transform .06s ease, box-shadow .18s ease;
+}
+
+.slot-btn:hover { 
+  background: #f4e9fb; 
+}
+
+.slot-btn:active { 
+  transform: translateY(1px);
+}
+
+.slot-btn:focus-visible {
+  outline: 3px solid #c39bd3;
+  outline-offset: 2px;
+}
+
+/* Selected */
+.slot-btn.is-active {
+  background: #8e44ad;
+  color: #fff;
+}
+
+/* Disabled slot example (if you ever need it) */
+.slot-btn[disabled],
+.slot-btn.is-disabled {
+  opacity: .45;
+  cursor: not-allowed;
+  filter: grayscale(.2);
+}
+
+/* Submit Button */
+.btn-submit-custom {
+    background: #8e44ad;
+    color: #fff;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 50px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.btn-submit-custom:hover {
+    background: transparent;
+    box-shadow: 0 4px 12px rgba(142, 68, 173, 0.3);
+}
+
+.btn-submit-custom:active {
+    transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 820px) {
+    .ftco-section {
+      padding-left: 20px;
+      padding-right: 20px;
+      padding-bottom: 100px;
+    }
+
+    .services-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .section-label {
+        display: flex;
+        justify-content: center;
+    }
+
+    .muted {
+        display: flex;
+        justify-content: center;
+    }
+    
+    .appointment-form {
+        padding: 30px 20px;
+    }
+    
+    .appointment-title {
+        font-size: 24px;
+    }
+
+    .appt .col-lg-6 {
+      display: flex;
+      flex-direction: column;
+      align-items: center;      
+      text-align: center;       
+    }
+    
+    #calendarHost {
+      display: inline-block;    
+      margin: 0 auto;           
+    }
+
+    #calendarHost .flatpickr-calendar {
+      margin: 0;
+    }
+}
+
 
 .block-23 ul {
   padding: 0; }
@@ -9748,4 +10130,4 @@ textarea.form-control {
     stroke-dashoffset: -35px; }
   100% {
     stroke-dasharray: 89, 200;
-    stroke-dashoffset: -136px; } }
+    stroke-dashoffset: -136px; } }  

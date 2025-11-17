@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Appointment | Dental Clinic {% endblock %}
+{% block content %}
+
+    <section class="hero-wrap hero-wrap-2" style="background-image: url('{% static 'website/images/bg_1.jpg' %}');" data-stellar-background-ratio="0.5">
+      <div class="overlay"></div>
+      <div class="container">
+        <div class="row no-gutters slider-text align-items-center justify-content-center">
+          <div class="col-md-9 ftco-animate text-center">
+            <h1 class="mb-2 bread">Appointment</h1>
+            <p class="breadcrumbs"><span class="mr-2"><a href="{% url 'home' %}">Home <i class="ion-ios-arrow-forward"></i></a></span> <span>Appointment <i class="ion-ios-arrow-forward"></i></span></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+<section class="ftco-section appt">
+  <div class="container">
+    <h1 class="appointment-title">Schedule your next Dental Appointment</h1>
+
+    <form id="appointmentForm" method="POST" action="{% url 'appointment' %}" class="appt-form">
+      {% csrf_token %}
+
+      <!-- Row: name + phone -->
+      <div class="row gx-3">
+        <div class="col-md-6">
+          <label class="form-label" for="name">Name <span>(required)</span></label>
+          <input id="name" name="name" type="text" class="form-control-custom" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="phone">Phone number <span>(required)</span></label>
+          <input id="phone" name="phone" type="tel" class="form-control-custom" required>
+        </div>
+      </div>
+
+      <!-- Row: email (full width) -->
+      <div class="row gx-3 mt-3">
+        <div class="col-12">
+          <label class="form-label" for="email">Email <span>(required)</span></label>
+          <input id="email" name="email" type="email" class="form-control-custom" required>
+        </div>
+      </div>
+
+      <!-- Services: exactly the 3 you wanted -->
+      <div class="row gx-3 mt-4">
+        <div class="col-12">
+            <p class="section-title">Our Services</p>
+
+            <div class="service-grid">
+              <label class="svc-card">
+                <input type="checkbox" name="services" value="Consultation">
+                <span class="svc-box"><span class="svc-tick"></span><span>Consultation</span></span>
+              </label>
+
+              <label class="svc-card">
+                <input type="checkbox" name="services" value="Diagnostics">
+                <span class="svc-box"><span class="svc-tick"></span><span>Diagnostics</span></span>
+              </label>
+
+              <label class="svc-card">
+                <input type="checkbox" name="services" value="Whitening">
+                <span class="svc-box"><span class="svc-tick"></span><span>Whitening</span></span>
+              </label>
+
+              <label class="svc-card">
+                <input type="checkbox" name="services" value="Therapy">
+                <span class="svc-box"><span class="svc-tick"></span><span>Therapy</span></span>
+              </label>
+
+              <label class="svc-card">
+                <input type="checkbox" name="services" value="Surgery">
+                <span class="svc-box"><span class="svc-tick"></span><span>Surgery</span></span>
+              </label>
+
+              <label class="svc-card">
+                <input type="checkbox" name="services" value="Orthodontics">
+                <span class="svc-box"><span class="svc-tick"></span><span>Orthodontics</span></span>
+              </label>
+
+              <label class="svc-card">
+                <input type="checkbox" name="services" value="Prosthetics">
+                <span class="svc-box"><span class="svc-tick"></span><span>Prosthetics</span></span>
+              </label>
+
+              <label class="svc-card">
+                <input type="checkbox" name="services" value="Children's dentistry">
+                <span class="svc-box"><span class="svc-tick"></span><span>Children's dentistry</span></span>
+              </label>
+            </div>
+
+      <!-- Calendar + Timeslots -->
+      <div class="row gx-3 mt-4 appt-grid">
+        <!-- Calendar (always visible) -->
+        <div class="col-lg-6">
+          <p class="section-label mb-2">Pick a Date</p>
+          <!-- inline calendar target -->
+          <input id="datepicker" name="appointment_date" type="text" class="d-none" />
+          <div id="calendarHost" aria-label="Calendar"></div>
+        </div>
+
+        <!-- Timeslots (shown only after a date is picked) -->
+        <div class="col-lg-6">
+          <p class="section-label mb-2">Pick a Timeslot</p>
+          <div id="timeslotWrap" class="timeslots timeslots--hidden" aria-live="polite">
+            <p class="muted mb-2" id="slotHint">Select a date to see available time slots</p>
+            <div id="timeslotList" class="slot-list"></div>
+            <!-- hidden field to carry the selected time -->
+            <input type="hidden" id="appointment_time" name="appointment_time">
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center mt-4">
+      <button type="submit" class="btn btn-submit-custom mt-4">Request an Appointment</button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- Flatpickr assets -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<!-- Page script -->
+<script src="{% static 'website/js/appointment.js' %}"></script>
+{% endblock %}

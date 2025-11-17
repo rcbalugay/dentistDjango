@@ -1,0 +1,75 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pHi
+*$py.class
+
+# Virtual environments
+venv/
+venv*/ 
+.env/
+.env*/
+.venv/
+.envrc
+.python-version
+
+# ---- Django / project files ----
+# SQLite database (if you're using one)
+db.sqlite3
+db.sqlite3-journal
+
+# Local settings (if you ever create them)
+local_settings.py
+
+# Static & media (generated / uploaded)
+staticfiles/
+static_root/
+media/
+media_root/
+
+# Collected static (if you use this name)
+static/
+
+# ---- Environment & secrets ----
+.env
+.env.*
+*.env
+*.env.*
+
+# ---- Logs ----
+*.log
+logs/
+log/
+*.sqlite3-journal
+
+# ---- IDE / Editor junk ----
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+*.swn
+*.swn
+*.swn
+*.swn
+*.swn
+*~
+.DS_Store
+Thumbs.db
+
+# ---- Node / frontend (in case you add it) ----
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dist/
+build/
+
+# ---- Misc ----
+.coverage
+htmlcov/
+.mypy_cache/
+pytest_cache/

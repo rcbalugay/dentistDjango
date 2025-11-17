@@ -1,0 +1,94 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign in • Perez Jr Dental</title>
+
+  <!-- Skydash / Vendor CSS -->
+  <link rel="stylesheet" href="{% static 'dashboard/vendors/feather/feather.css' %}">
+  <link rel="stylesheet" href="{% static 'dashboard/vendors/ti-icons/css/themify-icons.css' %}">
+  <link rel="stylesheet" href="{% static 'dashboard/vendors/css/vendor.bundle.base.css' %}">
+  <link rel="stylesheet" href="{% static 'dashboard/css/vertical-layout-light/style.css' %}">
+
+  <link rel="shortcut icon" href="{% static 'website/images/logo-1.png' %}">
+</head>
+
+<body class="auth-page">
+  <div class="auth-split">
+    <!-- LEFT: back + login card -->
+    <div class="auth-left">
+      <a class="auth-back" href="{% url 'home' %}">← Back</a>
+
+      <div class="auth-form-light text-left py-5 px-4 px-sm-5 auth-card">
+        <!-- Brand -->
+        <div class="brand-logo">
+          <img src="{% static 'website/images/logo-4t.svg' %}" alt="Perez Jr Dental Clinic">
+        </div>
+
+        <h4>Welcome back, Doctor!</h4>
+        <h6 class="font-weight-light mb-4">Sign in to review today’s schedule and updates.</h6>
+
+        {% if form.errors %}
+          <div class="alert alert-danger" role="alert">
+            Please check your username and password.
+          </div>
+        {% endif %}
+
+        <form class="pt-3" method="post" action="{% url 'login' %}">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ next }}">
+          
+          <!-- Username & Password -->
+          <div class="form-group has-icon">
+            <i class="ti-user input-icon" aria-hidden="true"></i>
+            <input type="text"
+                   class="form-control form-control-lg with-icon"
+                   id="username" name="username" placeholder="Username">
+          </div>
+
+          <div class="form-group has-icon">
+            <i class="ti-lock input-icon" aria-hidden="true"></i>
+            <input type="password"
+                   class="form-control form-control-lg with-icon"
+                   id="password" name="password" placeholder="Password">
+          </div>
+
+
+          <div class="mt-3">
+            <button type="submit" class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn">
+              SIGN IN
+            </button>
+          </div>
+
+          <div class="my-2 d-flex justify-content-between align-items-center">
+            <div class="form-check">
+              <label class="form-check-label text-muted">
+                <input type="checkbox" class="form-check-input" name="remember">
+                Keep me signed in
+              </label>
+            </div>
+            <a href="{% url 'password_reset' %}" class="auth-link text-black">Forgot password?</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- RIGHT: full-height image (set via CSS var) -->
+    <div class="auth-right"
+         style="--login-img: url('{% static "website/images/dept-7.jpg" %}')">
+    </div>
+  </div>
+
+  <!-- Vendor JS -->
+  <script src="{% static 'dashboard/vendors/js/vendor.bundle.base.js' %}"></script>
+  <script src="{% static 'dashboard/js/off-canvas.js' %}"></script>
+  <script src="{% static 'dashboard/js/hoverable-collapse.js' %}"></script>
+  <script src="{% static 'dashboard/js/template.js' %}"></script>
+  <script src="{% static 'dashboard/js/settings.js' %}"></script>
+  <script src="{% static 'dashboard/js/todolist.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'dashboard/css/vertical-layout-light/auth.css' %}">
+</body>
+</html>

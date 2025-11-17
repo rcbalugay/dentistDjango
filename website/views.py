@@ -1,6 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.core.mail import send_mail
 from datetime import datetime
+from .models import Appointment
+from django.contrib import messages
 
 def home(request):
 	return render(request, 'home.html', {})
@@ -20,55 +22,49 @@ def contact(request):
 			['karasuscho1@gmail.com'], # to email
 			)
 
-		return render(request, 'contact.html', {'message_name': message_name})
+		return render(request, 'pages/contact.html', {'message_name': message_name})
 
 	else:
-		return render(request, 'contact.html', {})
+		return render(request, 'pages/contact.html', {})
 
 def about(request):
-	return render(request, 'about.html', {})
+	return render(request, 'pages/about.html', {})
 
 def blog(request):
-	return render(request, 'blog.html', {})
+	return render(request, 'pages/blog.html', {})
 
 def services(request):
-	return render(request, 'services.html', {})
+	return render(request, 'pages/services.html', {})
 
 def doctor(request):
-	return render(request, 'doctor.html', {})
+	return render(request, 'pages/doctor.html', {})
 
 def appointment(request):
-	if request.method == "POST":
-		your_name = request.POST['your-name']
-		your_phone = request.POST['your-phone']
-		your_email = request.POST['your-email']
-		your_date = request.POST['your-date']
-		your_time = request.POST['your-time']
+    if request.method == "POST":
+        name     = request.POST.get("name", "").strip()
+        phone    = request.POST.get("phone", "").strip()
+        email    = request.POST.get("email", "").strip()
+        services = request.POST.getlist("services") 
+        date_str = request.POST.get("appointment_date", "") or request.POST.get("date", "")
+        timeslot = request.POST.get("appointment_time", "") or request.POST.get("timeslot", "")
 
-		# Format date from MM/DD/YYYY to 'Month DD, YYYY'
-		try:
-			parsed_date = datetime.strptime(your_date, "%m/%d/%Y")
-			formatted_date = parsed_date.strftime("%A, %B %d, %Y")  # October 18, 2025
-		except ValueError:
-			formatted_date = your_date
+        # validation part
+        if not (name and phone and date_str and timeslot and services):
+            messages.error(request, "Please complete name, phone, date, time and services.")
+            return redirect("appointment")
 
-		# Sending email
-		appointment = "Name: " + your_name + " Phone: " + your_phone + " Email: " + your_email + " Date: " + your_date + " Time: " + your_time
-		
-		send_mail(
-			'Appointment Request', # subject
-			appointment, # message
-			your_email, # from email
-			['karasuscho1@gmail.com'], # to email
-			)
+        try:
+            appt_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+        except ValueError:
+            messages.error(request, "Invalid date format.")
+            return redirect("appointment")
 
-		return render(request, 'appointment.html', {
-			'your_name': your_name,
-			'your_phone': your_phone,
-			'your_email': your_email,
-			'your_date': formatted_date,
-			'your_time': your_time
-		})
+        Appointment.objects.create(
+            name=name, phone=phone, email=email,
+            services=services, date=appt_date, timeslot=timeslot
+        )
 
-	else:
-		return render(request, 'home.html', {})
+        messages.success(request, "Hello, an appointment has been request.")
+        return redirect("appointment")
+
+    return render(request, "pages/appointment.html", {})
