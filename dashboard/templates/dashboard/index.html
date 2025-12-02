@@ -36,12 +36,14 @@
 
     .dash-calendar__days {
       display: flex;
-      gap: 0.75rem;
+      justify-content: space-between;
+      gap: 0.35rem;
     }
 
     .dash-calendar-day {
-      min-width: 52px;
-      padding: 0.4rem 0.7rem;
+      flex: 1 1 0;
+      min-width: 0;
+      padding: 0.4rem 0.4rem;
       border-radius: 999px;
       border: 1px solid transparent;
       text-align: center;
@@ -74,17 +76,6 @@
 
     .dash-calendar-day--active .dash-calendar-day__name {
       opacity: 0.9;
-    }
-
-    @media (max-width: 576px) {
-      .dash-calendar__days {
-        gap: 0.4rem;
-      }
-
-      .dash-calendar-day {
-        min-width: 46px;
-        padding: 0.3rem 0.5rem;
-      }
     }
 
   #apptsViewDropdown {
@@ -433,7 +424,7 @@
           <table class="table latest-patients-table mb-0">
             <thead>
               <tr>
-                <th>No</th>
+                <th>No#</th>
                 <th>Date</th>
                 <th>Name</th>
                 <th>Contact</th>
@@ -445,7 +436,7 @@
               {% for p in latest_patients %}
                 <tr>
                   <!-- client no. (row number or use p.id if you prefer) -->
-                  <td class="lp-no">{{ p.id }}</td>
+                  <td class="lp-no">C{{ p.id }}</td>
 
                   <!-- appointment date -->
                   <td class="lp-date">
@@ -527,9 +518,12 @@
         {% if upcoming %}
           {% regroup upcoming by date as upcoming_by_day %}
 
-          <div class="upcoming-list">
+          {# give the container an id (optional, but handy) #}
+          <div class="upcoming-list" id="upcomingList">
             {% for day in upcoming_by_day %}
-              <div class="upcoming-day">
+              {# add data-upcoming-date so JS knows which date this group belongs to #}
+              <div class="upcoming-day"
+                   data-upcoming-date="{{ day.grouper|date:'Y-m-d' }}">
                 <div class="upcoming-day-title">
                   {% if day.grouper == today %}
                     Today, {{ day.grouper|date:"d M" }}
@@ -573,10 +567,17 @@
                     <div class="upcoming-more">⋯</div>
                   </div>
                 </div>
-              {% endfor %}
+                {% endfor %}
               </div>
             {% endfor %}
           </div>
+
+          {# message shown when selected date has no appointments #}
+          <p id="upcomingEmptyMsg"
+             class="text-muted mb-0"
+             style="display: none;">
+            No appointments on this day.
+          </p>
         {% else %}
           <p class="text-muted mb-0">No upcoming appointments this week.</p>
         {% endif %}
@@ -590,88 +591,121 @@
 
 {% block extra_js %}
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      var monthEl = document.getElementById('dashCalendarMonth');
-      var daysEl = document.getElementById('dashCalendarDays');
-      var prevBtn = document.querySelector('[data-calendar-nav="-1"]');
-      var nextBtn = document.querySelector('[data-calendar-nav="1"]');
+  document.addEventListener('DOMContentLoaded', function () {
+    var monthEl = document.getElementById('dashCalendarMonth');
+    var daysEl = document.getElementById('dashCalendarDays');
+    var prevBtn = document.querySelector('[data-calendar-nav="-1"]');
+    var nextBtn = document.querySelector('[data-calendar-nav="1"]');
 
-      if (!monthEl || !daysEl) return;
+    if (!monthEl || !daysEl) return;
 
-      // Start from today's date (from Django), or today if not set
-      var initialStr = '{{ today|date:"Y-m-d" }}';
-      var selected = initialStr
-        ? new Date(initialStr + 'T00:00:00')
-        : new Date();
+    // Start from today's date (from Django), or today if not set
+    var initialStr = '{{ today|date:"Y-m-d" }}';
+    var selected = initialStr
+      ? new Date(initialStr + 'T00:00:00')
+      : new Date();
 
-      function startOfWeek(date) {
-        // Monday as first day of week
-        var d = new Date(date);
-        var day = d.getDay(); // 0=Sun..6=Sat
-        var diff = (day + 6) % 7; // convert to Mon=0
-        d.setDate(d.getDate() - diff);
-        d.setHours(0, 0, 0, 0);
-        return d;
-      }
+    // Monday as first day of week
+    function startOfWeek(date) {
+      var d = new Date(date);
+      var day = d.getDay(); // 0=Sun..6=Sat
+      var diff = (day + 6) % 7; // convert to Mon=0
+      d.setDate(d.getDate() - diff);
+      d.setHours(0, 0, 0, 0);
+      return d;
+    }
 
-      function render() {
-        var weekStart = startOfWeek(selected);
-        var monthOpts = { month: 'long', year: 'numeric' };
-        var dayNameOpts = { weekday: 'short' };
+    // Format Date -> "YYYY-MM-DD" to match data-upcoming-date
+    function formatDateYMD(d) {
+      var y = d.getFullYear();
+      var m = String(d.getMonth() + 1).padStart(2, '0');
+      var day = String(d.getDate()).padStart(2, '0');
+      return y + '-' + m + '-' + day;
+    }
 
-        monthEl.textContent = selected.toLocaleDateString(undefined, monthOpts);
-        daysEl.innerHTML = '';
+    // Show only the upcoming appointments for the selected date
+    function updateUpcomingList(dateObj) {
+      var target = formatDateYMD(dateObj);
+      var dayBlocks = document.querySelectorAll('.upcoming-day');
+      var anyShown = false;
 
-        for (var i = 0; i < 7; i++) {
-          var d = new Date(weekStart);
-          d.setDate(weekStart.getDate() + i);
-
-          var btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'dash-calendar-day';
-
-          if (d.toDateString() === selected.toDateString()) {
-            btn.classList.add('dash-calendar-day--active');
-          }
-
-          btn.innerHTML =
-            '<span class="dash-calendar-day__name">' +
-            d.toLocaleDateString(undefined, dayNameOpts) +
-            '</span>' +
-            '<span class="dash-calendar-day__date">' +
-            d.getDate() +
-            '</span>';
-
-          btn.addEventListener('click', function (dateCopy) {
-            return function () {
-              selected = dateCopy;
-              render();
-              // TODO: here you can filter the "Today / upcoming appointments"
-              //       list based on `selected` if you want.
-            };
-          }(d));
-
-          daysEl.appendChild(btn);
+      dayBlocks.forEach(function (block) {
+        var d = block.getAttribute('data-upcoming-date');
+        if (d === target) {
+          block.style.display = '';
+          anyShown = true;
+        } else {
+          block.style.display = 'none';
         }
+      });
+
+      var emptyMsg = document.getElementById('upcomingEmptyMsg');
+      if (emptyMsg) {
+        emptyMsg.style.display = anyShown ? 'none' : '';
+      }
+    }
+
+    function render() {
+      var weekStart = startOfWeek(selected);
+      var monthOpts = { month: 'long', year: 'numeric' };
+      var dayNameOpts = { weekday: 'short' };
+
+      monthEl.textContent = selected.toLocaleDateString(undefined, monthOpts);
+      daysEl.innerHTML = '';
+
+      for (var i = 0; i < 7; i++) {
+        var d = new Date(weekStart.getTime());
+        d.setDate(weekStart.getDate() + i);
+
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'dash-calendar-day';
+
+        if (d.toDateString() === selected.toDateString()) {
+          btn.classList.add('dash-calendar-day--active');
+        }
+
+        btn.innerHTML =
+          '<span class="dash-calendar-day__name">' +
+          d.toLocaleDateString(undefined, dayNameOpts) +
+          '</span>' +
+          '<span class="dash-calendar-day__date">' +
+          d.getDate() +
+          '</span>';
+
+        (function (dateCopy) {
+          btn.addEventListener('click', function () {
+            selected = dateCopy;
+            render();
+          });
+        })(new Date(d.getTime()));
+
+        daysEl.appendChild(btn);
       }
 
-      if (prevBtn) {
-        prevBtn.addEventListener('click', function () {
-          selected.setDate(selected.getDate() - 7);
-          render();
-        });
-      }
+      // After drawing the calendar, update the upcoming list
+      updateUpcomingList(selected);
+    }
 
-      if (nextBtn) {
-        nextBtn.addEventListener('click', function () {
-          selected.setDate(selected.getDate() + 7);
-          render();
-        });
-      }
+    if (prevBtn) {
+      prevBtn.addEventListener('click', function () {
+        selected.setDate(selected.getDate() - 7);
+        render();
+      });
+    }
 
-      render();
-    });
-  </script>
+    if (nextBtn) {
+      nextBtn.addEventListener('click', function () {
+        selected.setDate(selected.getDate() + 7);
+        render();
+      });
+    }
+
+    // Initial render (today)
+    render();
+  });
+</script>
+
 
   <script>
   document.addEventListener('DOMContentLoaded', function () {

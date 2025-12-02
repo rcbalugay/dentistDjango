@@ -12,15 +12,7 @@
   <link rel="stylesheet" href="{% static 'dashboard/vendors/feather/feather.css' %}">
   <!-- Theming icons (Themify icons) -->
   <link rel="stylesheet" href="{% static 'dashboard/vendors/ti-icons/css/themify-icons.css' %}">
-  <!-- Vendor base styles (includes Bootstrap and other vendor styles) -->
-  <link rel="stylesheet" href="{% static 'dashboard/vendors/css/vendor.bundle.base.css' %}">
-  <link rel="stylesheet" href="{% static 'dashboard/vendors/mdi/css/materialdesignicons.min.css' %}">
-  <!-- DataTables CSS for table styling and features -->
-  <link rel="stylesheet" href="{% static 'dashboard/vendors/datatables.net-bs4/dataTables.bootstrap4.css' %}">
-  <!-- Additional icons for styling, reused from above -->
-  <link rel="stylesheet" href="{% static 'dashboard/vendors/ti-icons/css/themify-icons.css' %}">
-  <!-- Select plugin CSS for DataTables -->
-  <link rel="stylesheet" type="text/css" href="{% static 'dashboard/js/select.dataTables.min.css' %}">
+  
   <!-- Main dashboard styles -->
   <link rel="stylesheet" href="{% static 'dashboard/css/vertical-layout-light/style.css' %}">
   <!-- Favicon icon for the browser tab -->
@@ -416,22 +408,7 @@
 
   <!-- Injected JavaScript files for functionality -->
   <script src=" {% static 'dashboard/vendors/chart.js/Chart.min.js' %} "></script>
-  <script src=" {% static 'dashboard/vendors/datatables.net/jquery.dataTables.js' %} "></script>
-  <script src=" {% static 'dashboard/vendors/datatables.net-bs4/dataTables.bootstrap4.js' %} "></script>
-  <script src=" {% static 'dashboard/js/dataTables.select.min.js' %} "></script>
-  <!-- End -->
-
-  <!-- Injected JavaScript files for functionality -->
-  <script src=" {% static 'dashboard/js/off-canvas.js' %} "></script>
-  <script src=" {% static 'dashboard/js/hoverable-collapse.js' %} "></script>
-  <script src=" {% static 'dashboard/js/template.js' %} "></script>
   <script src=" {% static 'dashboard/js/settings.js' %} "></script>
-  <script src=" {% static 'dashboard/js/todolist.js' %} "></script>
-  <!-- End -->
-
-  <!-- Injected JavaScript files for functionality -->
-  <script src=" {% static 'dashboard/js/dashboard.js' %} "></script>
-  <script src=" {% static 'dashboard/js/Chart.roundedBarCharts.js' %} "></script>
   <!-- End -->
   {% block extra_js %}{% endblock %}
 </body>

@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from datetime import date, timedelta, datetime, time
 from django.utils import timezone
+from django.core.paginator import Paginator
 from django.db.models import Q, Count
 from website.models import Appointment
 
@@ -119,9 +120,10 @@ def index(request):
     upcoming_qs = (
         Appointment.objects
         .filter(
-            status=Appointment.STATUS_CONFIRMED,   # only confirmed
-            date__gte=today,
-            date__lte=next_7,
+            status__in=[
+                Appointment.STATUS_CONFIRMED,
+                Appointment.STATUS_COMPLETED,
+            ]
         )
         .order_by("date")
     )
@@ -130,7 +132,7 @@ def index(request):
     upcoming = sorted(
         upcoming_qs,
         key=lambda a: (a.date, parse_timeslot(a.timeslot or ""))
-    )[:5]
+    )
 
     # latest patients (based on most recent appointments)
     latest_patients = (
@@ -238,12 +240,16 @@ def appointments(request):
     )
 
     # Recent cancelled / completed (history)
-    recent_history = (
+    recent_history_qs = (
         base_qs.filter(
             status__in=[Appointment.STATUS_CANCELLED, Appointment.STATUS_COMPLETED]
         )
-        .order_by("-date", "timeslot", "name")[:10]
+        .order_by("-date", "timeslot", "name")
     )
+
+    history_page_number = request.GET.get("history_page")
+    history_paginator = Paginator(recent_history_qs, 5)
+    recent_history = history_paginator.get_page(history_page_number)
 
     ctx = {
         "q": q,

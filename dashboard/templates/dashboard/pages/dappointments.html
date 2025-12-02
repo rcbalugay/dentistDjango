@@ -113,7 +113,7 @@
                     <th>Contacts</th>
                     <th>Treatment</th>
                     <th class="text-center">Status</th>
-                    <th></th>
+                    <th class="text-center">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -199,6 +199,7 @@
                     <th>Contacts</th>
                     <th>Treatment</th>
                     <th class="text-center">Status</th>
+                    <th class="text-center">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -224,29 +225,52 @@
                         {% endif %}
                       </td>
 
+                      {# STATUS: show "In progress" for confirmed appointments #}
                       <td class="text-center">
-                        {% if a.status == 'confirmed' %}
-                          <span class="ap-status-badge ap-status-confirmed">
-                            {{ a.get_status_display }}
-                          </span>
-                        {% elif a.status == 'pending' %}
-                          <span class="ap-status-badge ap-status-pending">
-                            {{ a.get_status_display }}
-                          </span>
-                        {% elif a.status == 'cancelled' %}
-                          <span class="ap-status-badge ap-status-cancelled">
-                            {{ a.get_status_display }}
-                          </span>
-                        {% elif a.status == 'completed' %}
-                          <span class="ap-status-badge ap-status-completed">
-                            {{ a.get_status_display }}
-                          </span>
-                        {% endif %}
+                        <span class="ap-status-badge ap-status-confirmed">
+                          In progress
+                        </span>
+                      </td>
+
+                      {# ACTIONS: Complete / Cancel / Reschedule #}
+                      <td class="text-right">
+                        <form method="post" class="d-inline">
+                          {% csrf_token %}
+                          <input type="hidden" name="appointment_id" value="{{ a.id }}">
+
+                          <button type="submit"
+                                  name="action"
+                                  value="complete"
+                                  class="btn btn-sm btn-success">
+                            Complete
+                          </button>
+
+                          <button type="submit"
+                                  name="action"
+                                  value="cancel"
+                                  class="btn btn-sm btn-outline-danger">
+                            Cancel
+                          </button>
+
+                          {# If you already have the reschedule view/URL: #}
+                          {# <a href="{% url 'dashboard:reschedule_appointment' a.id %}" #}
+                          {#    class="btn btn-sm btn-outline-primary"> #}
+                          {#   Reschedule #}
+                          {# </a> #}
+
+                          {# OR keep it disabled for now: #}
+                          <button type="button"
+                                  class="btn btn-sm btn-outline-primary"
+                                  disabled>
+                            Reschedule
+                          </button>
+                        </form>
                       </td>
                     </tr>
                   {% empty %}
                     <tr class="ap-empty">
-                      <td colspan="7" class="text-muted text-center">
+                      {# now 8 columns including Actions #}
+                      <td colspan="8" class="text-muted text-center">
                         No upcoming appointments.
                       </td>
                     </tr>
@@ -317,16 +341,51 @@
                         {% endif %}
                       </td>
                     </tr>
+                  {% empty %}
+                    <tr class="ap-empty">
+                      <td colspan="7" class="text-muted text-center">
+                        No history yet.
+                      </td>
+                    </tr>
                   {% endfor %}
                 </tbody>
               </table>
+
+              {# ---- Prev / Next buttons ---- #}
+              {% if recent_history.paginator.num_pages > 1 %}
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                  <small class="text-muted">
+                    Page {{ recent_history.number }} of {{ recent_history.paginator.num_pages }}
+                  </small>
+                  <div>
+                    {% if recent_history.has_previous %}
+                      <a href="?history_page={{ recent_history.previous_page_number }}"
+                        class="btn btn-sm btn-outline-secondary">
+                        Prev
+                      </a>
+                    {% endif %}
+                    {% if recent_history.has_next %}
+                      <a href="?history_page={{ recent_history.next_page_number }}"
+                        class="btn btn-sm btn-outline-secondary">
+                        Next
+                      </a>
+                    {% endif %}
+                  </div>
+                </div>
+              {% endif %}
+
             </div>
           </div>
-
         </div>
       </div>
       {% endif %}
 
     </div>
   </div>
+
+  <!-- Total history count 
+  <p class="text-muted small">
+  Total history: {{ recent_history.paginator.count }}
+  </p> -->
+
 {% endblock %}
