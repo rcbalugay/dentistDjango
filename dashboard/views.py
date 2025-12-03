@@ -2,6 +2,7 @@ import ipaddress
 import requests as http_requests
 from django.conf import settings
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from datetime import date, timedelta, datetime, time
@@ -282,5 +283,43 @@ def blog(request):
 def profile(request):
 	return render(request, 'dashboard/pages/profile.html', {
         "active_page": "profile",
+    })
+
+@login_required
+def appointment_form(request):
+    if request.method == 'POST':
+        name = request.POST.get('name').strip()
+        phone = request.POST.get('phone').strip()
+        email = request.POST.get('email').strip()
+        services = request.POST.getlist('services')
+        date_str = request.POST.get('appointment_date', '') or request.POST.get('date', '')
+        timeslot = request.POST.get('appointment_time', '') or request.POST.get('timeslot', '')
+
+        # Validation
+        if not (name and phone and date_str and timeslot and services):
+            messages.error(request, 'Please complete name, phone, date, time, and services.')
+            return redirect('dashboard:appointment_form')
+        
+        try:
+            app_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        except ValueError:
+            messages.error(request, 'Invalid date format.')
+            return redirect ('dashboard:appointment_form')
+        
+        # Create appointment
+        Appointment.objects.create(
+            name=name,
+            phone=phone,
+            email=email,
+            date=app_date,
+            services=services,
+            timeslot=timeslot,
+        )
+
+        messages.success(request, 'Appointment has been created.')
+        return redirect('dashboard:appointments')
+     
+    return render(request, 'dashboard/pages/appointmentform.html', {
+        "active_page": "appointments",
     })
 

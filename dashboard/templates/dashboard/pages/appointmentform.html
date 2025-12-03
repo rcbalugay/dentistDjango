@@ -1,0 +1,10 @@
+{% extends "dashboard/dbase.html" %}
+
+{% block content %}
+
+<form method="post" action="{% url 'dashboard:appointment_form' %}">
+  {% csrf_token %}
+  <!-- your fields here: name, phone, email, services, date, time, etc. -->
+</form>
+
+{% endblock %}

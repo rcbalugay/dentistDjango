@@ -291,7 +291,7 @@
           
 <!-- Top actions -->
 <div class="d-flex justify-content-end mb-3">
-  <a href="{% url 'appointment' %}" class="btn btn-primary rounded-pill px-3 mr-2">
+  <a href="{% url 'dashboard:appointment_form' %}" class="btn btn-primary rounded-pill px-3 mr-2">
     <span class="mr-1">+</span> Make an Appointment
   </a>
   <a href="{% url 'dashboard:patients' %}" class="btn btn-danger rounded-pill px-3">
@@ -648,7 +648,9 @@
     function render() {
       var weekStart = startOfWeek(selected);
       var monthOpts = { month: 'long', year: 'numeric' };
-      var dayNameOpts = { weekday: 'short' };
+      var desktopDayOpts = { weekday: 'short' };
+      var mobileDayLabels = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'];
+      
 
       monthEl.textContent = selected.toLocaleDateString(undefined, monthOpts);
       daysEl.innerHTML = '';
@@ -665,13 +667,23 @@
           btn.classList.add('dash-calendar-day--active');
         }
 
-        btn.innerHTML =
-          '<span class="dash-calendar-day__name">' +
-          d.toLocaleDateString(undefined, dayNameOpts) +
-          '</span>' +
-          '<span class="dash-calendar-day__date">' +
-          d.getDate() +
-          '</span>';
+        var dayLabel;
+          // On small screens: M T W Th F Sa Su
+          if (window.matchMedia("(max-width: 576px)").matches) {
+            dayLabel = mobileDayLabels[d.getDay()];
+          } else {
+            // On larger screens: "Mon", "Tue", etc.
+            dayLabel = d.toLocaleDateString(undefined, desktopDayOpts);
+          }
+
+          btn.innerHTML =
+            '<span class="dash-calendar-day__name">' +
+            dayLabel +
+            '</span>' +
+            '<span class="dash-calendar-day__date">' +
+            d.getDate() +
+            '</span>';
+
 
         (function (dateCopy) {
           btn.addEventListener('click', function () {
@@ -704,7 +716,7 @@
     // Initial render (today)
     render();
   });
-</script>
+  </script>
 
 
   <script>
@@ -798,5 +810,5 @@
       }
     });
   });
-</script>
+  </script>
 {% endblock %}
