@@ -513,7 +513,7 @@ def appointments(request):
 
 @login_required
 def patients(request):
-	return render(request, 'dashboard/pages/requests.html', {
+	return render(request, 'dashboard/pages/patients.html', {
         "active_page": "patients",
     })
 
