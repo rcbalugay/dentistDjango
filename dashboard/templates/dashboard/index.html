@@ -372,45 +372,73 @@
   <!-- ================= LEFT COLUMN ================= -->
   <div class="col-lg-8">
 
-    <!-- Appointments statistics (chart) -->
-    <div class="card">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div>
-            <h4 class="mb-1">Appointments Statistics</h6>
+  <!-- Appointments statistics (chart) -->
+  <div class="card">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h4 class="mb-1">Appointments Statistics</h4>
 
-            <!-- Month / year + arrows -->
-            <div class="d-flex align-items-center">
-              <span id="apptsPeriodText" class="font-weight-semibold mr-2">
-                {{ today|date:"F Y" }}
-              </span>
-            </div>
-          </div>
-
-          <!-- Week / Month / Year dropdown -->
-          <div class="dropdown">
-            <button class="btn btn-sm btn-outline-primary dropdown-toggle"
-                    type="button"
-                    id="apptsViewDropdown"
-                    data-toggle="dropdown"
-                    aria-haspopup="true"
-                    aria-expanded="false">
-              <span id="apptsViewLabel">Week</span>
-            </button>
-            <div class="dropdown-menu dropdown-menu-right"
-                 aria-labelledby="apptsViewDropdown">
-              <a class="dropdown-item" href="#" data-view="week">Week</a>
-              <a class="dropdown-item" href="#" data-view="month">Month</a>
-              <a class="dropdown-item" href="#" data-view="year">Year</a>
+          <!-- Period label + prev/next arrows -->
+          <div class="d-flex align-items-center">
+            <span id="apptsPeriodText" class="font-weight-semibold mr-2">
+              {{ appts_period_label }}
+            </span>
+            <div class="dash-calendar__nav ml-1">
+              <a href="#"
+                class="dash-calendar__nav-btn"
+                data-ap-nav="prev"
+                data-ap-view="{{ appts_view }}"
+                data-ap-start="{{ appts_prev_start }}">
+                ‹
+              </a>
+              <a href="#"
+                class="dash-calendar__nav-btn"
+                data-ap-nav="next"
+                data-ap-view="{{ appts_view }}"
+                data-ap-start="{{ appts_next_start }}">
+                ›
+              </a>
             </div>
           </div>
         </div>
 
-        <div style="height: 200px;">
-          <canvas id="appointmentsChart"></canvas>
+        <!-- Day / Week / Month / Year dropdown -->
+        <div class="dropdown">
+          <button class="btn btn-sm btn-outline-primary dropdown-toggle"
+                  type="button"
+                  id="apptsViewDropdown"
+                  data-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false">
+            <span id="apptsViewLabel">
+              {% if appts_view == 'day' %}
+                Daily
+              {% elif appts_view == 'week' %}
+                Weekly
+              {% elif appts_view == 'month' %}
+                Monthly
+              {% else %}
+                Yearly
+              {% endif %}
+            </span>
+          </button>
+          <div class="dropdown-menu dropdown-menu-right"
+              aria-labelledby="apptsViewDropdown">
+            <a class="dropdown-item" href="#" data-ap-view="day">Daily</a>
+            <a class="dropdown-item" href="#" data-ap-view="week">Weekly</a>
+            <a class="dropdown-item" href="#" data-ap-view="month">Monthly</a>
+            <a class="dropdown-item" href="#" data-ap-view="year">Yearly</a>
+          </div>
         </div>
       </div>
+
+      <!-- 🔹 This part is what actually draws the chart space -->
+      <div style="height: 200px;">
+        <canvas id="appointmentsChart"></canvas>
+      </div>
     </div>
+  </div>
 
     <!-- Latest Patients -->
     <div class="card mt-4">
@@ -718,7 +746,6 @@
   });
   </script>
 
-
   <script>
   document.addEventListener('DOMContentLoaded', function () {
     var canvas = document.getElementById('appointmentsChart');
@@ -727,7 +754,6 @@
     var labels = {{ appts_chart_labels|default:'[]'|safe }};
     var values = {{ appts_chart_values|default:'[]'|safe }};
 
-    // make sure they are numbers
     values = (values || []).map(function (v) {
       return Number(v) || 0;
     });
@@ -741,7 +767,7 @@
 
     var ctx = canvas.getContext('2d');
 
-    new Chart(ctx, {
+    var chart = new Chart(ctx, {
       type: 'line',
       data: {
         labels: labels,
@@ -762,11 +788,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-
-        legend: {
-          display: false
-        },
-
+        legend: { display: false },
         tooltips: {
           mode: 'index',
           intersect: false,
@@ -777,25 +799,15 @@
             }
           }
         },
-
         scales: {
           xAxes: [{
-            gridLines: {
-              display: false,
-              drawBorder: false
-            },
-            ticks: {
-              fontSize: 11,
-              fontColor: '#9a9ab0'
-            }
+            gridLines: { display: false, drawBorder: false },
+            ticks: { fontSize: 11, fontColor: '#9a9ab0' }
           }],
           yAxes: [{
             display: true,
             position: 'left',
-            gridLines: {
-              display: false,
-              drawBorder: false
-            },
+            gridLines: { display: false, drawBorder: false },
             ticks: {
               display: true,
               beginAtZero: true,
@@ -808,6 +820,82 @@
           }]
         }
       }
+    });
+
+    // ---------- AJAX wiring (no page reload) ----------
+    var periodTextEl = document.getElementById('apptsPeriodText');
+    var viewLabelEl  = document.getElementById('apptsViewLabel');
+    var prevBtn = document.querySelector('[data-ap-nav="prev"]');
+    var nextBtn = document.querySelector('[data-ap-nav="next"]');
+    var viewLinks = document.querySelectorAll('.dropdown-menu [data-ap-view]');
+
+    var chartDataUrl = "{% url 'dashboard:appointments_chart' %}";
+
+    function viewLabelText(view) {
+      if (view === 'day')   return 'Day';
+      if (view === 'week')  return 'Week';
+      if (view === 'month') return 'Month';
+      if (view === 'year')  return 'Year';
+      return view;
+    }
+
+    function updateChartFromData(data) {
+      var vals = (data.values || []).map(function (v) {
+        return Number(v) || 0;
+      });
+
+      chart.data.labels = data.labels || [];
+      chart.data.datasets[0].data = vals;
+      chart.options.scales.yAxes[0].ticks.max = calcYMax(vals);
+      chart.update();
+
+      if (periodTextEl) {
+        periodTextEl.textContent = data.period_label || '';
+      }
+      if (prevBtn) {
+        prevBtn.dataset.apView  = data.view || 'day';
+        prevBtn.dataset.apStart = data.prev_start || '';
+      }
+      if (nextBtn) {
+        nextBtn.dataset.apView  = data.view || 'day';
+        nextBtn.dataset.apStart = data.next_start || '';
+      }
+      if (viewLabelEl) {
+        viewLabelEl.textContent = viewLabelText(data.view || 'day');
+      }
+    }
+
+    function loadChart(view, start) {
+      var params = new URLSearchParams();
+      if (view)  params.append('ap_view', view);
+      if (start) params.append('ap_start', start);
+
+      fetch(chartDataUrl + '?' + params.toString(), {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+        .then(function (res) { return res.json(); })
+        .then(updateChartFromData)
+        .catch(function (err) { console.error('Chart load error:', err); });
+    }
+
+    // Day / Week / Month / Year menu
+    viewLinks.forEach(function (link) {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        var view = this.getAttribute('data-ap-view');
+        loadChart(view, null);  // server will default ap_start to "today"
+      });
+    });
+
+    // Prev / Next arrows
+    [prevBtn, nextBtn].forEach(function (btn) {
+      if (!btn) return;
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        var view = this.getAttribute('data-ap-view');
+        var start = this.getAttribute('data-ap-start');
+        loadChart(view, start);
+      });
     });
   });
   </script>

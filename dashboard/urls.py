@@ -15,4 +15,5 @@ urlpatterns = [
     path('blog/', views.blog, name='blog'),
     path('login/',  RememberMeLoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('chart-date/', views.appointments_chart, name='appointments_chart'),
 ]
