@@ -370,7 +370,7 @@ def appointments_chart(request):
             if 0 <= idx < weeks_window:
                 week_counts[idx] += 1
 
-        labels = [f"W{i+1}" for i in range(weeks_window)]
+        labels = [f"Week {i+1}" for i in range(weeks_window)]
         values = week_counts
 
         period_label = f"{period_start.strftime('%d %b')} – {period_end.strftime('%d %b %Y')}"
@@ -543,7 +543,19 @@ def appointment_form(request):
         email = request.POST.get('email').strip()
         services = request.POST.getlist('services')
         date_str = request.POST.get('appointment_date', '') or request.POST.get('date', '')
-        timeslot = request.POST.get('appointment_time', '') or request.POST.get('timeslot', '')
+        raw_time = request.POST.get('appointment_time', '') or request.POST.get('timeslot', '')
+        timeslot = raw_time.strip()    
+
+        # Convert timeslot to "HH:MM AM/PM" format if needed
+        if timeslot and not any(x in timeslot.upper() for x in ["AM", "PM"]):
+            from datetime import datetime
+            try:
+                t = datetime.strptime(timeslot, "%H:%M")
+                # "10:00 AM" style (remove leading zero)
+                timeslot = t.strftime("%I:%M %p").lstrip("0")
+            except ValueError:
+                # fall back to original if parsing fails
+                pass
 
         # Validation
         if not (name and phone and date_str and timeslot and services):

@@ -832,10 +832,10 @@
     var chartDataUrl = "{% url 'dashboard:appointments_chart' %}";
 
     function viewLabelText(view) {
-      if (view === 'day')   return 'Day';
-      if (view === 'week')  return 'Week';
-      if (view === 'month') return 'Month';
-      if (view === 'year')  return 'Year';
+      if (view === 'day')   return 'Daily';
+      if (view === 'week')  return 'Weekly';
+      if (view === 'month') return 'Monthly';
+      if (view === 'year')  return 'Yearly';
       return view;
     }
 
