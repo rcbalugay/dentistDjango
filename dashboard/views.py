@@ -6,11 +6,13 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
-from datetime import date, timedelta, datetime, time
+from datetime import date, timedelta, datetime
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
 from website.models import Appointment
+from .utils.time_utils import parse_timeslot, format_html_time_to_timeslot
+from .utils.chart_utils import build_appointment_chart
 
 # Create your views here.
 def client_ip(request):
@@ -105,20 +107,6 @@ def index(request):
     todays_slots = Appointment.objects.filter(date=today).order_by("timeslot", "name")
 
     # upcoming appointments list (next 7 days, sorted by real time)
-    def parse_timeslot(ts: str) -> time:
-        """
-        Convert timeslot text like '9:00 AM' or '10:30 AM' into a time object
-        so we can sort correctly.
-        """
-        if not ts:
-            return time(0, 0)
-        for fmt in ("%I:%M %p", "%H:%M"):
-            try:
-                return datetime.strptime(ts, fmt).time()
-            except ValueError:
-                continue
-        return time(0, 0)
-
     upcoming_qs = (
         Appointment.objects
         .filter(
@@ -144,9 +132,6 @@ def index(request):
 
     # --------------- APPOINTMENTS CHART (Day / Week / Month / Year) ---------------
     view_mode = (request.GET.get("ap_view") or "day").lower()
-    if view_mode not in {"day", "week", "month", "year"}:
-        view_mode = "day"
-
     start_param = request.GET.get("ap_start")
     if start_param:
         try:
@@ -156,119 +141,10 @@ def index(request):
     else:
         base = today
 
-    def add_months(d: date, n: int) -> date:
-        """Return a date n months from d (always day=1)."""
-        y = d.year + (d.month - 1 + n) // 12
-        m = (d.month - 1 + n) % 12 + 1
-        return date(y, m, 1)
+    chart = build_appointment_chart(view_mode, base)
 
-    # ---------- DAY VIEW: last 7 days (or any 7-day window) ----------
-    if view_mode == "day":
-        window_days = 7
-        period_end = base
-        period_start = period_end - timedelta(days=window_days - 1)
-
-        qs = (
-            Appointment.objects
-            .filter(date__range=(period_start, period_end))
-            .values("date")
-            .annotate(count=Count("id"))
-        )
-        counts_map = {row["date"]: row["count"] for row in qs}
-
-        labels = []
-        values = []
-        for i in range(window_days):
-            d = period_start + timedelta(days=i)
-            labels.append(d.strftime("%d %b"))
-            values.append(counts_map.get(d, 0))
-
-        appts_period_label = f"{period_start.strftime('%d %b')} – {period_end.strftime('%d %b %Y')}"
-        prev_start = (period_start - timedelta(days=window_days)).isoformat()
-        next_start = (period_end + timedelta(days=window_days)).isoformat()
-
-    # ---------- WEEK VIEW: 4 weekly buckets (W1..W4) ----------
-    elif view_mode == "week":
-        weeks_window = 4
-        days_window = weeks_window * 7
-        period_end = base
-        period_start = period_end - timedelta(days=days_window - 1)
-
-        qs = (
-            Appointment.objects
-            .filter(date__range=(period_start, period_end))
-            .values("date")
-        )
-
-        week_counts = [0] * weeks_window
-        for row in qs:
-            d = row["date"]
-            idx = (d - period_start).days // 7
-            if 0 <= idx < weeks_window:
-                week_counts[idx] += 1
-
-        labels = [f"W{i+1}" for i in range(weeks_window)]
-        values = week_counts
-
-        appts_period_label = f"{period_start.strftime('%d %b')} – {period_end.strftime('%d %b %Y')}"
-        prev_start = (period_start - timedelta(days=days_window)).isoformat()
-        next_start = (period_end + timedelta(days=days_window)).isoformat()
-
-    # ---------- MONTH VIEW: up to 6 months, aggregated per month ----------
-    elif view_mode == "month":
-        months_window = 6
-        last_month_start = base.replace(day=1)
-        first_month_start = add_months(last_month_start, -(months_window - 1))
-
-        month_starts = [add_months(first_month_start, i) for i in range(months_window)]
-        last_month_end = add_months(last_month_start, 1) - timedelta(days=1)
-
-        qs = (
-            Appointment.objects
-            .filter(date__range=(first_month_start, last_month_end))
-            .values("date")
-        )
-
-        month_counts = [0] * months_window
-        for row in qs:
-            d = row["date"]
-            idx = (d.year - first_month_start.year) * 12 + (d.month - first_month_start.month)
-            if 0 <= idx < months_window:
-                month_counts[idx] += 1
-
-        labels = [m.strftime("%b") for m in month_starts]
-        values = month_counts
-
-        appts_period_label = f"{first_month_start.strftime('%b %Y')} – {last_month_start.strftime('%b %Y')}"
-        prev_start = add_months(last_month_start, -months_window).isoformat()
-        next_start = add_months(last_month_start, months_window).isoformat()
-
-    # ---------- YEAR VIEW: last 6 years, aggregated per year ----------
-    else:  # view_mode == "year"
-        years_window = 6
-        last_year = base.year
-        first_year = last_year - (years_window - 1)
-
-        qs = (
-            Appointment.objects
-            .filter(date__year__gte=first_year, date__year__lte=last_year)
-            .values("date__year")
-            .annotate(count=Count("id"))
-        )
-        counts_map = {row["date__year"]: row["count"] for row in qs}
-
-        labels = []
-        values = []
-        for y in range(first_year, last_year + 1):
-            labels.append(str(y))
-            values.append(counts_map.get(y, 0))
-
-        appts_period_label = f"{first_year} – {last_year}"
-        prev_start = date(first_year - years_window, 1, 1).isoformat()
-        next_start = date(last_year + years_window, 1, 1).isoformat()
-
-    appts_chart_labels = labels
-    appts_chart_values = values
+    appts_chart_labels = chart["labels"]
+    appts_chart_values = chart["values"]
 
     # context
     ctx = {
@@ -291,10 +167,10 @@ def index(request):
         
         "appts_chart_labels": appts_chart_labels,
         "appts_chart_values": appts_chart_values,
-        "appts_view": view_mode,
-        "appts_period_label": appts_period_label,
-        "appts_prev_start": prev_start,
-        "appts_next_start": next_start, 
+        "appts_view": chart["view"],
+        "appts_period_label": chart["period_label"],
+        "appts_prev_start": chart["prev_start"],
+        "appts_next_start": chart["next_start"], 
 
         # Patients
         "latest_patients": latest_patients,
@@ -303,27 +179,17 @@ def index(request):
     }
     return render(request, "dashboard/index.html", ctx)
 
-@login_required
-def appointments_chart(request):
+def build_appointment_chart(view_mode: str, base: date):
     today = timezone.localdate()
-
-    view_mode = (request.GET.get("ap_view") or "day").lower()
-    if view_mode not in {"day", "week", "month", "year"}:
-        view_mode = "day"
-
-    start_param = request.GET.get("ap_start")
-    if start_param:
-        try:
-            base = datetime.strptime(start_param, "%Y-%m-%d").date()
-        except ValueError:
-            base = today
-    else:
-        base = today
 
     def add_months(d: date, n: int) -> date:
         y = d.year + (d.month - 1 + n) // 12
         m = (d.month - 1 + n) % 12 + 1
         return date(y, m, 1)
+
+    view_mode = (view_mode or "day").lower()
+    if view_mode not in {"day", "week", "month", "year"}:
+        view_mode = "day"
 
     # ---------- DAY VIEW: last 7 days ----------
     if view_mode == "day":
@@ -430,7 +296,7 @@ def appointments_chart(request):
         prev_start = date(first_year - years_window, 1, 1).isoformat()
         next_start = date(last_year + years_window, 1, 1).isoformat()
 
-    data = {
+    return {
         "view": view_mode,
         "labels": labels,
         "values": values,
@@ -438,8 +304,23 @@ def appointments_chart(request):
         "prev_start": prev_start,
         "next_start": next_start,
     }
-    return JsonResponse(data)
 
+def appointments_chart(request):
+    today = timezone.localdate()
+
+    view_mode = (request.GET.get("ap_view") or "day").lower()
+    start_param = request.GET.get("ap_start")
+
+    if start_param:
+        try:
+            base = datetime.strptime(start_param, "%Y-%m-%d").date()
+        except ValueError:
+            base = today
+    else:
+        base = today
+
+    chart = build_appointment_chart(view_mode, base)
+    return JsonResponse(chart)
 
 @login_required
 def appointments(request):
@@ -448,19 +329,19 @@ def appointments(request):
 
     # ---- Handle actions from buttons (Approve / Cancel / Complete etc.) ----
     if request.method == "POST":
-        appt_id = request.POST.get("appointment_id")
+        appoint_id = request.POST.get("appointment_id")
         action = request.POST.get("action")
-        appt = get_object_or_404(Appointment, id=appt_id)
+        appoint = get_object_or_404(Appointment, id=appoint_id)
 
         if action == "approve":
-            appt.status = Appointment.STATUS_CONFIRMED
-            appt.save()
+            appoint.status = Appointment.STATUS_CONFIRMED
+            appoint.save()
         elif action == "cancel":
-            appt.status = Appointment.STATUS_CANCELLED
-            appt.save()
+            appoint.status = Appointment.STATUS_CANCELLED
+            appoint.save()
         elif action == "complete":
-            appt.status = Appointment.STATUS_COMPLETED
-            appt.save()
+            appoint.status = Appointment.STATUS_COMPLETED
+            appoint.save()
         # "reschedule" can later redirect to an edit form if you add one
 
         return redirect("dashboard:appointments")
@@ -544,7 +425,7 @@ def appointment_form(request):
         services = request.POST.getlist('services')
         date_str = request.POST.get('appointment_date', '') or request.POST.get('date', '')
         raw_time = request.POST.get('appointment_time', '') or request.POST.get('timeslot', '')
-        timeslot = raw_time.strip()    
+        timeslot = format_html_time_to_timeslot(raw_time)    
 
         # Convert timeslot to "HH:MM AM/PM" format if needed
         if timeslot and not any(x in timeslot.upper() for x in ["AM", "PM"]):
