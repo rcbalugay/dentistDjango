@@ -63,7 +63,7 @@
           {% endfor %}
         {% endif %} -->
 
-        <form method="post" action="{% url 'dashboard:appointment_form' %}">
+        <form method="post" action="{% url 'dashboard:appointments_form' %}">
           {% csrf_token %}
 
           <!-- Row 1: name + phone -->
@@ -124,77 +124,16 @@
             <label>Services / Treatment</label>
 
             <div class="row service-grid">
+              {% for s in available_services %}
               <div class="col-md-6 mb-2">
                 <label class="service-pill">
                   <input type="checkbox"
                         name="services"
-                        value="Consultation">
-                  <span>Consultation</span>
+                        value="{{ s }}">
+                  <span>{{ s }}</span>
                 </label>
               </div>
-
-              <div class="col-md-6 mb-2">
-                <label class="service-pill">
-                  <input type="checkbox"
-                        name="services"
-                        value="Diagnostics">
-                  <span>Diagnostics</span>
-                </label>
-              </div>
-
-              <div class="col-md-6 mb-2">
-                <label class="service-pill">
-                  <input type="checkbox"
-                        name="services"
-                        value="Whitening">
-                  <span>Whitening</span>
-                </label>
-              </div>
-
-              <div class="col-md-6 mb-2">
-                <label class="service-pill">
-                  <input type="checkbox"
-                        name="services"
-                        value="Therapy">
-                  <span>Therapy</span>
-                </label>
-              </div>
-
-              <div class="col-md-6 mb-2">
-                <label class="service-pill">
-                  <input type="checkbox"
-                        name="services"
-                        value="Surgery">
-                  <span>Surgery</span>
-                </label>
-              </div>
-
-              <div class="col-md-6 mb-2">
-                <label class="service-pill">
-                  <input type="checkbox"
-                        name="services"
-                        value="Orthodontics">
-                  <span>Orthodontics</span>
-                </label>
-              </div>
-
-              <div class="col-md-6 mb-2">
-                <label class="service-pill">
-                  <input type="checkbox"
-                        name="services"
-                        value="Prosthetics">
-                  <span>Prosthetics</span>
-                </label>
-              </div>
-
-              <div class="col-md-6 mb-2">
-                <label class="service-pill">
-                  <input type="checkbox"
-                        name="services"
-                        value="Children's dentistry">
-                  <span>Children's dentistry</span>
-                </label>
-              </div>
+              {% endfor %}
             </div>
           </div>
 

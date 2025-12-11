@@ -3,7 +3,7 @@ from django.core.mail import send_mail
 from datetime import datetime
 from .models import Appointment
 from django.contrib import messages
-from .constants import APPOINTMENT_SERVICES
+from website.constants import APPOINTMENT_SERVICES
 
 def home(request):
 	return render(request, 'home.html', {})
@@ -68,4 +68,6 @@ def appointment_form(request):
         messages.success(request, "Hello, an appointment has been request.")
         return redirect("appointment")
 
-    return render(request, "pages/appointment.html", {})
+    return render(request, "pages/appointment.html", {
+        "available_services": APPOINTMENT_SERVICES,
+    })

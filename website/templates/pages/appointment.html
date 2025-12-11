@@ -67,46 +67,13 @@
             <p class="section-title">Our Services</p>
 
             <div class="service-grid">
+              {% for s in available_services %}
               <label class="svc-card">
-                <input type="checkbox" name="services" value="Consultation">
-                <span class="svc-box"><span class="svc-tick"></span><span>Consultation</span></span>
+                <input type="checkbox" name="services" value="{{ s }}">
+                <span class="svc-box"><span class="svc-tick"></span><span>{{ s }}</span></span>
               </label>
-
-              <label class="svc-card">
-                <input type="checkbox" name="services" value="Diagnostics">
-                <span class="svc-box"><span class="svc-tick"></span><span>Diagnostics</span></span>
-              </label>
-
-              <label class="svc-card">
-                <input type="checkbox" name="services" value="Whitening">
-                <span class="svc-box"><span class="svc-tick"></span><span>Whitening</span></span>
-              </label>
-
-              <label class="svc-card">
-                <input type="checkbox" name="services" value="Therapy">
-                <span class="svc-box"><span class="svc-tick"></span><span>Therapy</span></span>
-              </label>
-
-              <label class="svc-card">
-                <input type="checkbox" name="services" value="Surgery">
-                <span class="svc-box"><span class="svc-tick"></span><span>Surgery</span></span>
-              </label>
-
-              <label class="svc-card">
-                <input type="checkbox" name="services" value="Orthodontics">
-                <span class="svc-box"><span class="svc-tick"></span><span>Orthodontics</span></span>
-              </label>
-
-              <label class="svc-card">
-                <input type="checkbox" name="services" value="Prosthetics">
-                <span class="svc-box"><span class="svc-tick"></span><span>Prosthetics</span></span>
-              </label>
-
-              <label class="svc-card">
-                <input type="checkbox" name="services" value="Children's dentistry">
-                <span class="svc-box"><span class="svc-tick"></span><span>Children's dentistry</span></span>
-              </label>
-            </div>
+            {% endfor %}
+          </div>
 
       <!-- Calendar + Timeslots (desktop layout) -->
       <div class="row gx-3 mt-4 appt-grid desktop-picker">

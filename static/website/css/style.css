@@ -8690,7 +8690,7 @@ h1, h2, h3, h4, h5,
     font-size: 18px;
     color: #000000; }
 
-//* Circular badge that doesn't break the grid */
+/* Circular badge that doesn't break the grid */
 .services .icon{
   width: clamp(96px, 10vw, 140px);
   height: clamp(96px, 10vw, 140px);
@@ -10004,7 +10004,7 @@ textarea.form-control {
   }
 
   .appointment-section .container {
-    width: 80%;
+    width: 100%;
   }
 
   .appointment-title {

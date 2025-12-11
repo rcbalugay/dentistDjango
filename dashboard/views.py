@@ -13,6 +13,7 @@ from django.db.models import Q, Count
 from website.models import Appointment
 from .utils.time_utils import parse_timeslot, format_html_time_to_timeslot
 from .utils.chart_utils import build_appointment_chart
+from website.constants import APPOINTMENT_SERVICES
 
 # Create your views here.
 def client_ip(request):
@@ -427,6 +428,8 @@ def appointments_form(request):
         raw_time = request.POST.get('appointment_time', '') or request.POST.get('timeslot', '')
         timeslot = format_html_time_to_timeslot(raw_time)    
 
+        services = [s for s in services if s in APPOINTMENT_SERVICES]
+
         # Convert timeslot to "HH:MM AM/PM" format if needed
         if timeslot and not any(x in timeslot.upper() for x in ["AM", "PM"]):
             from datetime import datetime
@@ -464,5 +467,6 @@ def appointments_form(request):
      
     return render(request, 'dashboard/pages/appointmentform.html', {
         "active_page": "appointments",
+        "available_services": APPOINTMENT_SERVICES,
     })
 
