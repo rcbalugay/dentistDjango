@@ -3,6 +3,7 @@ from django.core.mail import send_mail
 from datetime import datetime
 from .models import Appointment
 from django.contrib import messages
+from .constants import APPOINTMENT_SERVICES
 
 def home(request):
 	return render(request, 'home.html', {})
@@ -39,7 +40,7 @@ def services(request):
 def doctor(request):
 	return render(request, 'pages/doctor.html', {})
 
-def appointment(request):
+def appointment_form(request):
     if request.method == "POST":
         name     = request.POST.get("name", "").strip()
         phone    = request.POST.get("phone", "").strip()

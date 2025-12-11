@@ -417,7 +417,7 @@ def profile(request):
     })
 
 @login_required
-def appointment_form(request):
+def appointments_form(request):
     if request.method == 'POST':
         name = request.POST.get('name').strip()
         phone = request.POST.get('phone').strip()
@@ -447,7 +447,7 @@ def appointment_form(request):
             app_date = datetime.strptime(date_str, '%Y-%m-%d').date()
         except ValueError:
             messages.error(request, 'Invalid date format.')
-            return redirect ('dashboard:appointment_form')
+            return redirect ('dashboard:appointments_form')
         
         # Create appointment
         Appointment.objects.create(

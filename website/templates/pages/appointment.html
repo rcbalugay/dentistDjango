@@ -19,7 +19,7 @@
   <div class="container">
     <h1 class="appointment-title">Schedule your next Dental Appointment</h1>
 
-    <form id="appointmentForm" method="POST" action="{% url 'appointment' %}" class="appt-form">
+    <form id="appointmentForm" method="POST" action="{% url 'appointment_form' %}" class="appt-form">
       {% csrf_token %}
 
       <!-- Row: name + phone -->
