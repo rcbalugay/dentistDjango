@@ -1,5 +1,6 @@
 from django import forms
-from datetime import time
+from django.core.exceptions import ValidationError
+from datetime import datetime
 from .models import Appointment
 from .constants import APPOINTMENT_SERVICES
 
@@ -43,9 +44,12 @@ class AppointmentForm(forms.ModelForm):
       if not appt_date or not appt_time:
           return cleaned
 
+      timeslot_str = appt_time.strftime("%I:%M %p").lstrip("0")
+      cleaned["timeslot_str"] = timeslot_str
+
       qs = Appointment.objects.filter(
           date=appt_date,
-          timeslot=appt_time,
+          timeslot=timeslot_str,
       ).exclude(
           status=Appointment.STATUS_CANCELLED
       )
@@ -56,7 +60,7 @@ class AppointmentForm(forms.ModelForm):
       if qs.exists():
           # This shows as a "non-field" error at the top of the form
           raise forms.ValidationError(
-            "The selected date and time is already booked. Please choose a different slot."
+            "The selected date and time is already booked. Please choose a different date or time."
           )
 
       # Additional validation can be added here if needed
@@ -73,8 +77,11 @@ class AppointmentForm(forms.ModelForm):
         date_obj = self.cleaned_data["appointment_date"]
         time_obj = self.cleaned_data["appointment_time"]
 
+        timeslot_str = self.cleaned_data.get("timeslot_str") or \
+                       time_obj.strftime("%I:%M %p").lstrip("0")
+        
         instance.date = date_obj
-        instance.timeslot = time_obj.strftime("%I:%M %p").lstrip("0")
+        instance.timeslot = timeslot_str
         instance.services = self.cleaned_data["services"]
 
         if status is not None:
