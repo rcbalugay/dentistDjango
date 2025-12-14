@@ -3,7 +3,8 @@ from django.core.mail import send_mail
 from datetime import datetime
 from .models import Appointment
 from django.contrib import messages
-from website.constants import APPOINTMENT_SERVICES
+from .constants import APPOINTMENT_SERVICES
+from .forms import AppointmentForm
 
 def home(request):
 	return render(request, 'home.html', {})
@@ -42,32 +43,18 @@ def doctor(request):
 
 def appointment_form(request):
     if request.method == "POST":
-        name     = request.POST.get("name", "").strip()
-        phone    = request.POST.get("phone", "").strip()
-        email    = request.POST.get("email", "").strip()
-        services = request.POST.getlist("services") 
-        date_str = request.POST.get("appointment_date", "") or request.POST.get("date", "")
-        timeslot = request.POST.get("appointment_time", "") or request.POST.get("timeslot", "")
-
-        # validation part
-        if not (name and phone and date_str and timeslot and services):
-            messages.error(request, "Please complete name, phone, date, time and services.")
-            return redirect("appointment")
-
-        try:
-            appt_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-        except ValueError:
-            messages.error(request, "Invalid date format.")
-            return redirect("appointment")
-
-        Appointment.objects.create(
-            name=name, phone=phone, email=email,
-            services=services, date=appt_date, timeslot=timeslot
-        )
-
-        messages.success(request, "Hello, an appointment has been request.")
-        return redirect("appointment")
-
+        form = AppointmentForm(request.POST)
+        if form.is_valid():
+            form.save(status=Appointment.STATUS_PENDING)
+            messages.success(request, "Your appointment request has been submitted.")
+            return redirect('appointment_form')
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = AppointmentForm()
+    
+    # Use this to limit services on landing page
+    # landing_services = APPOINTMENT_SERVICES[:4]
     return render(request, "pages/appointment.html", {
-        "available_services": APPOINTMENT_SERVICES,
+        "form": form, # replace this with landing_service if needed
     })

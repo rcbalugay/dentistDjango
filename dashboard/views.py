@@ -14,6 +14,7 @@ from website.models import Appointment
 from .utils.time_utils import parse_timeslot, format_html_time_to_timeslot
 from .utils.chart_utils import build_appointment_chart
 from website.constants import APPOINTMENT_SERVICES
+from website.forms import AppointmentForm
 
 # Create your views here.
 def client_ip(request):
@@ -420,53 +421,18 @@ def profile(request):
 @login_required
 def appointments_form(request):
     if request.method == 'POST':
-        name = request.POST.get('name').strip()
-        phone = request.POST.get('phone').strip()
-        email = request.POST.get('email').strip()
-        services = request.POST.getlist('services')
-        date_str = request.POST.get('appointment_date', '') or request.POST.get('date', '')
-        raw_time = request.POST.get('appointment_time', '') or request.POST.get('timeslot', '')
-        timeslot = format_html_time_to_timeslot(raw_time)    
-
-        services = [s for s in services if s in APPOINTMENT_SERVICES]
-
-        # Convert timeslot to "HH:MM AM/PM" format if needed
-        if timeslot and not any(x in timeslot.upper() for x in ["AM", "PM"]):
-            from datetime import datetime
-            try:
-                t = datetime.strptime(timeslot, "%H:%M")
-                # "10:00 AM" style (remove leading zero)
-                timeslot = t.strftime("%I:%M %p").lstrip("0")
-            except ValueError:
-                # fall back to original if parsing fails
-                pass
-
-        # Validation
-        if not (name and phone and date_str and timeslot and services):
-            messages.error(request, 'Please complete name, phone, date, time, and services.')
-            return redirect('dashboard:appointment_form')
-        
-        try:
-            app_date = datetime.strptime(date_str, '%Y-%m-%d').date()
-        except ValueError:
-            messages.error(request, 'Invalid date format.')
-            return redirect ('dashboard:appointments_form')
-        
-        # Create appointment
-        Appointment.objects.create(
-            name=name,
-            phone=phone,
-            email=email,
-            date=app_date,
-            services=services,
-            timeslot=timeslot,
-        )
-
-        messages.success(request, 'Appointment has been created.')
-        return redirect('dashboard:appointments')
+        form = AppointmentForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Appointment has been created.")
+            return redirect('dashboard:appointments')
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = AppointmentForm()
      
     return render(request, 'dashboard/pages/appointmentform.html', {
         "active_page": "appointments",
-        "available_services": APPOINTMENT_SERVICES,
+        "form": form,
     })
 

@@ -64,7 +64,7 @@
               <div class="text-center">
                 <h3 class="mb-4">Book an Appointment</h3>
               </div>
-              <form action="{% url 'appointment' %}" method="post" class="appointment-form">
+              <form action="{% url 'appointment_form' %}" method="post" class="appointment-form">
                 {% csrf_token %}
                 <div class="row">
                   <div class="col-md-12 col-lg-6 col-xl-4">

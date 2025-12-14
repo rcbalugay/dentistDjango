@@ -67,10 +67,10 @@
             <p class="section-title">Our Services</p>
 
             <div class="service-grid">
-              {% for s in available_services %}
+              {% for checkbox in form.services %}
               <label class="svc-card">
-                <input type="checkbox" name="services" value="{{ s }}">
-                <span class="svc-box"><span class="svc-tick"></span><span>{{ s }}</span></span>
+                {{ checkbox.tag }}
+                <span class="svc-box"><span class="svc-tick"></span><span>{{ checkbox.choice_label }}</span></span>
               </label>
             {% endfor %}
           </div>
