@@ -1,6 +1,4 @@
 from django import forms
-from django.core.exceptions import ValidationError
-from datetime import datetime
 from .models import Appointment
 from .constants import APPOINTMENT_SERVICES
 
@@ -34,7 +32,7 @@ class AppointmentForm(forms.ModelForm):
             "phone": forms.TextInput(attrs={"class": "form-control"}),
             "email": forms.EmailInput(attrs={"class": "form-control"}),
         }
-
+    
     def clean(self):
       cleaned = super().clean()
       appt_date = cleaned.get("appointment_date")
@@ -60,7 +58,7 @@ class AppointmentForm(forms.ModelForm):
       if qs.exists():
           # This shows as a "non-field" error at the top of the form
           raise forms.ValidationError(
-            "The selected date and time is already booked. Please choose a different date or time."
+            "The selected date or time is already booked. Please choose a different date or time."
           )
 
       # Additional validation can be added here if needed

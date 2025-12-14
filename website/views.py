@@ -46,7 +46,7 @@ def appointment_form(request):
         form = AppointmentForm(request.POST)
         if form.is_valid():
             form.save(status=Appointment.STATUS_PENDING)
-            messages.success(request, "Your appointment request has been submitted.")
+            messages.success(request, "Your appointment request has been sent. We will contact you to confirm.")
             return redirect('appointment_form')
         else:
             messages.error(request, "Please correct the errors below.")

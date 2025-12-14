@@ -15,100 +15,111 @@
       </div>
     </section>
 
-<section class="appointment-section">
-  <div class="container">
-    <h1 class="appointment-title">Schedule your next Dental Appointment</h1>
+  <section class="appointment-section">
+    <div class="container">
+      <h1 class="appointment-title">Schedule your next Dental Appointment</h1>
 
-    <form id="appointmentForm" method="POST" action="{% url 'appointment_form' %}" class="appt-form">
-      {% csrf_token %}
+      <form id="appointmentForm" method="POST" action="{% url 'appointment_form' %}" class="appt-form">
+        {% csrf_token %}
 
-      <!-- Row: name + phone -->
-      <div class="row gx-3">
-        <div class="col-md-6">
-          <label class="form-label" for="name">Name <span>(required)</span></label>
-          <input
-            id="name"
-            name="name"
-            type="text"
-            class="form-control-custom"
-            placeholder="Juan Dela Cruz"
-            required>
-        </div>
-
-        <div class="col-md-6">
-          <label class="form-label" for="phone">Phone number <span>(required)</span></label>
-          <input
-            id="phone"
-            name="phone"
-            type="tel"
-            class="form-control-custom"
-            placeholder="+63 912 345 6789"
-            required>
-        </div>
-      </div>
-
-      <!-- Row: email (full width) -->
-      <div class="row gx-3 mt-3">
-        <div class="col-12">
-          <label class="form-label" for="email">Email <span>(required)</span></label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            class="form-control-custom"
-            placeholder="you@example.com"
-            required>
-        </div>
-      </div>
-
-      <!-- Services: exactly the 3 you wanted -->
-      <div class="row gx-3 mt-4">
-        <div class="col-12">
-            <p class="section-title">Our Services</p>
-
-            <div class="service-grid">
-              {% for checkbox in form.services %}
-              <label class="svc-card">
-                {{ checkbox.tag }}
-                <span class="svc-box"><span class="svc-tick"></span><span>{{ checkbox.choice_label }}</span></span>
-              </label>
+        {# Show the “slot already booked” error from AppointmentForm.clean() #}
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger mb-3">
+            {% for err in form.non_field_errors %}
+              {{ err }}
             {% endfor %}
           </div>
+        {% endif %}
 
-      <!-- Calendar + Timeslots (desktop layout) -->
-      <div class="row gx-3 mt-4 appt-grid desktop-picker">
-        <!-- Calendar (always visible on desktop) -->
-        <div class="col-lg-6">
-          <p class="section-label mb-2">Pick a Date</p>
-          <!-- inline calendar target -->
-          <input id="datepicker" name="appointment_date" type="text" class="d-none" />
-          <div id="calendarHost" aria-label="Calendar"></div>
-        </div>
+        <!-- Row: name + phone -->
+        <div class="row gx-3">
+          <div class="col-md-6">
+            <label class="form-label" for="name">Name <span>(required)</span></label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              class="form-control-custom"
+              placeholder="Juan Dela Cruz"
+              required>
+          </div>
 
-        <!-- Timeslots (shown only after a date is picked) -->
-        <div class="col-lg-6">
-          <p class="section-label mb-2">Pick a Timeslot</p>
-          <div id="timeslotWrap" class="timeslots timeslots--hidden" aria-live="polite">
-            <p class="muted mb-2" id="slotHint">Select a date to see available time slots</p>
-            <div id="timeslotList" class="slot-list"></div>
-            <!-- hidden field to carry the selected time -->
-            <input type="hidden" id="appointment_time" name="appointment_time">
+          <div class="col-md-6">
+            <label class="form-label" for="phone">Phone number <span>(required)</span></label>
+            <input
+              id="phone"
+              name="phone"
+              type="tel"
+              class="form-control-custom"
+              placeholder="+63 912 345 6789"
+              required>
           </div>
         </div>
-      </div>
 
-      <!-- Combined date & time matrix (mobile / tablet only) -->
-      <div id="mobileMatrix"
-           class="appt-matrix d-lg-none mt-4"
-           aria-label="Choose date and time">
-      </div>
+        <!-- Row: email (full width) -->
+        <div class="row gx-3 mt-3">
+          <div class="col-12">
+            <label class="form-label" for="email">Email <span>(required)</span></label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              class="form-control-custom"
+              placeholder="you@example.com"
+              required>
+          </div>
+        </div>
 
-      <div class="text-center mt-4">
-      <button type="submit" class="btn btn-submit-custom mt-4">Request an Appointment</button>
-      </div>
-    </form>
-  </div>
-</section>
+        <!-- Services: exactly the 3 you wanted -->
+        <div class="row gx-3 mt-4">
+          <div class="col-12">
+              <p class="section-title">Our Services</p>
+
+              {{ form.services.errors }}
+
+              <div class="service-grid">
+                {% for checkbox in form.services %}
+                <label class="svc-card">
+                  {{ checkbox.tag }}
+                  <span class="svc-box"><span class="svc-tick"></span><span>{{ checkbox.choice_label }}</span></span>
+                </label>
+              {% endfor %}
+            </div>
+
+        <!-- Calendar + Timeslots (desktop layout) -->
+        <div class="row gx-3 mt-4 appt-grid desktop-picker">
+          <!-- Calendar (always visible on desktop) -->
+          <div class="col-lg-6">
+            <p class="section-label mb-2">Pick a Date</p>
+            <!-- inline calendar target -->
+            <input id="datepicker" name="appointment_date" type="text" class="d-none" />
+            <div id="calendarHost" aria-label="Calendar"></div>
+          </div>
+
+          <!-- Timeslots (shown only after a date is picked) -->
+          <div class="col-lg-6">
+            <p class="section-label mb-2">Pick a Timeslot</p>
+            <div id="timeslotWrap" class="timeslots timeslots--hidden" aria-live="polite">
+              <p class="muted mb-2" id="slotHint">Select a date to see available time slots</p>
+              <div id="timeslotList" class="slot-list"></div>
+              <!-- hidden field to carry the selected time -->
+              <input type="hidden" id="appointment_time" name="appointment_time">
+            </div>
+          </div>
+        </div>
+
+        <!-- Combined date & time matrix (mobile / tablet only) -->
+        <div id="mobileMatrix"
+            class="appt-matrix d-lg-none mt-4"
+            aria-label="Choose date and time">
+        </div>
+
+        <div class="text-center mt-4">
+        <button type="submit" class="btn btn-submit-custom mt-4">Request an Appointment</button>
+        </div>
+      </form>
+    </div>
+  </section>
 
 <!-- Flatpickr assets -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
