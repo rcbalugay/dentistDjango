@@ -462,13 +462,18 @@
             </thead>
             <tbody>
               {% for p in latest_patients %}
+                {% with last=p.appointments.all.0 %}
                 <tr>
                   <!-- client no. (row number or use p.id if you prefer) -->
                   <td class="lp-no">C{{ p.id }}</td>
 
                   <!-- appointment date -->
                   <td class="lp-date">
-                    {{ p.date|date:"d/m/Y" }}
+                    {% if last %}
+                      {{ last.date|date:"d/m/Y" }}
+                    {% else %}
+                      —
+                    {% endif %}
                   </td>
 
                   <!-- patient name -->
@@ -489,8 +494,8 @@
 
                   <!-- treatment / services -->
                   <td class="lp-treatment">
-                    {% if p.services %}
-                      {{ p.services|join:", " }}
+                    {% if last and last.services %}
+                      {{ last.services|join:", " }}
                     {% else %}
                       —
                     {% endif %}
@@ -499,6 +504,7 @@
                   <!-- ... menu -->
                   <td class="lp-actions">⋯</td>
                 </tr>
+                {% endwith %}
               {% empty %}
                 <tr class="lp-empty-row">
                   <td colspan="6" class="text-muted text-center">

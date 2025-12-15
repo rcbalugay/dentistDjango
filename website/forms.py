@@ -89,7 +89,7 @@ class AppointmentForm(forms.ModelForm):
         email = self.cleaned_data.get("email", "").strip()
 
         if name or phone or email:
-          patient, _created = Patient.object.get_or_create(
+          patient, _created = Patient.objects.get_or_create(
             name=name,
             phone=phone,
             email=email,

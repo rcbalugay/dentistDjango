@@ -9,8 +9,8 @@ from django.contrib.auth.views import LoginView
 from datetime import date, timedelta, datetime
 from django.utils import timezone
 from django.core.paginator import Paginator
-from django.db.models import Q, Count
-from website.models import Appointment
+from django.db.models import Q, Count, Max
+from website.models import Appointment, Patient
 from .utils.time_utils import parse_timeslot, format_html_time_to_timeslot
 from .utils.chart_utils import build_appointment_chart
 from website.constants import APPOINTMENT_SERVICES
@@ -128,8 +128,10 @@ def index(request):
 
     # latest patients (based on most recent appointments)
     latest_patients = (
-        Appointment.objects
-        .order_by("-created_at")[:5]
+        Patient.objects
+        .annotate(last_appointment_date=Max("appointments__date"))
+        .filter(last_appointment_date__isnull=False)
+        .order_by("-last_appointment_date")[:5]
     )
 
     # --------------- APPOINTMENTS CHART (Day / Week / Month / Year) ---------------
