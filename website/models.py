@@ -64,6 +64,20 @@ class Appointment(models.Model):
 		]
 		ordering = ["-date", "timeslot", "name"]
 
-	def __str__(self):
-		return f"{self.name} — {self.date} {self.timeslot}" 
+	def initials(self):
+		"""
+        Return 2-letter initials for use in the avatar circle.
+        - If only one word: first two letters (e.g. 'F' → 'F', 'Anna' → 'AN')
+        - If multiple words: first letter of first + first letter of last (e.g. 'Ricci Balugay' → 'RB')
+        """
+		name = (self.name or "").strip()
+		if not name:
+			return ""
 
+		parts = name.split()
+		if len(parts) == 1:
+			return parts[0][:2].upper()
+		return (parts[0][0] + parts[-1][0]).upper()
+
+	def __str__(self):
+		return f"{self.name} — {self.date} {self.timeslot}"

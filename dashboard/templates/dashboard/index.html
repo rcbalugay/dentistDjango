@@ -581,7 +581,7 @@
                           {% if a.photo %}
                             <img src="{{ a.photo.url }}" alt="{{ a.name }}">
                           {% else %}
-                            {{ a.name|first|upper }}
+                            {{ a.initials }}
                           {% endif %}
                         </div>
                         <div>
