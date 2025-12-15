@@ -1,5 +1,5 @@
 from django import forms
-from .models import Appointment
+from .models import Appointment, Patient
 from .constants import APPOINTMENT_SERVICES
 
 class AppointmentForm(forms.ModelForm):
@@ -44,6 +44,7 @@ class AppointmentForm(forms.ModelForm):
           return cleaned
 
       timeslot_str = appt_time.strftime("%I:%M %p").lstrip("0")
+      cleaned["timeslot_str"] = timeslot_str
 
       qs = Appointment.objects.filter(
           date=appt_date,
@@ -82,6 +83,19 @@ class AppointmentForm(forms.ModelForm):
         instance.timeslot = timeslot_str
         instance.services = self.cleaned_data["services"]
 
+        # GET Patient details
+        name = self.cleaned_data.get("name", "").strip()
+        phone = self.cleaned_data.get("phone", "").strip()
+        email = self.cleaned_data.get("email", "").strip()
+
+        if name or phone or email:
+          patient, _created = Patient.object.get_or_create(
+            name=name,
+            phone=phone,
+            email=email,
+          )
+          instance.patient = patient
+        
         if status is not None:
             instance.status = status
         

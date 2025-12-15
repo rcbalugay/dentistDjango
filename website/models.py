@@ -1,6 +1,22 @@
 from django.db import models
 
 # Create your models here.
+class Patient(models.Model):
+    name = models.CharField(max_length=120)
+    phone = models.CharField(max_length=40, blank=True)
+    email = models.EmailField(blank=True)
+    notes = models.TextField(blank=True)      # optional general notes about the patient
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        # avoid having dozens of exact duplicates
+        unique_together = ("name", "phone", "email")
+        ordering = ["name"]
+
+    def __str__(self):
+        contact = self.phone or self.email or "no contact"
+        return f"{self.name} ({contact})"
+
 class Appointment(models.Model):
 	STATUS_PENDING   = "pending"
 	STATUS_CONFIRMED = "confirmed"
@@ -13,6 +29,15 @@ class Appointment(models.Model):
 		(STATUS_CANCELLED, "Cancelled"),
 		(STATUS_COMPLETED, "Completed"),
 	]
+
+	# Links to Patient model in future updates
+	patient = models.ForeignKey(
+		Patient,
+		null=True,
+		blank=True,
+		on_delete=models.SET_NULL,
+		related_name="appointments",
+	)
 
 	name = models.CharField(max_length=120)
 	phone = models.CharField(max_length=40)
@@ -35,8 +60,10 @@ class Appointment(models.Model):
 		indexes = [
 			models.Index(fields=["date"]),
 			models.Index(fields=["name"]),
+			models.Index(fields=["patient"]),
 		]
 		ordering = ["-date", "timeslot", "name"]
 
 	def __str__(self):
 		return f"{self.name} — {self.date} {self.timeslot}" 
+
