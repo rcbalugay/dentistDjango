@@ -89,6 +89,11 @@
         <!-- Calendar + Timeslots (desktop layout) -->
         <div class="row gx-3 mt-4 appt-grid desktop-picker">
           <!-- Calendar (always visible on desktop) -->
+
+          {% for error in form.appointment_date.errors %}
+            <div class="text-danger small mt-1">{{ error }}</div>
+          {% endfor %}
+
           <div class="col-lg-6">
             <p class="section-label mb-2">Pick a Date</p>
             <!-- inline calendar target -->
@@ -97,6 +102,11 @@
           </div>
 
           <!-- Timeslots (shown only after a date is picked) -->
+          
+          {% for error in form.appointment_time.errors %}
+            <div class="text-danger small mt-1">{{ error }}</div>
+          {% endfor %}
+
           <div class="col-lg-6">
             <p class="section-label mb-2">Pick a Timeslot</p>
             <div id="timeslotWrap" class="timeslots timeslots--hidden" aria-live="polite">

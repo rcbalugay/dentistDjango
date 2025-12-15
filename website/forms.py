@@ -11,10 +11,11 @@ class AppointmentForm(forms.ModelForm):
     """
     
     appointment_date = forms.DateField(
-        widget=forms.DateInput(attrs={"type": "date", "class": "form-control"})
+      widget=forms.DateInput(attrs={"type": "date", "class": "form-control"})
     )
     appointment_time = forms.TimeField(
-        widget=forms.TimeInput(attrs={"type": "time", "class": "form-control"})
+      input_formats=["%I:%M %p", "%H:%M"],
+      widget=forms.TimeInput(attrs={"type": "time", "class": "form-control"})
     )
 
     services = forms.MultipleChoiceField(
@@ -43,7 +44,6 @@ class AppointmentForm(forms.ModelForm):
           return cleaned
 
       timeslot_str = appt_time.strftime("%I:%M %p").lstrip("0")
-      cleaned["timeslot_str"] = timeslot_str
 
       qs = Appointment.objects.filter(
           date=appt_date,
