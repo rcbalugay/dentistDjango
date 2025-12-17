@@ -47,3 +47,15 @@ def parse_timeslot(ts: str) -> time:
             continue
 
     return time(0, 0)
+
+def parse_date(value):
+    """
+    Parse a date string in 'YYYY-MM-DD' format into a date object.
+    Returns None if parsing fails.
+    """
+    if not value:
+        return None
+    try:
+        return datetime.strptime(value, "%Y-%m-%d").date()
+    except(TypeError, ValueError):
+        return None

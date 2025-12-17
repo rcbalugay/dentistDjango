@@ -11,7 +11,11 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 from django.db.models import Q, Count, Max
 from website.models import Appointment, Patient
-from .utils.time_utils import parse_timeslot, format_html_time_to_timeslot
+from .utils.time_utils import (
+    parse_timeslot, 
+    format_html_time_to_timeslot,
+    parse_date,
+)
 from .utils.chart_utils import build_appointment_chart
 from website.constants import APPOINTMENT_SERVICES
 from website.forms import AppointmentForm
@@ -375,13 +379,24 @@ def appointments(request):
         .order_by("date", "timeslot", "name")
     )
 
+    status_filter = request.GET.get("history_status", "").strip()
+    start_str = request.GET.get("history_from", "").strip()
+    end_str = request.GET.get("history_to", "").strip()
+
     # Recent cancelled / completed (history)
-    recent_history_qs = (
-        base_qs.filter(
-            status__in=[Appointment.STATUS_CANCELLED, Appointment.STATUS_COMPLETED]
-        )
-        .order_by("-date", "timeslot", "name")
+    recent_history_qs = base_qs.filter(
+        status__in=[Appointment.STATUS_CANCELLED, Appointment.STATUS_COMPLETED]
     )
+
+    start_date = parse_date(start_str)
+    end_date = parse_date(end_str)
+
+    if start_date: 
+        recent_history_qs = recent_history_qs.filter(date__gte=start_date)
+    if end_date:
+        recent_history_qs = recent_history_qs.filter(date__lte=end_date)
+
+    recent_history_qs = recent_history_qs.order_by("-date","timeslot", "name")
 
     history_page_number = request.GET.get("history_page")
     history_paginator = Paginator(recent_history_qs, 5)
@@ -392,6 +407,9 @@ def appointments(request):
         "pending_requests": pending_requests,
         "upcoming_appointments": upcoming_appointments,
         "recent_history": recent_history,
+        "history_status": status_filter,
+        "history_from": start_str,
+        "history_to": end_str,
         "active_page": "appointments",
     }
     return render(request, "dashboard/pages/dappointments.html", ctx)

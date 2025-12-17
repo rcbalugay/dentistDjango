@@ -79,6 +79,35 @@
       background: #e7f9ed;
       color: #059669;
     }
+
+    /* History filter bar above recent history table */
+    .history-filters-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .history-filters-row .hf-field {
+      flex: 1 1 180px;   /* grow to fill, min width approx one control */
+    }
+
+    .history-filters-row .hf-button {
+      flex: 0 0 150px;   /* fixed-ish size for the button */
+      display: flex;
+      align-items: flex-end;
+    }
+
+    /* On small screens stack them vertically */
+    @media (max-width: 768px) {
+      .history-filters-row {
+        flex-direction: column;
+      }
+
+      .history-filters-row .hf-button {
+        width: 100%;
+      }
+    }
+
   </style>
 {% endblock %}
 
@@ -290,6 +319,54 @@
           <h6 class="text-muted text-uppercase mb-2">Recent history</h6>
           <div class="card">
             <div class="card-body">
+
+              {# ---- Filters: status + date range ---- #}
+              <form method="get" class="mb-3">
+                {# keep search text when filtering #}
+                {% if q %}
+                  <input type="hidden" name="q" value="{{ q }}">
+                {% endif %}
+
+                <div class="history-filters-row">
+                  <div class="hf-field">
+                    <label class="small mb-1">Status</label>
+                    <select name="history_status" class="form-control form-control-sm">
+                      <option value="" {% if not history_status %}selected{% endif %}>All</option>
+                      <option value="completed"
+                              {% if history_status == 'completed' %}selected{% endif %}>
+                        Completed
+                      </option>
+                      <option value="cancelled"
+                              {% if history_status == 'cancelled' %}selected{% endif %}>
+                        Cancelled
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="hf-field">
+                    <label class="small mb-1">From</label>
+                    <input type="date"
+                          name="history_from"
+                          value="{{ history_from }}"
+                          class="form-control form-control-sm">
+                  </div>
+
+                  <div class="hf-field">
+                    <label class="small mb-1">To</label>
+                    <input type="date"
+                          name="history_to"
+                          value="{{ history_to }}"
+                          class="form-control form-control-sm">
+                  </div>
+
+                  <div class="hf-button">
+                    <button type="submit" class="btn btn-sm btn-primary btn-block">
+                      Filter
+                    </button>
+                  </div>
+                </div>
+              </form>
+
               <table class="table table-sm appointments-table mb-0">
                 <thead>
                   <tr>
