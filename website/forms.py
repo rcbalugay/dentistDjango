@@ -14,7 +14,7 @@ class AppointmentForm(forms.ModelForm):
       widget=forms.DateInput(attrs={"type": "date", "class": "form-control"})
     )
     appointment_time = forms.TimeField(
-      input_formats=["%I:%M %p", "%H:%M"],
+      input_formats=["%I:%M %p", "%I:%M%p", "%H:%M"],
       widget=forms.TimeInput(attrs={"type": "time", "class": "form-control"})
     )
 
@@ -48,7 +48,7 @@ class AppointmentForm(forms.ModelForm):
 
       qs = Appointment.objects.filter(
           date=appt_date,
-          timeslot=timeslot_str,
+          start_time=appt_time,
       ).exclude(
           status=Appointment.STATUS_CANCELLED
       )
@@ -80,6 +80,7 @@ class AppointmentForm(forms.ModelForm):
                        time_obj.strftime("%I:%M %p").lstrip("0")
         
         instance.date = date_obj
+        instance.start_time = time_obj
         instance.timeslot = timeslot_str
         instance.services = self.cleaned_data["services"]
 
@@ -98,7 +99,7 @@ class AppointmentForm(forms.ModelForm):
         
         if status is not None:
             instance.status = status
-        
+
         if commit:
             instance.save()
 

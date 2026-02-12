@@ -248,7 +248,7 @@ def appointments(request):
     # Requests = pending appointments
     pending_requests = (
         base_qs.filter(status=Appointment.STATUS_PENDING)
-        .order_by("date", "timeslot", "name")
+        .order_by("date", "start_time", "name")
     )
 
     # Upcoming confirmed appointments (today and future)
@@ -257,7 +257,7 @@ def appointments(request):
             status=Appointment.STATUS_CONFIRMED,
             date__gte=today,
         )
-        .order_by("date", "timeslot", "name")
+        .order_by("date", "start_time", "name")
     )
 
     status_filter = request.GET.get("history_status", "").strip()
@@ -287,7 +287,7 @@ def appointments(request):
     if end_date:
         recent_history_qs = recent_history_qs.filter(date__lte=end_date)
 
-    recent_history_qs = recent_history_qs.order_by("-date","timeslot", "name")
+    recent_history_qs = recent_history_qs.order_by("-date","start_time", "name")
 
     history_page_number = request.GET.get("history_page")
     history_paginator = Paginator(recent_history_qs, 5)
@@ -359,7 +359,7 @@ def appointments_form(request):
             messages.error(request, "Please correct the errors below.")
     else:
         form = AppointmentForm()
-     
+    
     return render(request, 'dashboard/pages/appointmentform.html', {
         "active_page": "appointments",
         "form": form,

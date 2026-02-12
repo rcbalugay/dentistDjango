@@ -46,6 +46,7 @@ class Appointment(models.Model):
 	services = models.JSONField(default=list)
 	date = models.DateField()
 	timeslot = models.CharField(max_length=40)
+	start_time = models.TimeField(null=True, blank=True)
 
 	notes = models.TextField(blank=True) # for staff notes
 	created_at = models.DateTimeField(auto_now_add=True)
