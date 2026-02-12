@@ -15,18 +15,21 @@ except Exception:
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = os.environ.get("SECRET_KEY")
+if not SECRET_KEY and not DEBUG:
+    raise ValueError("DJANGO_SECRET_KEY is required when DEBUG=False")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['52.64.199.229', '*']
-DEBUG = os.getenv('DEBUG', 'True') == 'True'
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',') if not DEBUG else ['*']
-TIME_ZONE = os.getenv('TIME_ZONE', 'UTC')
+ALLOWED_HOSTS = ["52.64.199.229", "*"]
+DEBUG = os.getenv("DEBUG", "True").lower() == "true"
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+ALLOWED_HOSTS = [h.strip() for h in ALLOWED_HOSTS if h.strip()]
+TIME_ZONE = os.getenv("TIME_ZONE", "UTC")
 
 # --- App-specific ---
-WEATHERAPI_KEY = os.getenv('WEATHERAPI_KEY', '')
+WEATHERAPI_KEY = os.getenv("WEATHERAPI_KEY", "")
 
 # Application definition
 
@@ -82,6 +85,10 @@ DATABASES = {
     }
 }
 
+DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL:
+    import dj_database_url
+    DATABASES["default"] = dj_database_url.parse(DATABASE_URL, conn_max_age=600) # Change the age value as needed
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -144,10 +151,51 @@ LOGOUT_REDIRECT_URL = 'dashboard:login'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 #Only if heroku hosting is used
+"""
 try:
     import django_heroku
     django_heroku.settings(locals())
 except ImportError:
     pass
+"""
+
+# Security headers (safe for dev + prod)
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = "DENY"
+
+# Production-only security
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
+    SECURE_REFERRER_POLICY = "same-origin"
+    # If behind a proxy/load balancer (common on Render/Railway/Nginx)
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {"class": "logging.StreamHandler"},
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+}
+
+if not DEBUG:
+    LOGGING["loggers"] = {
+        "django.request": {
+            "handlers": ["console"],
+            "level": "ERROR",
+            "propagate": False,
+        }
+    }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

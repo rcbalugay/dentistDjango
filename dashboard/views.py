@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.conf import settings
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.views import LoginView
 from datetime import date, timedelta, datetime
 from django.utils import timezone
@@ -21,6 +21,9 @@ from website.constants import APPOINTMENT_SERVICES
 from website.forms import AppointmentForm
 
 # Create your views here.
+def staff_only(user):
+    return user.is_authenticated and user.is_staff
+
 def client_ip(request):
     xff = request.META.get("HTTP_X_FORWARDED_FOR")
     if xff:
@@ -72,7 +75,8 @@ class RememberMeLoginView(LoginView):
         self.request.session.set_expiry(1209600 if remember else 0)
         return resp
 
-@login_required
+@login_required(login_url="dashboard:login")
+@user_passes_test(staff_only)
 def index(request):
     wx = weather_by_ip(client_ip(request)) if settings.WEATHERAPI_KEY else None
 
@@ -187,6 +191,8 @@ def index(request):
     }
     return render(request, "dashboard/index.html", ctx)
 
+@login_required(login_url="dashboard:login")
+@user_passes_test(staff_only)
 def appointments_chart(request):
     today = timezone.localdate()
 
@@ -204,7 +210,8 @@ def appointments_chart(request):
     chart = build_appointment_chart(view_mode, base)
     return JsonResponse(chart)
 
-@login_required
+@login_required(login_url="dashboard:login")
+@user_passes_test(staff_only)
 def appointments(request):
     q = request.GET.get("q", "").strip()
     today = timezone.localdate()
@@ -311,31 +318,36 @@ def appointments(request):
     }
     return render(request, "dashboard/pages/dappointments.html", ctx)
 
-@login_required
+@login_required(login_url="dashboard:login")
+@user_passes_test(staff_only)
 def patients(request):
 	return render(request, 'dashboard/pages/patients.html', {
         "active_page": "patients",
     })
 
-@login_required
+@login_required(login_url="dashboard:login")
+@user_passes_test(staff_only)
 def message(request):
 	return render(request, 'dashboard/pages/message.html', {
         "active_page": "message",
     })
 
-@login_required
+@login_required(login_url="dashboard:login")
+@user_passes_test(staff_only)
 def blog(request):
 	return render(request, 'dashboard/pages/blog.html', {
         "active_page": "blog",
     })
 
-@login_required
+@login_required(login_url="dashboard:login")
+@user_passes_test(staff_only)
 def profile(request):
 	return render(request, 'dashboard/pages/profile.html', {
         "active_page": "profile",
     })
 
-@login_required
+@login_required(login_url="dashboard:login")
+@user_passes_test(staff_only)
 def appointments_form(request):
     if request.method == 'POST':
         form = AppointmentForm(request.POST)

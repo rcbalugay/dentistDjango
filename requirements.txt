@@ -5,7 +5,7 @@ attrs==25.3.0
 dj-database-url==3.0.1
 djangify==1.0.0
 Django==5.2.6
-django-heroku==0.3.1
+# django-heroku==0.3.1 to be added later if Heroku hosting is used
 gunicorn==23.0.0
 packaging==25.0
 # psycopg2==2.9.11 to be added later after integrating PostgreSQL
