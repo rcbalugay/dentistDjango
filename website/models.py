@@ -5,7 +5,7 @@ class Patient(models.Model):
     name = models.CharField(max_length=120)
     phone = models.CharField(max_length=40, blank=True)
     email = models.EmailField(blank=True)
-    notes = models.TextField(blank=True)      # optional general notes about the patient
+    notes = models.TextField(blank=True, null=True)      # optional general notes about the patient
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

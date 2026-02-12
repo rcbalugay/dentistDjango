@@ -37,7 +37,7 @@
           </div>
         {% endif %}
 
-        <form class="pt-3" method="post" action="{% url 'login' %}">
+        <form class="pt-3" method="post" action="{% url 'dashboard:login' %}">
           {% csrf_token %}
           <input type="hidden" name="next" value="{{ next }}">
           

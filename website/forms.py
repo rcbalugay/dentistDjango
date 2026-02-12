@@ -26,7 +26,7 @@ class AppointmentForm(forms.ModelForm):
 
     class Meta:
         model = Appointment
-        fields = ["name", "phone", "email", "appointment_date", "appointment_time", "services"]
+        fields = ["name", "phone", "email", "appointment_date", "appointment_time", "services", "notes"]
 
         widgets = {
             "name": forms.TextInput(attrs={"class": "form-control"}),
