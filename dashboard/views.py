@@ -262,6 +262,16 @@ def appointments(request):
         status__in=[Appointment.STATUS_CANCELLED, Appointment.STATUS_COMPLETED]
     )
 
+    VALID_HISTORY_STATUSES = [
+        Appointment.STATUS_CANCELLED,
+        Appointment.STATUS_COMPLETED,
+    ]
+
+    if status_filter in VALID_HISTORY_STATUSES:
+        recent_history_qs = recent_history_qs.filter(status=status_filter)
+    else:
+        status_filter = ""  # reset to empty if invalid value provided
+
     start_date = parse_date(start_str)
     end_date = parse_date(end_str)
 
@@ -276,6 +286,18 @@ def appointments(request):
     history_paginator = Paginator(recent_history_qs, 5)
     recent_history = history_paginator.get_page(history_page_number)
 
+    from urllib.parse import urlencode
+
+    history_query = {
+        "history_status": status_filter,
+        "history_from": start_str,
+        "history_to": end_str,
+    }
+    if q:
+        history_query["q"] = q
+
+    history_querystring = urlencode({k: v for k, v in history_query.items() if v})
+
     ctx = {
         "q": q,
         "pending_requests": pending_requests,
@@ -284,6 +306,7 @@ def appointments(request):
         "history_status": status_filter,
         "history_from": start_str,
         "history_to": end_str,
+        "history_querystring": history_querystring,
         "active_page": "appointments",
     }
     return render(request, "dashboard/pages/dappointments.html", ctx)

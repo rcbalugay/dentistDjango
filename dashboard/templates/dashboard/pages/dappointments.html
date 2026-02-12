@@ -316,12 +316,12 @@
       {% if recent_history %}
       <div class="row">
         <div class="col-lg-12 mb-4">
-          <h6 class="text-muted text-uppercase mb-2">Recent history</h6>
+          <h6 id="history" class="text-muted text-uppercase mb-2">Recent history</h6>
           <div class="card">
             <div class="card-body">
 
               {# ---- Filters: status + date range ---- #}
-              <form method="get" class="mb-3">
+              <form method="get" action="#history" class="mb-3">
                 {# keep search text when filtering #}
                 {% if q %}
                   <input type="hidden" name="q" value="{{ q }}">
@@ -436,13 +436,13 @@
                   </small>
                   <div>
                     {% if recent_history.has_previous %}
-                      <a href="?history_page={{ recent_history.previous_page_number }}"
+                      <a href="?history_page={{ recent_history.previous_page_number }}{% if history_querystring %}&{{ history_querystring }}{% endif %}#history"
                         class="btn btn-sm btn-outline-secondary">
                         Prev
                       </a>
                     {% endif %}
                     {% if recent_history.has_next %}
-                      <a href="?history_page={{ recent_history.next_page_number }}"
+                      <a href="?history_page={{ recent_history.next_page_number }}{% if history_querystring %}&{{ history_querystring }}{% endif %}#history"
                         class="btn btn-sm btn-outline-secondary">
                         Next
                       </a>
