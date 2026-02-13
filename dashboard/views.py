@@ -134,13 +134,29 @@ def index(request):
         key=lambda a: (a.date, parse_timeslot(a.timeslot or ""))
     )
 
-    # latest patients (based on most recent appointments)
-    latest_patients = (
-        Patient.objects
-        .annotate(last_appointment_date=Max("appointments__date"))
-        .filter(last_appointment_date__isnull=False)
-        .order_by("-last_appointment_date")[:5]
+    # latest patients (based on most recently completed appointments)
+    completed_qs = (
+    Appointment.objects
+    .filter(status=Appointment.STATUS_COMPLETED)
+    .order_by("-date", "-start_time", "-id")
     )
+
+    latest_patients = []
+    seen = set()
+
+    for a in completed_qs:
+        # Use contact identity to avoid showing the same person repeatedly
+        key = (
+            (a.phone or "").strip(),
+            (a.email or "").strip(),
+            (a.name or "").strip().lower(),
+        )
+        if key in seen:
+            continue
+        seen.add(key)
+        latest_patients.append(a)
+        if len(latest_patients) == 5:
+            break
 
     # --------------- APPOINTMENTS CHART (Day / Week / Month / Year) ---------------
     view_mode = (request.GET.get("ap_view") or "day").lower()
