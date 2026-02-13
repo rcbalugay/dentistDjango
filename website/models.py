@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 
 # Create your models here.
 class Patient(models.Model):
@@ -7,11 +8,14 @@ class Patient(models.Model):
     email = models.EmailField(blank=True)
     notes = models.TextField(blank=True, null=True)      # optional general notes about the patient
     created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        # avoid having dozens of exact duplicates
-        unique_together = ("name", "phone", "email")
-        ordering = ["name"]
+	
+	class Meta:
+		ordering = ["name"]
+		indexes = [
+			models.Index(fields=["name"]),
+			models.Index(fields=["phone"]),
+			models.Index(fields=["email"]),
+		]
 
     def __str__(self):
         contact = self.phone or self.email or "no contact"
@@ -40,7 +44,7 @@ class Appointment(models.Model):
 	)
 
 	name = models.CharField(max_length=120)
-	phone = models.CharField(max_length=40)
+	phone = models.CharField(max_length=40, blank=True)
 	email = models.EmailField(blank=True)
 	# stores selected service
 	services = models.JSONField(default=list)
@@ -63,7 +67,15 @@ class Appointment(models.Model):
 			models.Index(fields=["name"]),
 			models.Index(fields=["patient"]),
 		]
-		ordering = ["-date", "timeslot", "name"]
+		ordering = ["-date", "start_time", "name"]
+
+		constraints = [
+			models.UniqueConstraint(
+				fields=["date", "start_time"],
+				condition=Q(status__in=["pending", "confirmed"]),
+				name="unique_active_appointment_per_timeslot",
+			)
+		]
 
 	def initials(self):
 		"""
@@ -81,4 +93,5 @@ class Appointment(models.Model):
 		return (parts[0][0] + parts[-1][0]).upper()
 
 	def __str__(self):
-		return f"{self.name} — {self.date} {self.timeslot}"
+		t = self.start_time.strftime("%I:%M %p").lstrip("0") if self.start_time else self.timeslot
+		return f"{self.name} — {self.date} {t}"

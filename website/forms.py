@@ -49,8 +49,7 @@ class AppointmentForm(forms.ModelForm):
       qs = Appointment.objects.filter(
           date=appt_date,
           start_time=appt_time,
-      ).exclude(
-          status=Appointment.STATUS_CANCELLED
+          status__in=[Appointment.STATUS_PENDING, Appointment.STATUS_CONFIRMED],
       )
 
       if self.instance.pk:
@@ -82,20 +81,33 @@ class AppointmentForm(forms.ModelForm):
         instance.date = date_obj
         instance.start_time = time_obj
         instance.timeslot = timeslot_str
-        instance.services = self.cleaned_data["services"]
+        services = self.cleaned_data.get("services") or []
+        services = sorted({s.strip() for s in services if s.strip()})
+        instance.services = services
 
         # GET Patient details
         name = self.cleaned_data.get("name", "").strip()
         phone = self.cleaned_data.get("phone", "").strip()
         email = self.cleaned_data.get("email", "").strip()
 
-        if name or phone or email:
-          patient, _created = Patient.objects.get_or_create(
-            name=name,
-            phone=phone,
-            email=email,
+        patient = None
+        
+        if phone:
+          patient = Patient.objects.filter(phone=phone).first()
+
+        if not patient and email:
+          patient = Patient.objects.filter(email=email).first()
+
+        if not patient and name:
+          # fallback: find same name only if no identifiers
+          patient = Patient.objects.filter(name__iexact=name, phone=phone, email=email)
+
+        if not patient and (name or phone or email):
+          patient = Patient.objects.create(
+              name=name,
+              phone=phone,
+              email=email,
           )
-          instance.patient = patient
         
         if status is not None:
             instance.status = status
