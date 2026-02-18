@@ -1,5 +1,3 @@
-import ipaddress
-import requests as http_requests
 from django.http import JsonResponse
 from django.conf import settings
 from django.shortcuts import render, get_object_or_404, redirect
@@ -9,6 +7,7 @@ from django.contrib.auth.views import LoginView
 from datetime import date, timedelta, datetime
 from django.utils import timezone
 from django.core.paginator import Paginator
+from django.core.cache import cache
 from django.db.models import Q, Count, Max
 from website.models import Appointment, Patient
 from .utils.time_utils import (
@@ -17,53 +16,14 @@ from .utils.time_utils import (
     parse_date,
 )
 from .utils.chart_utils import build_appointment_chart
+from .utils.weather import client_ip, ip_for_query, weather_by_ip
 from website.constants import APPOINTMENT_SERVICES
 from website.forms import AppointmentForm
+from dashboard.services import get_cached_weather, get_latest_appointments
 
 # Create your views here.
 def staff_only(user):
     return user.is_authenticated and user.is_staff
-
-def client_ip(request):
-    xff = request.META.get("HTTP_X_FORWARDED_FOR")
-    if xff:
-        return xff.split(",")[0].strip()
-    return request.META.get("REMOTE_ADDR", "")
-
-def ip_for_query(ip: str) -> str:
-    """Return a safe query value for WeatherAPI: real IP or 'auto:ip' for local/private."""
-    try:
-        ip_obj = ipaddress.ip_address(ip)
-        if ip_obj.is_private or ip_obj.is_loopback or ip_obj.is_reserved:
-            return "auto:ip"
-        return ip
-    except Exception:
-        return "auto:ip"
-
-def weather_by_ip(ip: str):
-    """
-    Return {'temp_c','city','country'} via WeatherAPI, or None on failure.
-    """
-    try:
-        q = ip_for_query(ip)
-        r = http_requests.get(
-            "https://api.weatherapi.com/v1/current.json",
-            params={"key": settings.WEATHERAPI_KEY, "q": q, "aqi": "no"},
-            timeout=5,
-        )
-        j = r.json()
-        # Uncomment to see responses in console
-        # print("WX DEBUG:", {"ip": ip, "q": q, "status": r.status_code, "resp": j})
-        if "current" in j and "location" in j:
-            return {
-                "temp_c": round(j["current"]["temp_c"]),
-                "city": j["location"]["name"],
-                "country": j["location"]["country"],
-            }
-        return None
-    except Exception as e:
-        # print("WX ERROR:", e)
-        return None
 
 class RememberMeLoginView(LoginView):
     template_name = "dashboard/pages/login.html"
@@ -78,7 +38,18 @@ class RememberMeLoginView(LoginView):
 @login_required(login_url="dashboard:login")
 @user_passes_test(staff_only)
 def index(request):
-    wx = weather_by_ip(client_ip(request)) if settings.WEATHERAPI_KEY else None
+    wx = get_cached_weather(request)
+    if settings.WEATHERAPI_KEY:
+        ip = client_ip(request)
+        q = ip_for_query(ip)
+        cache_key = f"weather_{ip}"
+        wx = cache.get(cache_key)
+
+        if wx is None:
+            wx = weather_by_ip(ip)
+            # cache even if None(?) maybe just cache valid results only
+            if wx:
+                cache.set(cache_key, wx, 300)
 
     # --- dates
     today = timezone.localdate()
@@ -114,10 +85,14 @@ def index(request):
     upcoming_change = pct_change(upcoming_week, prev_week)
 
     # existing data you already render
-    todays_slots = Appointment.objects.filter(date=today).order_by("timeslot", "name")
+    todays_slots = (
+        Appointment.objects
+        .filter(date=today)
+        .order_by("start_time", "name")
+    )
 
     # upcoming appointments list (next 7 days, sorted by real time)
-    upcoming_qs = (
+    upcoming = (
         Appointment.objects
         .filter(
             status__in=[
@@ -125,38 +100,11 @@ def index(request):
                 Appointment.STATUS_COMPLETED,
             ]
         )
-        .order_by("date")
-    )
-
-    # sort in Python by (date, parsed timeslot)
-    upcoming = sorted(
-        upcoming_qs,
-        key=lambda a: (a.date, parse_timeslot(a.timeslot or ""))
+        .order_by("date", "start_time", "name")
     )
 
     # latest patients (based on most recently completed appointments)
-    completed_qs = (
-    Appointment.objects
-    .filter(status=Appointment.STATUS_COMPLETED)
-    .order_by("-date", "-start_time", "-id")
-    )
-
-    latest_patients = []
-    seen = set()
-
-    for a in completed_qs:
-        # Use contact identity to avoid showing the same person repeatedly
-        key = (
-            (a.phone or "").strip(),
-            (a.email or "").strip(),
-            (a.name or "").strip().lower(),
-        )
-        if key in seen:
-            continue
-        seen.add(key)
-        latest_patients.append(a)
-        if len(latest_patients) == 5:
-            break
+    latest_patients = get_latest_appointments(limit=5)
 
     # --------------- APPOINTMENTS CHART (Day / Week / Month / Year) ---------------
     view_mode = (request.GET.get("ap_view") or "day").lower()
@@ -234,22 +182,42 @@ def appointments(request):
 
     # ---- Handle actions from buttons (Approve / Cancel / Complete etc.) ----
     if request.method == "POST":
+        next_url = request.META.get("HTTP_REFERER") or redirect("dashboard:appointments").url
         appoint_id = request.POST.get("appointment_id")
         action = request.POST.get("action")
+
+        # Guard: only allow known actions
+        allowed_actions = {"approve", "cancel", "complete"}
+        if action not in allowed_actions:
+            messages.error(request, "Invalid action.")
+            return redirect(next_url)
+
         appoint = get_object_or_404(Appointment, id=appoint_id)
 
+        # Guard: check if the action is valid for the current status
+        if action == "approve" and appoint.status != Appointment.STATUS_PENDING:
+            messages.error(request, "Only pending appointments can be approved.")
+            return redirect(next_url)
+
+        if action == "complete" and appoint.status != Appointment.STATUS_CONFIRMED:
+            messages.error(request, "Only confirmed appointments can be completed.")
+            return redirect(next_url)
+
+        if action == "cancel" and appoint.status not in [Appointment.STATUS_PENDING, Appointment.STATUS_CONFIRMED]:
+            messages.error(request, "Only pending/confirmed appointments can be cancelled.")
+            return redirect(next_url)
+
+        # Performs the action
         if action == "approve":
             appoint.status = Appointment.STATUS_CONFIRMED
-            appoint.save()
         elif action == "cancel":
             appoint.status = Appointment.STATUS_CANCELLED
-            appoint.save()
         elif action == "complete":
             appoint.status = Appointment.STATUS_COMPLETED
-            appoint.save()
         # "reschedule" can later redirect to an edit form if you add one
 
-        return redirect("dashboard:appointments")
+        appoint.save(update_fields=["status"])
+        return redirect(next_url)
 
     # ---- Base queryset with search filter ----
     base_qs = Appointment.objects.all()
