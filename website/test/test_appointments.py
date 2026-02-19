@@ -1,6 +1,7 @@
 from datetime import date, time
 from django.test import TestCase
-from website.models import Appointment
+from django.db import IntegrityError, transaction
+from website.models import Appointment, Patient
 from website.forms import AppointmentForm
 from website.constants import APPOINTMENT_SERVICES
 
@@ -203,3 +204,146 @@ class AppointmentFormTests(TestCase):
         print("  - expected services:", expected)
 
         self.assertEqual(appt.services, expected)
+
+    # Patient's Test Cases
+    def test_patient_reused_by_phone(self):
+        print("\n[TEST] patient reused by phone")
+
+        service = APPOINTMENT_SERVICES[0]
+        existing = Patient.objects.create(name="Old Name", phone="09171234567", email="old@test.com")
+
+        form = AppointmentForm(data={
+            "name": "New Name",
+            "phone": "09171234567",   # same phone -> should reuse existing
+            "email": "new@test.com",
+            "appointment_date": date(2026, 2, 18),
+            "appointment_time": time(9, 0),
+            "services": [service],
+            "notes": "",
+        })
+
+        print("  - valid?:", form.is_valid())
+        if not form.is_valid():
+            print("  - errors:", form.errors.as_text())
+        self.assertTrue(form.is_valid(), form.errors.as_text())
+
+        appt = form.save(status=Appointment.STATUS_PENDING)
+        print("  - existing patient id:", existing.id)
+        print("  - appt.patient id:", appt.patient_id)
+
+        self.assertEqual(appt.patient_id, existing.id)
+
+    def test_patient_reused_by_email(self):
+        print("\n[TEST] patient reused by email")
+
+        service = APPOINTMENT_SERVICES[0]
+        existing = Patient.objects.create(name="Old Name", phone="09000000000", email="same@test.com")
+
+        form = AppointmentForm(data={
+            "name": "Someone Else",
+            "phone": "09179999999",     # different phone
+            "email": "same@test.com",   # same email -> should reuse existing
+            "appointment_date": date(2026, 2, 18),
+            "appointment_time": time(10, 0),
+            "services": [service],
+            "notes": "",
+        })
+
+        print("  - valid?:", form.is_valid())
+        if not form.is_valid():
+            print("  - errors:", form.errors.as_text())
+        self.assertTrue(form.is_valid(), form.errors.as_text())
+
+        appt = form.save(status=Appointment.STATUS_PENDING)
+        print("  - existing patient id:", existing.id)
+        print("  - appt.patient id:", appt.patient_id)
+
+        self.assertEqual(appt.patient_id, existing.id)
+
+    def test_patient_created_when_no_match(self):
+        print("\n[TEST] patient created when no match")
+
+        service = APPOINTMENT_SERVICES[0]
+
+        form = AppointmentForm(data={
+            "name": "Brand New",
+            "phone": "09991234567",
+            "email": "brandnew@test.com",
+            "appointment_date": date(2026, 2, 18),
+            "appointment_time": time(11, 0),
+            "services": [service],
+            "notes": "",
+        })
+
+        print("  - valid?:", form.is_valid())
+        if not form.is_valid():
+            print("  - errors:", form.errors.as_text())
+        self.assertTrue(form.is_valid(), form.errors.as_text())
+
+        appt = form.save(status=Appointment.STATUS_PENDING)
+        print("  - appt.patient id:", appt.patient_id)
+
+        self.assertIsNotNone(appt.patient_id)
+        self.assertTrue(Patient.objects.filter(id=appt.patient_id).exists())
+
+    # Database constraints test cases
+    def test_db_unique_constraint_blocks_active_duplicate(self):
+        print("\n[TEST] DB constraint blocks duplicate for pending/confirmed")
+
+        Appointment.objects.create(
+            name="A",
+            phone="1",
+            email="a@test.com",
+            date=date(2026, 2, 18),
+            start_time=time(9, 0),
+            timeslot="9:00 AM",
+            status=Appointment.STATUS_PENDING,
+            services=[APPOINTMENT_SERVICES[0]],
+        )
+
+        try:
+            with transaction.atomic():
+                Appointment.objects.create(
+                    name="B",
+                    phone="2",
+                    email="b@test.com",
+                    date=date(2026, 2, 18),
+                    start_time=time(9, 0),
+                    timeslot="9:00 AM",
+                    status=Appointment.STATUS_CONFIRMED,
+                    services=[APPOINTMENT_SERVICES[0]],
+                )
+            print("  - unexpected: DB allowed duplicate")
+            self.fail("Expected IntegrityError but duplicate insert succeeded")
+        except IntegrityError as e:
+            print("  - got IntegrityError (expected):", str(e))
+
+    def test_db_allows_if_existing_is_cancelled(self):
+        print("\n[TEST] DB allows new active slot if existing is cancelled")
+
+        Appointment.objects.create(
+            name="Old",
+            phone="1",
+            email="old@test.com",
+            date=date(2026, 2, 18),
+            start_time=time(10, 0),
+            timeslot="10:00 AM",
+            status=Appointment.STATUS_CANCELLED,
+            services=[APPOINTMENT_SERVICES[0]],
+        )
+
+        # should succeed (cancelled is not in the active constraint condition)
+        a2 = Appointment.objects.create(
+            name="New",
+            phone="2",
+            email="new@test.com",
+            date=date(2026, 2, 18),
+            start_time=time(10, 0),
+            timeslot="10:00 AM",
+            status=Appointment.STATUS_PENDING,
+            services=[APPOINTMENT_SERVICES[0]],
+        )
+
+        print("  - created new appointment id:", a2.id)
+        self.assertIsNotNone(a2.id)
+

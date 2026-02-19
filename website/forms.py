@@ -108,6 +108,9 @@ class AppointmentForm(forms.ModelForm):
               phone=phone,
               email=email,
           )
+
+        if patient:
+            instance.patient = patient
         
         if status is not None:
             instance.status = status
