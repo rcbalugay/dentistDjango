@@ -39,17 +39,18 @@ class RememberMeLoginView(LoginView):
 @user_passes_test(staff_only)
 def index(request):
     wx = get_cached_weather(request)
-    if settings.WEATHERAPI_KEY:
-        ip = client_ip(request)
-        q = ip_for_query(ip)
-        cache_key = f"weather_{ip}"
-        wx = cache.get(cache_key)
+    # enable when needed, does the same as the line of code above this
+    # if settings.WEATHERAPI_KEY:
+    #     ip = client_ip(request)
+    #     q = ip_for_query(ip)
+    #     cache_key = f"weather_{ip}"
+    #     wx = cache.get(cache_key)
 
-        if wx is None:
-            wx = weather_by_ip(ip)
-            # cache even if None(?) maybe just cache valid results only
-            if wx:
-                cache.set(cache_key, wx, 300)
+    #     if wx is None:
+    #         wx = weather_by_ip(ip)
+    #         # cache even if None(?) maybe just cache valid results only
+    #         if wx:
+    #             cache.set(cache_key, wx, 300)
 
     # --- dates
     today = timezone.localdate()
@@ -91,7 +92,7 @@ def index(request):
         .order_by("start_time", "name")
     )
 
-    # upcoming appointments list (next 7 days, sorted by real time)
+    # upcoming appointments list
     upcoming = (
         Appointment.objects
         .filter(
