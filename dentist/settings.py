@@ -32,6 +32,7 @@ TIME_ZONE = os.getenv("TIME_ZONE", "UTC")
 
 # --- App-specific ---
 WEATHERAPI_KEY = os.getenv("WEATHERAPI_KEY", "")
+GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY", "")
 
 # Application definition
 
@@ -66,9 +67,10 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "website.context_processors.google_maps_key",
             ],
         },
     },

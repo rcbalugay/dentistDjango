@@ -298,9 +298,11 @@ End of Footer Area -->
   <script src=" {% static 'website/js/bootstrap-datepicker.js' %} "></script>
   <script src=" {% static 'website/js/jquery.timepicker.min.js' %} "></script>
   <script src=" {% static 'website/js/scrollax.min.js' %} "></script>
-  <script async defer 
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCIT5fgX6Fcdrgwpju9MjjrkdXl7Qcwgyw&callback=init">
+  {% if GOOGLE_MAPS_API_KEY %}
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY|urlencode }}&callback=init">
   </script>
+  {% endif %}
   <script src=" {% static 'website/js/google-map.js' %} "></script>
   <script src=" {% static 'website/js/main.js' %} "></script>
     
