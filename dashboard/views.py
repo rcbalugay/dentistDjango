@@ -310,26 +310,41 @@ def patients(request):
     selected_key = request.GET.get("patient", "").strip()
     today = timezone.localdate()
 
-    base_qs = Appointment.objects.all()
+    patient_qs = Patient.objects.all()
     if q:
-        base_qs = base_qs.filter(
+        patient_qs = patient_qs.filter(
             Q(name__icontains=q)
             | Q(phone__icontains=q)
             | Q(email__icontains=q)
         )
 
     patient_queue = list(
-        base_qs.values("name", "phone", "email")
-        .annotate(
-            patient_key=Min("id"),
-            first_seen=Min("created_at"),
-            last_seen=Max("date"),
-            total_appointments=Count("id"),
-            pending_count=Count("id", filter=Q(status=Appointment.STATUS_PENDING)),
-            confirmed_count=Count("id", filter=Q(status=Appointment.STATUS_CONFIRMED)),
-            completed_count=Count("id", filter=Q(status=Appointment.STATUS_COMPLETED)),
-            cancelled_count=Count("id", filter=Q(status=Appointment.STATUS_CANCELLED)),
+        patient_qs.annotate(
+            first_seen=Min("appointments__created_at"),
+            last_seen=Max("appointments__date"),
+            total_appointments=Count("appointments", distinct=True),
+            pending_count=Count(
+                "appointments",
+                filter=Q(appointments__status=Appointment.STATUS_PENDING),
+                distinct=True,
+            ),
+            confirmed_count=Count(
+                "appointments",
+                filter=Q(appointments__status=Appointment.STATUS_CONFIRMED),
+                distinct=True,
+            ),
+            completed_count=Count(
+                "appointments",
+                filter=Q(appointments__status=Appointment.STATUS_COMPLETED),
+                distinct=True,
+            ),
+            cancelled_count=Count(
+                "appointments",
+                filter=Q(appointments__status=Appointment.STATUS_CANCELLED),
+                distinct=True,
+            ),
         )
+        .filter(total_appointments__gt=0)
         .order_by("-last_seen", "name")
     )
 
@@ -354,17 +369,10 @@ def patients(request):
         selected_patient = patient_queue[0]
         if selected_key.isdigit():
             wanted = int(selected_key)
-            selected_patient = next(
-                (row for row in patient_queue if row["patient_key"] == wanted),
-                selected_patient,
-            )
+            selected_patient = next((p for p in patient_queue if p.id == wanted), selected_patient)
 
         selected_appointments = (
-            base_qs.filter(
-                name=selected_patient["name"],
-                phone=selected_patient["phone"],
-                email=selected_patient["email"],
-            )
+            Appointment.objects.filter(patient=selected_patient)
             .order_by("-date", "-start_time")
         )
 
@@ -372,16 +380,15 @@ def patients(request):
             selected_appointments.filter(
                 date__gte=today,
                 status__in=[Appointment.STATUS_PENDING, Appointment.STATUS_CONFIRMED],
-            )
-            .order_by("date", "start_time")[:6]
+            ).order_by("date", "start_time")[:6]
         )
         visit_history = list(selected_appointments[:8])
 
-        completed = selected_patient["completed_count"]
-        total = selected_patient["total_appointments"]
-        pending = selected_patient["pending_count"]
-        confirmed = selected_patient["confirmed_count"]
-        cancelled = selected_patient["cancelled_count"]
+        completed = selected_patient.completed_count
+        total = selected_patient.total_appointments
+        pending = selected_patient.pending_count
+        confirmed = selected_patient.confirmed_count
+        cancelled = selected_patient.cancelled_count
 
         adherence = round((completed * 100.0 / total), 1) if total else 0
         quick_stats = {
@@ -393,7 +400,7 @@ def patients(request):
         }
 
         assurance_card = {
-            "member_number": f"{selected_patient['patient_key']:03d}-{today.year}-{total:03d}",
+            "member_number": f"{selected_patient.id:03d}-{today.year}-{total:03d}",
             "status": "Active" if completed > 0 else "New",
             "expiry": today + timedelta(days=365),
         }

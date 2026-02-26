@@ -100,7 +100,7 @@ class AppointmentForm(forms.ModelForm):
 
         if not patient and name:
           # fallback: find same name only if no identifiers
-          patient = Patient.objects.filter(name__iexact=name, phone=phone, email=email) # can add .first() if want to return the first similar variable
+          patient = Patient.objects.filter(name__iexact=name, phone=phone, email=email).first() # can add .first() if want to return the first similar variable
 
         if not patient and (name or phone or email):
           patient = Patient.objects.create(
