@@ -1,6 +1,505 @@
 {% extends "dashboard/dbase.html" %}
 {% block title %}Patients{% endblock %}
+
+{% block extra_head %}
+<style>
+  .patients-workspace {
+    margin-top: 0.25rem;
+  }
+  .patients-shell {
+    background: #f8f9fd;
+    border-radius: 16px;
+    border: 1px solid #eceff7;
+    padding: 1rem;
+  }
+  .patients-heading h3 {
+    margin-bottom: 0.1rem;
+    font-weight: 700;
+  }
+  .patients-heading .text-muted {
+    font-size: 0.86rem;
+  }
+  .patients-search .form-control {
+    min-width: 240px;
+    border-radius: 999px;
+    border-color: #dde3f0;
+  }
+  .queue-card {
+    border-radius: 14px;
+    border: 1px solid #e6ebf5;
+    overflow: hidden;
+  }
+  .queue-head {
+    border-bottom: 1px solid #eef2fa;
+    background: #fbfcff;
+    padding: 0.9rem 1rem;
+  }
+  .queue-list {
+    max-height: 700px;
+    overflow: auto;
+    padding: 0.6rem;
+  }
+  .queue-item {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid #edf1f8;
+    border-radius: 12px;
+    padding: 0.7rem;
+    margin-bottom: 0.55rem;
+    background: #fff;
+    transition: all 0.15s ease;
+  }
+  .queue-item:hover {
+    border-color: #c8d5f2;
+    box-shadow: 0 8px 20px rgba(31, 65, 133, 0.08);
+    text-decoration: none;
+    color: inherit;
+  }
+  .queue-item.active {
+    border-color: #87a8ff;
+    box-shadow: 0 8px 22px rgba(95, 122, 191, 0.2);
+    background: linear-gradient(180deg, #fbfdff 0%, #f3f7ff 100%);
+  }
+  .queue-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #5d7fff 0%, #66b1ff 100%);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+  .queue-name {
+    font-weight: 600;
+    line-height: 1.15;
+  }
+  .queue-meta {
+    font-size: 0.75rem;
+    color: #8991a8;
+  }
+  .queue-counts .badge {
+    font-size: 0.68rem;
+    font-weight: 600;
+  }
+  .profile-card,
+  .detail-card,
+  .history-card,
+  .docs-card {
+    border-radius: 14px;
+    border: 1px solid #e6ebf5;
+  }
+  .profile-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1f75ff 0%, #38b5ff 100%);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  .member-pill {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    background: #e9f7eb;
+    color: #2d9a43;
+    border: 1px solid #cdeed4;
+    border-radius: 999px;
+    padding: 0.12rem 0.5rem;
+    vertical-align: middle;
+    margin-left: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .profile-actions .btn {
+    border-radius: 10px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .info-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 0.42rem 0;
+    border-bottom: 1px dashed #edf2fa;
+    font-size: 0.86rem;
+  }
+  .info-list li:last-child {
+    border-bottom: 0;
+  }
+  .info-list .label {
+    color: #8e95aa;
+  }
+  .timeline-item {
+    position: relative;
+    padding-left: 1rem;
+    margin-bottom: 0.9rem;
+  }
+  .timeline-item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.25rem;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #5e83ff;
+    box-shadow: 0 0 0 3px #e7eeff;
+  }
+  .timeline-date {
+    color: #8e95aa;
+    font-size: 0.74rem;
+    margin-bottom: 0.1rem;
+  }
+  .timeline-title {
+    font-weight: 600;
+    margin-bottom: 0.05rem;
+  }
+  .timeline-sub {
+    color: #8e95aa;
+    font-size: 0.78rem;
+  }
+  .assurance-card {
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: linear-gradient(135deg, #4f6dff 0%, #8a4cff 100%);
+    color: #fff;
+    padding: 0.9rem;
+    margin-bottom: 0.9rem;
+  }
+  .assurance-card .muted {
+    opacity: 0.82;
+    font-size: 0.74rem;
+  }
+  .assurance-number {
+    font-size: 1.45rem;
+    line-height: 1.15;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    margin-bottom: 0.75rem;
+  }
+  .member-box {
+    border: 1px solid #e9edf8;
+    border-radius: 12px;
+    padding: 0.85rem;
+    background: #fff;
+  }
+  .adherence-ring {
+    --progress: 0;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: conic-gradient(#4f93ff calc(var(--progress) * 1%), #ecf2ff 0);
+    display: grid;
+    place-items: center;
+  }
+  .adherence-ring span {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    font-weight: 700;
+    color: #2e3e66;
+  }
+  .history-table th {
+    border-top: 0;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    color: #96a0b9;
+    letter-spacing: 0.04em;
+  }
+  .history-table td {
+    vertical-align: middle;
+    font-size: 0.85rem;
+  }
+  .history-table .badge {
+    font-size: 0.68rem;
+    font-weight: 600;
+  }
+  .doc-item {
+    border: 1px solid #edf1f8;
+    border-radius: 10px;
+    padding: 0.65rem 0.75rem;
+    margin-bottom: 0.55rem;
+    background: #fff;
+  }
+  .doc-item h6 {
+    margin-bottom: 0.1rem;
+    font-size: 0.85rem;
+  }
+  .doc-item p {
+    margin: 0;
+    color: #8e95aa;
+    font-size: 0.75rem;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-  <h3 class="font-weight-bold mb-4">Patients</h3>
-  <p>Coming soon…</p>
+  <div class="patients-workspace">
+    <div class="d-flex flex-wrap justify-content-between align-items-end mb-3">
+      <div class="patients-heading">
+        <h3>Patients</h3>
+        <p class="text-muted mb-0">Queue and profile summary for your clinic records.</p>
+      </div>
+      <form method="get" class="patients-search d-flex mt-2 mt-md-0">
+        <input type="text" class="form-control" name="q" value="{{ q }}" placeholder="Search name, phone, email">
+        {% if selected_patient %}
+          <input type="hidden" name="patient" value="{{ selected_patient.patient_key }}">
+        {% endif %}
+        <button class="btn btn-primary rounded-pill ml-2 px-3" type="submit">Search</button>
+      </form>
+    </div>
+
+    <div class="patients-shell">
+      <div class="row">
+        <div class="col-xl-3 mb-3 mb-xl-0">
+          <div class="card queue-card h-100">
+            <div class="queue-head d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="mb-1">Patient Queue</h6>
+                <small class="text-muted">{{ patient_queue|length }} records</small>
+              </div>
+              <i class="ti-user"></i>
+            </div>
+            <div class="queue-list">
+              {% for p in patient_queue %}
+                <a class="queue-item {% if selected_patient and p.patient_key == selected_patient.patient_key %}active{% endif %}"
+                   href="?{% if q %}q={{ q|urlencode }}&{% endif %}patient={{ p.patient_key }}">
+                  <div class="d-flex align-items-start justify-content-between">
+                    <div class="d-flex align-items-center">
+                      <div class="queue-avatar mr-2">{{ p.name|slice:":1"|upper }}</div>
+                      <div>
+                        <div class="queue-name">{{ p.name }}</div>
+                        <div class="queue-meta">Joined {{ p.first_seen|date:"d M Y" }}</div>
+                      </div>
+                    </div>
+                    <i class="ti-angle-right text-muted"></i>
+                  </div>
+                  <div class="queue-counts mt-2">
+                    <span class="badge badge-light mr-1">Total {{ p.total_appointments }}</span>
+                    <span class="badge badge-warning text-dark mr-1">Pending {{ p.pending_count }}</span>
+                    <span class="badge badge-success">Done {{ p.completed_count }}</span>
+                  </div>
+                </a>
+              {% empty %}
+                <div class="text-center text-muted py-4 px-2">
+                  <i class="ti-face-sad mb-2 d-block"></i>
+                  No patient records found.
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-9">
+          {% if selected_patient %}
+            <div class="card profile-card mb-3">
+              <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between align-items-center">
+                  <div class="d-flex align-items-center mb-2 mb-md-0">
+                    <div class="profile-avatar mr-3">{{ selected_patient.name|slice:":1"|upper }}</div>
+                    <div>
+                      <h4 class="mb-1">
+                        {{ selected_patient.name }}
+                        {% if quick_stats.completed > 0 %}
+                          <span class="member-pill">Member</span>
+                        {% endif %}
+                      </h4>
+                      <div class="text-muted small">
+                        Joined {{ selected_patient.first_seen|date:"d M Y" }}
+                        <span class="mx-2">|</span>
+                        Last visit {{ selected_patient.last_seen|date:"d M Y" }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="profile-actions">
+                    <button class="btn btn-outline-secondary mr-1" type="button"><i class="ti-email"></i></button>
+                    <button class="btn btn-outline-secondary mr-1" type="button"><i class="ti-mobile"></i></button>
+                    <button class="btn btn-outline-secondary mr-1" type="button"><i class="ti-printer"></i></button>
+                    <button class="btn btn-outline-primary" type="button"><i class="ti-pencil-alt"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-lg-4 mb-3">
+                <div class="card detail-card h-100">
+                  <div class="card-body">
+                    <h6 class="mb-3">Basic Information</h6>
+                    <ul class="list-unstyled info-list mb-0">
+                      <li><span class="label">Phone</span><span>{{ selected_patient.phone|default:"-" }}</span></li>
+                      <li><span class="label">Email</span><span>{{ selected_patient.email|default:"-" }}</span></li>
+                      <li><span class="label">Total Visits</span><span>{{ quick_stats.total }}</span></li>
+                      <li><span class="label">Completed</span><span>{{ quick_stats.completed }}</span></li>
+                      <li><span class="label">Upcoming</span><span>{{ quick_stats.upcoming }}</span></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-lg-4 mb-3">
+                <div class="card detail-card h-100">
+                  <div class="card-body">
+                    <h6 class="mb-3">Appointment Schedule</h6>
+                    {% for appt in upcoming_schedule %}
+                      <div class="timeline-item">
+                        <div class="timeline-date">{{ appt.date|date:"d M Y" }} - {{ appt.timeslot }}</div>
+                        <div class="timeline-title">
+                          {% if appt.services %}
+                            {{ appt.services|join:", " }}
+                          {% else %}
+                            General dental service
+                          {% endif %}
+                        </div>
+                        <div class="timeline-sub">{{ appt.get_status_display }}</div>
+                      </div>
+                    {% empty %}
+                      <p class="text-muted mb-0">No upcoming appointments.</p>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-lg-4 mb-3">
+                <div class="assurance-card">
+                  <div class="muted mb-1">Data of assurance</div>
+                  <div class="assurance-number">{{ assurance_card.member_number }}</div>
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="muted">Expiry</div>
+                      <div>{{ assurance_card.expiry|date:"d/m/Y" }}</div>
+                    </div>
+                    <div>
+                      <div class="muted">Status</div>
+                      <div>{{ assurance_card.status }}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="member-box">
+                  <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                      <h6 class="mb-1">Member Dentalica</h6>
+                      <small class="text-muted">Treatment adherence</small>
+                    </div>
+                    <div class="adherence-ring" style="--progress: {{ quick_stats.adherence|floatformat:0 }};">
+                      <span>{{ quick_stats.adherence|floatformat:0 }}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-lg-8 mb-3">
+                <div class="card history-card h-100">
+                  <div class="card-body">
+                    <h6 class="mb-3">History Dental</h6>
+                    <div class="table-responsive">
+                      <table class="table history-table mb-0">
+                        <thead>
+                          <tr>
+                            <th>ID</th>
+                            <th>Treatment</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Result</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for row in visit_history %}
+                            <tr>
+                              <td>#{{ row.id }}</td>
+                              <td>
+                                {% if row.services %}
+                                  {{ row.services|join:", " }}
+                                {% else %}
+                                  General dental service
+                                {% endif %}
+                              </td>
+                              <td>{{ row.date|date:"d M Y" }}</td>
+                              <td>
+                                {% if row.status == "completed" %}
+                                  <span class="badge badge-success">Completed</span>
+                                {% elif row.status == "confirmed" %}
+                                  <span class="badge badge-primary">Confirmed</span>
+                                {% elif row.status == "pending" %}
+                                  <span class="badge badge-warning text-dark">Pending</span>
+                                {% else %}
+                                  <span class="badge badge-danger">Cancelled</span>
+                                {% endif %}
+                              </td>
+                              <td>
+                                {% if row.status == "completed" %}
+                                  Well done
+                                {% elif row.status == "cancelled" %}
+                                  Not completed
+                                {% else %}
+                                  Ongoing
+                                {% endif %}
+                              </td>
+                            </tr>
+                          {% empty %}
+                            <tr>
+                              <td colspan="5" class="text-center text-muted">No visit history yet.</td>
+                            </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-lg-4 mb-3">
+                <div class="card docs-card h-100">
+                  <div class="card-body">
+                    <h6 class="mb-3">Agreement Documents</h6>
+                    {% for doc in document_items %}
+                      <div class="doc-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                          <div class="mr-2">
+                            <h6>{{ doc.title }}</h6>
+                            <p>{{ doc.subtitle }}</p>
+                            <p>{{ doc.meta }}</p>
+                          </div>
+                          <span class="badge badge-light">{{ doc.status }}</span>
+                        </div>
+                      </div>
+                    {% empty %}
+                      <p class="text-muted mb-0">No uploaded files for this patient.</p>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% else %}
+            <div class="card">
+              <div class="card-body text-center py-5">
+                <h5 class="mb-2">No patient selected</h5>
+                <p class="text-muted mb-0">Add appointments first so patient profiles can be generated.</p>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}
