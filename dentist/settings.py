@@ -144,13 +144,21 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # myaccount.google.com/apppasswords
 
 # Email settings
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = 'localhost' #smtp.gmail.com if real, localhost if simulation
-EMAIL_PORT = '1025' #587 if real, 1025 if simulation
-EMAIL_HOST_USER = '' #riccibalugay@gmail.com if real, remove if not.
-EMAIL_HOST_PASSWORD = '' #tang rnuk vhep woxd  if real, remove if not.
-EMAIL_USE_TLS = False
-# EMAIL_USE_SSL = False - can also use this for more security
+EMAIL_BACKEND = os.getenv(
+    "EMAIL_BACKEND",
+    "django.core.mail.backends.console.EmailBackend" if DEBUG
+    else "django.core.mail.backends.smtp.EmailBackend",
+)
+
+CONTACT_EMAIL = os.getenv("CONTACT_EMAIL", "youremail@example.com")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", CONTACT_EMAIL)
+
+EMAIL_HOST = os.getenv("EMAIL_HOST", "localhost")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", "1025"))
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "False").lower() == "true"
+
 
 # Account Settings
 LOGIN_URL = 'dashboard:login'

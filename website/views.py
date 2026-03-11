@@ -1,33 +1,52 @@
 from django.shortcuts import render, redirect
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 from datetime import datetime
 from .models import Appointment
 from django.contrib import messages
+from django.conf import settings
 from .constants import APPOINTMENT_SERVICES
-from .forms import AppointmentForm
+from .forms import AppointmentForm, ContactForm
+import logging
+
+logger = logging.getLogger(__name__)
 
 def home(request):
 	return render(request, 'home.html', {})
 
 def contact(request):
-	if request.method == "POST":
-		message_name = request.POST.get("name") 
-		message_email = request.POST.get("email")
-		message_subject = request.POST.get("subject")
-		message = request.POST.get("message")
+    if request.method == "POST":
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            body = (
+                f"Name: {data['name']}\n"
+                f"Email: {data['email']}\n\n"
+                f"{data['message']}"
+            )
 
-		# Sending email
-		send_mail(
-			message_subject, # subject
-			message, # message
-			message_email, # from email
-			['karasuscho1@gmail.com'], # to email
-			)
+            try:
+                email = EmailMessage(
+                    subject=data["subject"],
+                    body=body,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    to=[settings.CONTACT_EMAIL],
+                    reply_to=[data["email"]],
+                )
+                email.send(fail_silently=False)
+            except Exception:
+                logger.exception("Contact form email send failed")
+                messages.error(
+                    request,
+                    "We could not send your message right now. Please try again later.",
+                )
+            else:
+                messages.success(request, "Your message has been sent.")
+                return redirect("contact")
+    else:
+        form = ContactForm()
 
-		return render(request, 'pages/contact.html', {'message_name': message_name})
+    return render(request, "pages/contact.html", {"form": form})
 
-	else:
-		return render(request, 'pages/contact.html', {})
 
 def about(request):
 	return render(request, 'pages/about.html', {})
