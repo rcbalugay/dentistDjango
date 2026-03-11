@@ -1,17 +1,15 @@
 from django.shortcuts import render, redirect
 from django.core.mail import EmailMessage
-from datetime import datetime
-from .models import Appointment
 from django.contrib import messages
 from django.conf import settings
-from .constants import APPOINTMENT_SERVICES
+from .models import Appointment
 from .forms import AppointmentForm, ContactForm
 import logging
 
 logger = logging.getLogger(__name__)
 
 def home(request):
-	return render(request, 'home.html', {})
+    return render(request, 'home.html', {})
 
 def contact(request):
     if request.method == "POST":
@@ -49,16 +47,16 @@ def contact(request):
 
 
 def about(request):
-	return render(request, 'pages/about.html', {})
+    return render(request, 'pages/about.html', {})
 
 def blog(request):
-	return render(request, 'pages/blog.html', {})
+    return render(request, 'pages/blog.html', {})
 
 def services(request):
-	return render(request, 'pages/services.html', {})
+    return render(request, 'pages/services.html', {})
 
 def doctor(request):
-	return render(request, 'pages/doctor.html', {})
+    return render(request, 'pages/doctor.html', {})
 
 def appointment_form(request):
     if request.method == "POST":
