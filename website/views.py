@@ -2,11 +2,18 @@ from django.shortcuts import render, redirect
 from django.core.mail import EmailMessage
 from django.contrib import messages
 from django.conf import settings
+from .constants import CLINIC_OPEN_WEEKDAYS, CLINIC_SLOT_TIMES
 from .models import Appointment
 from .forms import AppointmentForm, ContactForm
 import logging
 
 logger = logging.getLogger(__name__)
+
+def clinic_schedule_for_js():
+    return {
+        "open_weekdays_js": sorted((day + 1) % 7 for day in CLINIC_OPEN_WEEKDAYS),
+        "slot_labels": [slot.strftime("%I:%M %p").lstrip("0") for slot in CLINIC_SLOT_TIMES],
+    }
 
 def home(request):
     return render(request, 'home.html', {})
@@ -64,14 +71,13 @@ def appointment_form(request):
         if form.is_valid():
             form.save(status=Appointment.STATUS_PENDING)
             messages.success(request, "Your appointment request has been sent. We will contact you to confirm.")
-            return redirect('appointment_form')
+            return redirect("appointment_form")
         else:
             messages.error(request, "Please correct the errors below.")
     else:
         form = AppointmentForm()
-    
-    # Use this to limit services on landing page
-    # landing_services = APPOINTMENT_SERVICES[:4]
+
     return render(request, "pages/appointment.html", {
-        "form": form, # replace this with landing_service if needed
+        "form": form,
+        "clinic_schedule": clinic_schedule_for_js(),
     })

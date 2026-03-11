@@ -18,7 +18,7 @@ from .utils.time_utils import (
 from .utils.chart_utils import build_appointment_chart
 from .utils.weather import client_ip, ip_for_query, weather_by_ip
 from website.constants import APPOINTMENT_SERVICES
-from website.forms import AppointmentForm
+from website.forms import AppointmentForm, StaffAppointmentForm
 from dashboard.services import get_cached_weather, get_latest_appointments
 
 # Create your views here.
@@ -453,7 +453,7 @@ def profile(request):
 @user_passes_test(staff_only)
 def appointments_form(request):
     if request.method == 'POST':
-        form = AppointmentForm(request.POST)
+        form = StaffAppointmentForm(request.POST)
         if form.is_valid():
             form.save(status=Appointment.STATUS_PENDING)
             messages.success(request, "Appointment has been created.")
@@ -461,10 +461,9 @@ def appointments_form(request):
         else:
             messages.error(request, "Please correct the errors below.")
     else:
-        form = AppointmentForm()
-    
+        form = StaffAppointmentForm()
+
     return render(request, 'dashboard/pages/appointmentform.html', {
         "active_page": "appointments",
         "form": form,
     })
-
