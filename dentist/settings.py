@@ -1,13 +1,17 @@
 from pathlib import Path
 import os
+import sys
 import dj_database_url
 from decouple import config
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+RUNNING_TESTS = "test" in sys.argv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 try:
     from dotenv import load_dotenv
-    BASE_DIR = Path(__file__).resolve().parent.parent
-    load_dotenv(BASE_DIR / ".env")
+    if not RUNNING_TESTS:
+        load_dotenv(BASE_DIR / ".env")
 except Exception:
     pass
 
@@ -15,11 +19,13 @@ except Exception:
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG", "True").lower() == "true"
+DEBUG = False if RUNNING_TESTS else os.getenv("DEBUG", "True").lower() == "true"
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("SECRET_KEY")
-if not SECRET_KEY:
+if RUNNING_TESTS and not SECRET_KEY:
+    SECRET_KEY = "test-only-insecure-secret-key"
+elif not SECRET_KEY:
     if DEBUG:
         SECRET_KEY = "dev-only-insecure-secret-key-only-now"
     else:
@@ -89,7 +95,7 @@ DATABASES = {
     }
 }
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = None if RUNNING_TESTS else os.getenv("DATABASE_URL")
 if DATABASE_URL:
     DATABASES["default"] = dj_database_url.parse(DATABASE_URL, conn_max_age=600) # Change the age value as needed
 
@@ -181,8 +187,13 @@ except ImportError:
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
 
+# Safe defaults for development and tests
+SECURE_SSL_REDIRECT = False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+
 # Production-only security
-if not DEBUG:
+if not DEBUG and not RUNNING_TESTS:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
@@ -192,7 +203,6 @@ if not DEBUG:
     SECURE_HSTS_PRELOAD = True
 
     SECURE_REFERRER_POLICY = "same-origin"
-    # If behind a proxy/load balancer (common on Render/Railway/Nginx)
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 LOGGING = {
@@ -207,6 +217,7 @@ LOGGING = {
     },
 }
 
+
 if not DEBUG:
     LOGGING["loggers"] = {
         "django.request": {
@@ -215,5 +226,11 @@ if not DEBUG:
             "propagate": False,
         }
     }
+
+if RUNNING_TESTS:
+    EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
+    PASSWORD_HASHERS = [
+        "django.contrib.auth.hashers.MD5PasswordHasher",
+    ]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

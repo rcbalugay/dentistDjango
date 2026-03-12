@@ -455,7 +455,7 @@ def appointments_form(request):
     if request.method == 'POST':
         form = StaffAppointmentForm(request.POST)
         if form.is_valid():
-            form.save(status=Appointment.STATUS_PENDING)
+            form.save(status=Appointment.STATUS_CONFIRMED)
             messages.success(request, "Appointment has been created.")
             return redirect('dashboard:appointments')
         else:

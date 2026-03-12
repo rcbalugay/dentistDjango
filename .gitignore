@@ -30,9 +30,6 @@ static_root/
 media/
 media_root/
 
-# Collected static (if you use this name)
-static/
-
 # ---- Environment & secrets ----
 .env
 .env.*
