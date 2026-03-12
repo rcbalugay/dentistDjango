@@ -6,9 +6,28 @@
     .appointments-wrapper {
       margin-top: 0.25rem;
     }
+    .appointments-page-header {
+      gap: 1rem;
+    }
+    .appointments-table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 0.25rem;
+    }
+    .appointments-table-wrap::-webkit-scrollbar {
+      height: 6px;
+    }
+    .appointments-table-wrap::-webkit-scrollbar-thumb {
+      background: #cfd5f2;
+      border-radius: 999px;
+    }
     .appointments-table {
       border-collapse: separate;
       border-spacing: 0 8px;
+    }
+    .appointments-table--wide {
+      min-width: 920px;
     }
     .appointments-table thead th {
       border: none;
@@ -43,6 +62,12 @@
     .ap-name { font-weight: 600; }
     .ap-contact,
     .ap-treatment { color: #4b4f68; }
+    .ap-action-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: flex-end;
+    }
     .ap-actions {
       text-align: right;
       font-size: 1.2rem;
@@ -82,29 +107,186 @@
 
     /* History filter bar above recent history table */
     .history-filters-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(170px, 0.8fr);
+      gap: 14px;
+      align-items: stretch;
+      margin-bottom: 0.85rem;
     }
-
     .history-filters-row .hf-field {
-      flex: 1 1 180px;   /* grow to fill, min width approx one control */
+      min-width: 0;
     }
-
+    .history-filter-label {
+      display: inline-block;
+      margin-bottom: 0.5rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #7f86aa;
+    }
+    .history-filter-control {
+      min-height: 48px;
+      border-radius: 14px;
+      border: 1px solid #d9ddf1;
+      background: #ffffff;
+      box-shadow: none;
+      color: #2d355a;
+      font-size: 0.92rem;
+      padding-left: 0.95rem;
+      padding-right: 0.95rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .history-filter-control:hover {
+      border-color: #c3caea;
+    }
+    .history-filter-control:focus {
+      border-color: #7269e6;
+      box-shadow: 0 0 0 0.18rem rgba(108, 92, 231, 0.14);
+    }
+    .history-filter-control::-webkit-calendar-picker-indicator {
+      opacity: 0.75;
+    }
     .history-filters-row .hf-button {
-      flex: 0 0 150px;   /* fixed-ish size for the button */
+      min-width: 0;
       display: flex;
       align-items: flex-end;
+      padding-top: 1.55rem;
+    }
+    .history-filter-submit {
+      width: 100%;
+      min-height: 48px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #5c56bf 0%, #7168e8 100%);
+      box-shadow: 0 12px 24px rgba(96, 87, 205, 0.22);
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    }
+    .history-filter-submit:hover,
+    .history-filter-submit:focus {
+      transform: translateY(-1px);
+      box-shadow: 0 15px 28px rgba(96, 87, 205, 0.28);
+      filter: brightness(1.02);
+    }
+    .history-filter-clear-row {
+      display: flex;
+      justify-content: flex-end;
+    }
+    .history-filter-clear {
+      color: #5c56bf;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .history-filter-clear:hover {
+      color: #443ca8;
+      text-decoration: underline;
+    }
+    .history-pagination {
+      gap: 0.75rem;
     }
 
-    /* On small screens stack them vertically */
-    @media (max-width: 768px) {
-      .history-filters-row {
-        flex-direction: column;
+    @media (max-width: 991.98px) {
+      .ap-action-form {
+        justify-content: flex-start;
       }
+      .history-filters-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .history-filters-row .hf-button {
+        padding-top: 0;
+      }
+    }
 
+    @media (max-width: 767.98px) {
+      .appointments-page-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+      }
+      .appointments-page-header .btn {
+        display: inline-flex;
+        align-items: center;
+        width: 100%;
+        justify-content: center;
+      }
+      .history-filters-row {
+        grid-template-columns: 1fr;
+      }
       .history-filters-row .hf-button {
         width: 100%;
+        padding-top: 0;
+      }
+      .appointments-table-wrap {
+        overflow: visible;
+      }
+      .appointments-table,
+      .appointments-table thead,
+      .appointments-table tbody,
+      .appointments-table tr,
+      .appointments-table th,
+      .appointments-table td {
+        display: block;
+        width: 100%;
+      }
+      .appointments-table {
+        border-spacing: 0;
+        min-width: 100%;
+      }
+      .appointments-table--wide {
+        min-width: 100%;
+      }
+      .appointments-table thead {
+        display: none;
+      }
+      .appointments-table tbody tr {
+        margin-bottom: 0.95rem;
+        border-radius: 16px;
+        overflow: hidden;
+        padding: 0.35rem 0;
+      }
+      .appointments-table tbody tr td {
+        display: grid;
+        grid-template-columns: 88px 1fr;
+        gap: 0.65rem;
+        padding: 0.6rem 1rem;
+        text-align: left !important;
+      }
+      .appointments-table tbody tr td::before {
+        content: attr(data-label);
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #9aa3bf;
+      }
+      .appointments-table tbody tr td:first-child,
+      .appointments-table tbody tr td:last-child {
+        border-radius: 0;
+      }
+      .ap-empty td {
+        display: block !important;
+        text-align: center !important;
+      }
+      .ap-empty td::before {
+        display: none;
+      }
+      .ap-action-form {
+        justify-content: flex-start;
+      }
+      .ap-action-form .btn {
+        width: 100%;
+      }
+      .history-pagination {
+        flex-direction: column;
+        align-items: flex-start !important;
+      }
+      .history-pagination > div {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
       }
     }
 
@@ -116,7 +298,7 @@
     <div class="col-lg-12">
 
       <!-- Header + action -->
-      <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="appointments-page-header d-flex justify-content-between align-items-center mb-4">
         <div>
           <h3 class="mb-1">Appointments</h3>
           <p class="text-muted mb-0">View and manage all clinic appointments.</p>
@@ -132,7 +314,8 @@
           <h6 class="text-muted text-uppercase mb-2">Requests</h6>
           <div class="card">
             <div class="card-body">
-              <table class="table table-sm appointments-table mb-0">
+              <div class="appointments-table-wrap">
+                <table class="table table-sm appointments-table appointments-table--wide mb-0">
                 <thead>
                   <tr>
                     <th>No#</th>
@@ -149,17 +332,17 @@
                   {% for a in pending_requests %}
                     <tr>
                       {# Patient ID – two digits #}
-                      <td class="ap-no">C{{ a.id|stringformat:"02d" }}</td>
+                      <td class="ap-no" data-label="No#">C{{ a.id|stringformat:"02d" }}</td>
 
                       {# Name #}
-                      <td class="ap-name">{{ a.name }}</td>
+                      <td class="ap-name" data-label="Name">{{ a.name }}</td>
 
                       {# Date & time #}
-                      <td class="ap-date">{{ a.date|date:"d/m/Y" }}</td>
-                      <td class="ap-time">{{ a.timeslot }}</td>
+                      <td class="ap-date" data-label="Date">{{ a.date|date:"d/m/Y" }}</td>
+                      <td class="ap-time" data-label="Time">{{ a.timeslot }}</td>
 
                       {# Contacts: phone + email #}
-                      <td class="ap-contact">
+                      <td class="ap-contact" data-label="Contacts">
                         <div>{{ a.phone|default:"—" }}</div>
                         {% if a.email %}
                           <div class="text-muted small">{{ a.email }}</div>
@@ -167,7 +350,7 @@
                       </td>
 
                       {# Treatment (services list) #}
-                      <td class="ap-treatment">
+                      <td class="ap-treatment" data-label="Treatment">
                         {% if a.services %}
                           {{ a.services|join:", " }}
                         {% else %}
@@ -176,15 +359,15 @@
                       </td>
 
                       {# Status, centered #}
-                      <td class="text-center">
+                      <td class="text-center" data-label="Status">
                         <span class="ap-status-badge ap-status-pending">
                           {{ a.get_status_display }}
                         </span>
                       </td>
 
                       {# Actions #}
-                      <td class="text-right">
-                        <form method="post" class="d-inline">
+                      <td class="text-right" data-label="Action">
+                        <form method="post" class="ap-action-form">
                           {% csrf_token %}
                           <input type="hidden" name="appointment_id" value="{{ a.id }}">
                           <button type="submit" name="action" value="approve"
@@ -206,7 +389,8 @@
                     </tr>
                   {% endfor %}
                 </tbody>
-              </table>
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -218,7 +402,8 @@
           <h6 class="text-muted text-uppercase mb-2">Your Appointments</h6>
           <div class="card">
             <div class="card-body">
-              <table class="table table-sm appointments-table mb-0">
+              <div class="appointments-table-wrap">
+                <table class="table table-sm appointments-table appointments-table--wide mb-0">
                 <thead>
                   <tr>
                     <th>No#</th>
@@ -234,19 +419,19 @@
                 <tbody>
                   {% for a in upcoming_appointments %}
                     <tr>
-                      <td class="ap-no">C{{ a.id|stringformat:"02d" }}</td>
-                      <td class="ap-name">{{ a.name }}</td>
-                      <td class="ap-date">{{ a.date|date:"d/m/Y" }}</td>
-                      <td class="ap-time">{{ a.timeslot }}</td>
+                      <td class="ap-no" data-label="No#">C{{ a.id|stringformat:"02d" }}</td>
+                      <td class="ap-name" data-label="Name">{{ a.name }}</td>
+                      <td class="ap-date" data-label="Date">{{ a.date|date:"d/m/Y" }}</td>
+                      <td class="ap-time" data-label="Time">{{ a.timeslot }}</td>
 
-                      <td class="ap-contact">
+                      <td class="ap-contact" data-label="Contacts">
                         <div>{{ a.phone|default:"—" }}</div>
                         {% if a.email %}
                           <div class="text-muted small">{{ a.email }}</div>
                         {% endif %}
                       </td>
 
-                      <td class="ap-treatment">
+                      <td class="ap-treatment" data-label="Treatment">
                         {% if a.services %}
                           {{ a.services|join:", " }}
                         {% else %}
@@ -255,15 +440,15 @@
                       </td>
 
                       {# STATUS: show "In progress" for confirmed appointments #}
-                      <td class="text-center">
+                      <td class="text-center" data-label="Status">
                         <span class="ap-status-badge ap-status-confirmed">
                           In progress
                         </span>
                       </td>
 
                       {# ACTIONS: Complete / Cancel / Reschedule #}
-                      <td class="text-right">
-                        <form method="post" class="d-inline">
+                      <td class="text-right" data-label="Action">
+                        <form method="post" class="ap-action-form">
                           {% csrf_token %}
                           <input type="hidden" name="appointment_id" value="{{ a.id }}">
 
@@ -305,7 +490,8 @@
                     </tr>
                   {% endfor %}
                 </tbody>
-              </table>
+                </table>
+              </div>
             </div>
           </div>
 
@@ -329,9 +515,9 @@
 
                 <div class="history-filters-row">
                   <div class="hf-field">
-                    <label class="small mb-1">Status</label>
-                    <select name="history_status" class="form-control form-control-sm">
-                      <option value="" {% if not history_status %}selected{% endif %}>All</option>
+                    <label for="history-status" class="history-filter-label">Status</label>
+                    <select id="history-status" name="history_status" class="form-control history-filter-control">
+                      <option value="" {% if not history_status %}selected{% endif %}>All visits</option>
                       <option value="completed"
                               {% if history_status == 'completed' %}selected{% endif %}>
                         Completed
@@ -344,30 +530,45 @@
                   </div>
 
                   <div class="hf-field">
-                    <label class="small mb-1">From</label>
-                    <input type="date"
-                          name="history_from"
-                          value="{{ history_from }}"
-                          class="form-control form-control-sm">
+                    <label for="history-from" class="history-filter-label">From</label>
+                    <input
+                      id="history-from"
+                      type="date"
+                      name="history_from"
+                      value="{{ history_from }}"
+                      class="form-control history-filter-control"
+                    >
                   </div>
 
                   <div class="hf-field">
-                    <label class="small mb-1">To</label>
-                    <input type="date"
-                          name="history_to"
-                          value="{{ history_to }}"
-                          class="form-control form-control-sm">
+                    <label for="history-to" class="history-filter-label">To</label>
+                    <input
+                      id="history-to"
+                      type="date"
+                      name="history_to"
+                      value="{{ history_to }}"
+                      class="form-control history-filter-control"
+                    >
                   </div>
 
                   <div class="hf-button">
-                    <button type="submit" class="btn btn-sm btn-primary btn-block">
-                      Filter
+                    <button id="history-apply" type="submit" class="btn btn-primary history-filter-submit">
+                      Apply filters
                     </button>
                   </div>
                 </div>
+
+                {% if history_status or history_from or history_to %}
+                  <div class="history-filter-clear-row">
+                    <a href="?{% if q %}q={{ q|urlencode }}{% endif %}#history" class="history-filter-clear">
+                      Clear filters
+                    </a>
+                  </div>
+                {% endif %}
               </form>
 
-              <table class="table table-sm appointments-table mb-0">
+              <div class="appointments-table-wrap">
+                <table class="table table-sm appointments-table appointments-table--wide mb-0">
                 <thead>
                   <tr>
                     <th>No#</th>
@@ -382,19 +583,19 @@
                 <tbody>
                   {% for a in recent_history %}
                     <tr>
-                      <td class="ap-no">C{{ a.id|stringformat:"02d" }}</td>
-                      <td class="ap-name">{{ a.name }}</td>
-                      <td class="ap-date">{{ a.date|date:"d/m/Y" }}</td>
-                      <td class="ap-time">{{ a.timeslot }}</td>
+                      <td class="ap-no" data-label="No#">C{{ a.id|stringformat:"02d" }}</td>
+                      <td class="ap-name" data-label="Name">{{ a.name }}</td>
+                      <td class="ap-date" data-label="Date">{{ a.date|date:"d/m/Y" }}</td>
+                      <td class="ap-time" data-label="Time">{{ a.timeslot }}</td>
 
-                      <td class="ap-contact">
+                      <td class="ap-contact" data-label="Contacts">
                         <div>{{ a.phone|default:"—" }}</div>
                         {% if a.email %}
                           <div class="text-muted small">{{ a.email }}</div>
                         {% endif %}
                       </td>
 
-                      <td class="ap-treatment">
+                      <td class="ap-treatment" data-label="Treatment">
                         {% if a.services %}
                           {{ a.services|join:", " }}
                         {% else %}
@@ -402,7 +603,7 @@
                         {% endif %}
                       </td>
 
-                      <td class="text-center">
+                      <td class="text-center" data-label="Status">
                         {% if a.status == 'cancelled' %}
                           <span class="ap-status-badge ap-status-cancelled">
                             {{ a.get_status_display }}
@@ -426,11 +627,12 @@
                     </tr>
                   {% endfor %}
                 </tbody>
-              </table>
+                </table>
+              </div>
 
               {# ---- Prev / Next buttons ---- #}
               {% if recent_history.paginator.num_pages > 1 %}
-                <div class="d-flex justify-content-between align-items-center mt-3">
+                <div class="history-pagination d-flex justify-content-between align-items-center mt-3">
                   <small class="text-muted">
                     Page {{ recent_history.number }} of {{ recent_history.paginator.num_pages }}
                   </small>
