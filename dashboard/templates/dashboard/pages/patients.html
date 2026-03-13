@@ -426,7 +426,7 @@
                         <tbody>
                           {% for row in visit_history %}
                             <tr>
-                              <td>#{{ row.id }}</td>
+                              <td>{{ row.appointment_code }}</td>
                               <td>
                                 {% if row.services %}
                                   {{ row.services|join:", " }}

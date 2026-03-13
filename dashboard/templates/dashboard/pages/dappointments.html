@@ -332,7 +332,7 @@
                   {% for a in pending_requests %}
                     <tr>
                       {# Patient ID – two digits #}
-                      <td class="ap-no" data-label="No#">C{{ a.id|stringformat:"02d" }}</td>
+                      <td class="ap-no" data-label="No#">{{ a.appointment_code }}</td>
 
                       {# Name #}
                       <td class="ap-name" data-label="Name">{{ a.name }}</td>
@@ -419,7 +419,7 @@
                 <tbody>
                   {% for a in upcoming_appointments %}
                     <tr>
-                      <td class="ap-no" data-label="No#">C{{ a.id|stringformat:"02d" }}</td>
+                      <td class="ap-no" data-label="No#">{{ a.appointment_code }}</td>
                       <td class="ap-name" data-label="Name">{{ a.name }}</td>
                       <td class="ap-date" data-label="Date">{{ a.date|date:"d/m/Y" }}</td>
                       <td class="ap-time" data-label="Time">{{ a.timeslot }}</td>
@@ -583,7 +583,7 @@
                 <tbody>
                   {% for a in recent_history %}
                     <tr>
-                      <td class="ap-no" data-label="No#">C{{ a.id|stringformat:"02d" }}</td>
+                      <td class="ap-no" data-label="No#">{{ a.appointment_code }}</td>
                       <td class="ap-name" data-label="Name">{{ a.name }}</td>
                       <td class="ap-date" data-label="Date">{{ a.date|date:"d/m/Y" }}</td>
                       <td class="ap-time" data-label="Time">{{ a.timeslot }}</td>

@@ -464,7 +464,7 @@
               {% for p in latest_patients %}
                 <tr>
                   <!-- client no. (row number or use p.id if you prefer) -->
-                  <td class="lp-no">C{{ p.id }}</td>
+                  <td class="lp-no">{{ p.appointment_code }}</td>
 
                   <!-- appointment date -->
                   <td class="lp-date">

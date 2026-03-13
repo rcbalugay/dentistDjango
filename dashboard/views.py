@@ -400,7 +400,7 @@ def patients(request):
         }
 
         assurance_card = {
-            "member_number": f"{selected_patient.id:03d}-{today.year}-{total:03d}",
+            "member_number": selected_patient.patient_code,
             "status": "Active" if completed > 0 else "New",
             "expiry": today + timedelta(days=365),
         }
@@ -409,7 +409,7 @@ def patients(request):
             services_label = ", ".join(a.services) if a.services else "General dental service"
             note_words = len((a.notes or "").split())
             document_items.append({
-                "title": f"Visit summary #{a.id}",
+                "title": f"Visit summary {a.appointment_code}",
                 "subtitle": services_label,
                 "meta": f"{a.date:%d %b %Y} - {note_words} note words",
                 "status": a.get_status_display(),
