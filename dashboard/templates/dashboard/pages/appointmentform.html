@@ -129,12 +129,9 @@
 
           <!-- Row 4: notes / problem (full width) -->
           <div class="form-group">
-            <label for="id_notes">Problem / Notes (optional)</label>
-            <textarea class="form-control"
-                      id="id_notes"
-                      name="notes"
-                      rows="3"
-                      placeholder="Enter notes about the case"></textarea>
+            {{ form.notes.label_tag }}
+            {{ form.notes }}
+            {{ form.notes.errors }}
           </div>
 
           <!-- Buttons -->

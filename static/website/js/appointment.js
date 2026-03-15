@@ -7,6 +7,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const timeField   = document.getElementById('appointment_time');
   const form        = document.getElementById('appointmentForm');
   const matrixContainer = document.getElementById('mobileMatrix');
+  const clientDialog = document.getElementById('appointmentClientDialog');
+  const clientDialogTitle = document.getElementById('appointmentClientDialogTitle');
+  const clientDialogSubtitle = document.getElementById('appointmentClientDialogSubtitle');
+  const clientDialogMessage = document.getElementById('appointmentClientDialogMessage');
+  let selectedDateIso = dateInput && dateInput.value ? dateInput.value : '';
+  let selectedTime = timeField && timeField.value ? timeField.value : '';
+  let renderMatrix = null;
 
   if (!form) {
     return;
@@ -48,6 +55,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const displayTimeLabel = (value) =>
     value.replace(' AM', '').replace(' PM', '');
 
+  const formatIsoLocalDate = (d) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const parseIsoLocalDate = (value) => {
+    if (!value) {
+      return null;
+    }
+
+    const [year, month, day] = value.split('-').map(Number);
+    if (!year || !month || !day) {
+      return null;
+    }
+
+    return new Date(year, month - 1, day);
+  };
+
   // Format date like: Tuesday, November 11, 2025
   const formatPrettyDate = (d) =>
     d.toLocaleDateString(undefined, {
@@ -60,13 +87,101 @@ document.addEventListener('DOMContentLoaded', () => {
   // Open days: Mon (1), Wed (3), Sat (6), Sun (0)
   const isOpenDay = (d) => openWeekdays.has(d.getDay());
 
+  const showDesktopSlotsForDate = (picked) => {
+    if (!picked || !isOpenDay(picked)) {
+      if (slotWrap) slotWrap.classList.add('timeslots--hidden');
+      return;
+    }
+
+    if (slotWrap) {
+      slotWrap.classList.remove('timeslots--hidden');
+    }
+    if (slotHint) {
+      slotHint.textContent = `Available time slots for ${formatPrettyDate(picked)}`;
+    }
+    renderDesktopSlots();
+  };
+
+  const openClientDialog = ({ title, subtitle, message }) => {
+    if (!clientDialog) {
+      return;
+    }
+
+    if (clientDialogTitle) {
+      clientDialogTitle.textContent = title;
+    }
+    if (clientDialogSubtitle) {
+      clientDialogSubtitle.textContent = subtitle;
+    }
+    if (clientDialogMessage) {
+      clientDialogMessage.textContent = message;
+    }
+
+    clientDialog.classList.add('is-open');
+    document.body.classList.add('appt-dialog-open');
+  };
+
+  const closeClientDialog = () => {
+    if (!clientDialog) {
+      return;
+    }
+
+    clientDialog.classList.remove('is-open');
+    document.body.classList.remove('appt-dialog-open');
+  };
+
+  if (clientDialog) {
+    clientDialog.querySelectorAll('[data-client-dialog-close]').forEach((element) => {
+      element.addEventListener('click', closeClientDialog);
+    });
+  }
+
+  const applySuggestedSlot = (dateValue, timeValue) => {
+    if (!dateValue || !timeValue) {
+      return;
+    }
+
+    const pickedDate = parseIsoLocalDate(dateValue);
+    const flatpickrInstance = calendarDiv && calendarDiv._flatpickr ? calendarDiv._flatpickr : null;
+
+    selectedDateIso = dateValue;
+    selectedTime = timeValue;
+
+    if (dateInput) {
+      dateInput.value = dateValue;
+    }
+    if (timeField) {
+      timeField.value = timeValue;
+    }
+
+    if (flatpickrInstance && dateValue) {
+      flatpickrInstance.setDate(dateValue, false);
+    }
+
+    if (pickedDate) {
+      showDesktopSlotsForDate(pickedDate);
+    }
+
+    if (typeof renderMatrix === 'function') {
+      renderMatrix();
+    }
+  };
+
+  window.addEventListener('appointment:suggestion-selected', (event) => {
+    if (!event.detail) {
+      return;
+    }
+
+    applySuggestedSlot(event.detail.dateValue, event.detail.timeValue);
+  });
+
   // ===========================
   // DESKTOP: calendar + slot list
   // ===========================
   function renderDesktopSlots() {
     if (!slotList) return;
     slotList.innerHTML = '';
-    timeField.value = '';
+    const selectedTime = timeField.value;
 
     buildSlotLabels().forEach(label => {
       const btn = document.createElement('button');
@@ -75,7 +190,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // DESKTOP: show full label with AM/PM
       btn.textContent = label;
-
+      if (label === selectedTime) {
+        btn.classList.add('is-active');
+      }
       btn.addEventListener('click', () => {
         Array.from(slotList.querySelectorAll('.slot-btn'))
           .forEach(b => b.classList.remove('is-active'));
@@ -93,6 +210,27 @@ document.addEventListener('DOMContentLoaded', () => {
       inline: true,
       minDate: 'today',
       dateFormat: 'Y-m-d',
+      defaultDate: dateInput.value || null,
+      onReady: (selectedDates) => {
+        if (!selectedDates.length) {
+          return;
+        }
+
+        const picked = selectedDates[0];
+
+        if (!isOpenDay(picked)) {
+          return;
+        }
+
+        if (slotWrap) {
+          slotWrap.classList.remove('timeslots--hidden');
+        }
+        if (slotHint) {
+          slotHint.textContent = `Available time slots for ${formatPrettyDate(picked)}`;
+        }
+
+        renderDesktopSlots();
+      },
       onChange: (selectedDates, dateStr) => {
         dateInput.value = dateStr || '';
         timeField.value = '';
@@ -132,10 +270,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // ===========================
   if (matrixContainer) {
     let weekOffset = 0; // 0 = this week (today..today+6)
-    let selectedDateIso = dateInput && dateInput.value ? dateInput.value : '';
-    let selectedTime = timeField && timeField.value ? timeField.value : '';
 
-    const renderMatrix = () => {
+    renderMatrix = () => {
       matrixContainer.innerHTML = '';
 
       // header with prev/next
@@ -213,7 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
       for (let i = 0; i < 7; i++) {
         const d = new Date(start);
         d.setDate(start.getDate() + i);
-        const iso = d.toISOString().slice(0, 10);
+        const iso = formatIsoLocalDate(d);
         const dowShort = d.toLocaleDateString(undefined, { weekday: 'short' });
         const dayNum = d.getDate();
         const open = isOpenDay(d);
@@ -315,19 +451,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const anyService = !!form.querySelector('input[name="services"]:checked');
     if (!anyService) {
       e.preventDefault();
-      alert('Please select at least one service.');
+      openClientDialog({
+        title: 'Select a Service',
+        subtitle: 'Please choose at least one treatment before submitting your appointment request.',
+        message: 'Choose one or more services from the list above, then try submitting again.',
+      });
       return;
     }
 
     if (!dateInput.value) {
       e.preventDefault();
-      alert('Please pick a date.');
+      openClientDialog({
+        title: 'Pick a Date',
+        subtitle: 'Your appointment request still needs a visit date.',
+        message: 'Select a clinic date first, then choose a matching time slot before submitting.',
+      });
       return;
     }
 
     if (!timeField.value) {
       e.preventDefault();
-      alert('Please pick a timeslot.');
+      openClientDialog({
+        title: 'Pick a Time Slot',
+        subtitle: 'Your appointment request still needs a time slot.',
+        message: 'Choose one available time slot for your selected date, then submit your request again.',
+      });
       return;
     }
   });

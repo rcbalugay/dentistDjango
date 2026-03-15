@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Track Appointment | Dental Clinic{% endblock %}
+{% block content %}
+  <section class="hero-wrap hero-wrap-2" style="background-image: url('{% static 'website/images/bg_1.jpg' %}');" data-stellar-background-ratio="0.5">
+    <div class="overlay"></div>
+    <div class="container">
+      <div class="row no-gutters slider-text align-items-center justify-content-center">
+        <div class="col-md-9 ftco-animate text-center">
+          <h1 class="mb-2 bread">Track Appointment</h1>
+          <p class="breadcrumbs">
+            <span class="mr-2"><a href="{% url 'home' %}">Home <i class="ion-ios-arrow-forward"></i></a></span>
+            <span>Track Appointment <i class="ion-ios-arrow-forward"></i></span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="appointment-status-section">
+    <div class="container">
+      <div class="appointment-status-shell">
+        <div class="appointment-status-search">
+          <h2>Track your appointment</h2>
+          <p>Enter the appointment ID from your confirmation dialog to check the latest status of your request.</p>
+
+          <form method="get" action="{% url 'appointment_status' %}" class="appointment-status-form">
+            <label for="appointment-code-search">Appointment ID</label>
+            <div class="appointment-status-form__row">
+              <input
+                id="appointment-code-search"
+                type="text"
+                name="code"
+                value="{{ lookup_code }}"
+                placeholder="APT-000123"
+                autocomplete="off"
+              >
+              <button type="submit">Track Status</button>
+            </div>
+          </form>
+        </div>
+
+        {% if lookup_error %}
+          <div class="alert alert-danger">{{ lookup_error }}</div>
+        {% endif %}
+
+        {% if appointment %}
+          <div class="appointment-status-card">
+            <div class="appointment-status-card__head">
+              <div>
+                <span class="appointment-status-card__eyebrow">Appointment ID</span>
+                <h3>{{ appointment.appointment_code }}</h3>
+              </div>
+              <span class="appointment-status-badge appointment-status-badge--{{ appointment.status }}">
+                {{ appointment.get_status_display }}
+              </span>
+            </div>
+
+            <div class="appointment-status-grid">
+              <div>
+                <small>Patient</small>
+                <strong>{{ appointment.name }}</strong>
+              </div>
+              <div>
+                <small>Scheduled Date</small>
+                <strong>{{ appointment.date|date:"F j, Y" }}</strong>
+              </div>
+              <div>
+                <small>Time</small>
+                <strong>{{ appointment.timeslot }}</strong>
+              </div>
+              <div>
+                <small>Services</small>
+                <strong>{% if appointment.services %}{{ appointment.services|join:", " }}{% else %}Not specified{% endif %}</strong>
+              </div>
+              <div>
+                <small>Phone</small>
+                <strong>{% if appointment.phone %}{{ appointment.phone }}{% else %}Not provided{% endif %}</strong>
+              </div>
+              <div>
+                <small>Email</small>
+                <strong>{% if appointment.email %}{{ appointment.email }}{% else %}Not provided{% endif %}</strong>
+              </div>
+            </div>
+
+            <div class="appointment-status-note">
+              {% if appointment.status == "pending" %}
+                <p><strong>Your request is waiting for confirmation.</strong> We will contact you to confirm your appointment details as soon as the schedule is reviewed.</p>
+              {% elif appointment.status == "confirmed" %}
+                <p><strong>Your appointment is confirmed.</strong> Please keep this appointment ID for reference. We will call one day before your visit as a reminder.</p>
+              {% elif appointment.status == "completed" %}
+                <p><strong>This appointment has been completed.</strong> If you need a follow-up visit, you can request a new appointment anytime.</p>
+              {% else %}
+                <p><strong>This appointment was cancelled.</strong> If you still need care, please request a new appointment and we will help you reschedule.</p>
+              {% endif %}
+            </div>
+          </div>
+        {% elif not lookup_code %}
+          <div class="appointment-status-empty">
+            <h3>Ready when you are</h3>
+            <p>Once you submit an appointment request, we will show your appointment ID in a confirmation dialog. You can return here anytime to check its status.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+{% endblock %}

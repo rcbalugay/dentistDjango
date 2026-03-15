@@ -3174,6 +3174,872 @@ textarea.form-control{
     margin-top: 0;
 }
 
+.appt-success-dialog{
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(0.75rem, 2vw, 1.25rem);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    isolation: isolate;
+    z-index: 1100;
+}
+
+.appt-success-dialog.is-open{
+    display: flex;
+}
+
+.appt-success-dialog__backdrop{
+    position: fixed;
+    inset: 0;
+    background: rgba(17, 24, 39, 0.45);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+.appt-success-dialog__card{
+    position: relative;
+    z-index: 1;
+    width: min(100%, 620px);
+    margin: auto;
+    border-radius: 24px;
+    background: #ffffff;
+    box-shadow: 0 30px 80px rgba(17, 24, 39, 0.24);
+}
+
+.appt-success-dialog__close{
+    position: absolute;
+    top: 0.85rem;
+    right: 0.85rem;
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.18);
+    color: #475569;
+    font-size: 1.35rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.appt-success-dialog__hero{
+    padding: 2rem 1.75rem 1.5rem;
+    text-align: center;
+    background:
+        radial-gradient(circle at top right, rgba(134, 239, 172, 0.26), transparent 32%),
+        radial-gradient(circle at bottom left, rgba(110, 231, 183, 0.22), transparent 28%),
+        linear-gradient(180deg, #f2fff6 0%, #ecfff7 100%);
+}
+
+.appt-success-dialog__icon{
+    width: 76px;
+    height: 76px;
+    margin: 0 auto 1rem;
+    border-radius: 999px;
+    position: relative;
+    background: radial-gradient(circle at 30% 30%, #3ddc84 0%, #22c55e 45%, #16a34a 100%);
+    box-shadow:
+        0 18px 36px rgba(34, 197, 94, 0.24),
+        inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.appt-success-dialog__icon::before{
+    content: "";
+    position: absolute;
+    inset: -10px;
+    border-radius: inherit;
+    background: radial-gradient(circle, rgba(34, 197, 94, 0.22) 0%, rgba(34, 197, 94, 0.08) 55%, transparent 72%);
+    z-index: -1;
+}
+
+.appt-success-dialog__icon::after{
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 18px;
+    height: 34px;
+    border-right: 5px solid #ffffff;
+    border-bottom: 5px solid #ffffff;
+    transform: translate(-50%, -60%) rotate(38deg);
+    border-radius: 2px;
+}
+
+.appt-success-dialog__hero h2{
+    margin-bottom: 0.45rem;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.appt-success-dialog__hero p{
+    max-width: 32rem;
+    margin: 0 auto;
+    margin-bottom: 0;
+    color: #64748b;
+    font-size: 1rem;
+}
+
+.appt-success-dialog__body{
+    padding: 1.5rem;
+}
+
+.appt-success-dialog__codebox{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.1rem 1.2rem;
+    margin-bottom: 1.25rem;
+    border: 1px solid #dbe7ff;
+    border-radius: 20px;
+    background: linear-gradient(180deg, #f5f8ff 0%, #eef4ff 100%);
+}
+
+.appt-success-dialog__codebox small{
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #64748b;
+}
+
+.appt-success-dialog__code{
+    font-size: 1.45rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #0f172a;
+}
+
+.appt-success-dialog__copy{
+    flex-shrink: 0;
+    min-width: 120px;
+    border: 1px solid #d6ddf3;
+    border-radius: 14px;
+    background: #ffffff;
+    color: #0f172a;
+    font-weight: 600;
+    padding: 0.7rem 1rem;
+    cursor: pointer;
+}
+
+.appt-success-dialog__notice{
+    margin-bottom: 1.25rem;
+    padding: 1rem 1.15rem;
+    border: 1px solid #f8cc68;
+    border-radius: 18px;
+    background: #fff8e7;
+    color: #4b5563;
+}
+
+.appt-success-dialog__notice p:last-child{
+    margin-bottom: 0;
+}
+
+.appt-success-dialog__steps-title{
+    margin-bottom: 0.85rem;
+    font-size: 0.92rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #64748b;
+}
+
+.appt-success-dialog__steps{
+    margin: 0 0 1.25rem;
+    padding: 0;
+    list-style: none;
+}
+
+.appt-success-dialog__steps li{
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+    margin-bottom: 0.7rem;
+    color: #334155;
+}
+
+.appt-success-dialog__steps-number{
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    background: #e8f0ff;
+    color: #2563eb;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.appt-success-dialog__actions{
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+}
+
+.appt-success-dialog__actions .btn{
+    min-width: 150px;
+    border-radius: 16px;
+    padding: 0.8rem 1.15rem;
+    font-weight: 700;
+}
+
+body.appt-dialog-open{
+    overflow: hidden;
+    height: 100vh;
+}
+
+@media (max-width: 991.98px){
+    .appt-success-dialog__card{
+        width: min(100%, 560px);
+    }
+
+    .appt-success-dialog__hero h2{
+        font-size: 1.8rem;
+    }
+
+    .appt-success-dialog__code{
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 767.98px), (max-height: 820px){
+    .appt-success-dialog{
+        align-items: flex-start;
+    }
+
+    .appt-success-dialog__card{
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 767.98px){
+    .appt-success-dialog{
+        padding: 0.75rem;
+    }
+
+    .appt-success-dialog__card{
+        border-radius: 22px;
+    }
+
+    .appt-success-dialog__hero{
+        padding: 1.5rem 1.15rem 1.1rem;
+    }
+
+    .appt-success-dialog__icon{
+        width: 64px;
+        height: 64px;
+        margin-bottom: 0.85rem;
+    }
+
+    .appt-success-dialog__icon::before{
+        inset: -8px;
+    }
+
+    .appt-success-dialog__icon::after{
+        width: 15px;
+        height: 28px;
+        border-right-width: 4px;
+        border-bottom-width: 4px;
+    }
+
+    .appt-success-dialog__hero h2{
+        font-size: 1.45rem;
+    }
+
+    .appt-success-dialog__hero p{
+        font-size: 0.95rem;
+    }
+
+    .appt-success-dialog__body{
+        padding: 1rem;
+    }
+
+    .appt-success-dialog__codebox{
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.85rem;
+        padding: 0.95rem 1rem;
+    }
+
+    .appt-success-dialog__code{
+        font-size: 1.1rem;
+        letter-spacing: 0.05em;
+    }
+
+    .appt-success-dialog__notice{
+        padding: 0.9rem 1rem;
+    }
+
+    .appt-success-dialog__steps li{
+        gap: 0.7rem;
+    }
+
+    .appt-success-dialog__actions{
+        flex-direction: column;
+    }
+
+    .appt-success-dialog__actions .btn,
+    .appt-success-dialog__copy{
+        width: 100%;
+    }
+}
+
+.appt-error-dialog{
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(0.75rem, 2vw, 1.25rem);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    isolation: isolate;
+    z-index: 1100;
+}
+
+.appt-error-dialog.is-open{
+    display: flex;
+}
+
+.appt-error-dialog__backdrop{
+    position: fixed;
+    inset: 0;
+    background: rgba(17, 24, 39, 0.45);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+.appt-error-dialog__card{
+    position: relative;
+    z-index: 1;
+    width: min(100%, 560px);
+    margin: auto;
+    border-radius: 24px;
+    background: #ffffff;
+    box-shadow: 0 30px 80px rgba(17, 24, 39, 0.24);
+}
+
+.appt-error-dialog__close{
+    position: absolute;
+    top: 0.85rem;
+    right: 0.85rem;
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 999px;
+    background: rgba(248, 113, 113, 0.08);
+    color: #64748b;
+    font-size: 1.35rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.appt-error-dialog__hero{
+    padding: 2rem 1.75rem 1.45rem;
+    text-align: center;
+    background:
+        radial-gradient(circle at top right, rgba(254, 202, 202, 0.32), transparent 32%),
+        radial-gradient(circle at bottom left, rgba(254, 215, 170, 0.22), transparent 28%),
+        linear-gradient(180deg, #fff5f2 0%, #fff9f6 100%);
+}
+
+.appt-error-dialog__hero--soft{
+    background:
+        radial-gradient(circle at top right, rgba(191, 219, 254, 0.34), transparent 32%),
+        radial-gradient(circle at bottom left, rgba(224, 231, 255, 0.26), transparent 28%),
+        linear-gradient(180deg, #f5f9ff 0%, #fbfdff 100%);
+}
+
+.appt-error-dialog__icon{
+    width: 76px;
+    height: 76px;
+    margin: 0 auto 1rem;
+    border-radius: 999px;
+    position: relative;
+    background: radial-gradient(circle at 30% 30%, #ff6b6b 0%, #ff3b3f 48%, #ef233c 100%);
+    box-shadow:
+        0 18px 36px rgba(239, 35, 60, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.32);
+}
+
+.appt-error-dialog__icon--soft{
+    background: radial-gradient(circle at 30% 30%, #7dd3fc 0%, #3b82f6 48%, #2563eb 100%);
+    box-shadow:
+        0 18px 36px rgba(37, 99, 235, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.32);
+}
+
+.appt-error-dialog__icon::before{
+    content: "";
+    position: absolute;
+    inset: -10px;
+    border-radius: inherit;
+    background: radial-gradient(circle, rgba(248, 113, 113, 0.2) 0%, rgba(248, 113, 113, 0.08) 55%, transparent 72%);
+    z-index: -1;
+}
+
+.appt-error-dialog__icon--soft::before{
+    background: radial-gradient(circle, rgba(96, 165, 250, 0.2) 0%, rgba(96, 165, 250, 0.08) 55%, transparent 72%);
+}
+
+.appt-error-dialog__icon::after{
+    content: "!";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -54%);
+    color: #ffffff;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.appt-error-dialog__icon--soft::after{
+    content: "i";
+    transform: translate(-50%, -56%);
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.appt-error-dialog__hero h2{
+    margin-bottom: 0.45rem;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.appt-error-dialog__hero p{
+    max-width: 28rem;
+    margin: 0 auto;
+    color: #64748b;
+    font-size: 1rem;
+}
+
+.appt-error-dialog__body{
+    padding: 1.5rem;
+}
+
+.appt-error-dialog__card--compact{
+    width: min(100%, 500px);
+}
+
+.appt-error-dialog__detail{
+    padding: 1rem 1.1rem;
+    margin-bottom: 1.25rem;
+    border: 1px solid #fecaca;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #fff6f6 0%, #fffafb 100%);
+}
+
+.appt-error-dialog__detail-title{
+    margin-bottom: 0.55rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #991b1b;
+}
+
+.appt-error-dialog__detail-meta{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.1rem;
+    color: #475569;
+    font-weight: 500;
+}
+
+.appt-error-dialog__section-title{
+    margin-bottom: 0.75rem;
+    font-size: 0.92rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #64748b;
+}
+
+.appt-error-dialog__suggestions{
+    display: grid;
+    gap: 0.75rem;
+}
+
+.appt-error-dialog__suggestion{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.95rem 1rem;
+    border: 1px solid #dbe3f1;
+    border-radius: 16px;
+    background: #ffffff;
+    color: #0f172a;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.appt-error-dialog__suggestion:hover{
+    transform: translateY(-1px);
+    border-color: #93c5fd;
+    box-shadow: 0 12px 24px rgba(37, 99, 235, 0.08);
+}
+
+.appt-error-dialog__suggestion span:last-child{
+    color: #2563eb;
+}
+
+.appt-error-dialog__tip{
+    margin-top: 1rem;
+    margin-bottom: 1.25rem;
+    padding: 0.95rem 1rem;
+    border: 1px solid #bfdbfe;
+    border-radius: 16px;
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.appt-error-dialog__message{
+    margin-bottom: 1.25rem;
+    padding: 1rem 1.05rem;
+    border: 1px solid #dbe7ff;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #f5f8ff 0%, #eef4ff 100%);
+    color: #334155;
+}
+
+.appt-error-dialog__actions{
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+}
+
+.appt-error-dialog__actions .btn{
+    min-width: 160px;
+    border-radius: 16px;
+    padding: 0.8rem 1.15rem;
+    font-weight: 700;
+}
+
+.appt-error-dialog__actions--single{
+    justify-content: center;
+}
+
+@media (max-width: 991.98px){
+    .appt-error-dialog__card{
+        width: min(100%, 520px);
+    }
+
+    .appt-error-dialog__card--compact{
+        width: min(100%, 480px);
+    }
+
+    .appt-error-dialog__hero h2{
+        font-size: 1.8rem;
+    }
+}
+
+@media (max-width: 767.98px), (max-height: 820px){
+    .appt-error-dialog{
+        align-items: flex-start;
+    }
+
+    .appt-error-dialog__card{
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 767.98px){
+    .appt-error-dialog{
+        padding: 0.75rem;
+    }
+
+    .appt-error-dialog__card{
+        border-radius: 22px;
+    }
+
+    .appt-error-dialog__card--compact{
+        width: min(100%, 100%);
+    }
+
+    .appt-error-dialog__hero{
+        padding: 1.45rem 1.15rem 1rem;
+    }
+
+    .appt-error-dialog__icon{
+        width: 64px;
+        height: 64px;
+        margin-bottom: 0.85rem;
+    }
+
+    .appt-error-dialog__icon::before{
+        inset: -8px;
+    }
+
+    .appt-error-dialog__icon::after{
+        font-size: 1.75rem;
+    }
+
+    .appt-error-dialog__hero h2{
+        font-size: 1.45rem;
+    }
+
+    .appt-error-dialog__hero p{
+        font-size: 0.95rem;
+    }
+
+    .appt-error-dialog__body{
+        padding: 1rem;
+    }
+
+    .appt-error-dialog__detail-meta,
+    .appt-error-dialog__suggestion,
+    .appt-error-dialog__actions{
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .appt-error-dialog__actions .btn{
+        width: 100%;
+    }
+}
+
+.appointment-status-section{
+    padding: 4.5rem 0 5.5rem;
+    background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 26%),
+        linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+}
+
+.appointment-status-shell{
+    max-width: 860px;
+    margin: 0 auto;
+}
+
+.appointment-status-search,
+.appointment-status-card,
+.appointment-status-empty{
+    border-radius: 28px;
+    background: #ffffff;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+}
+
+.appointment-status-search{
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.appointment-status-search h2{
+    margin-bottom: 0.5rem;
+    color: #0f172a;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.appointment-status-search p{
+    margin-bottom: 1.25rem;
+    color: #64748b;
+}
+
+.appointment-status-form label{
+    display: block;
+    margin-bottom: 0.65rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #64748b;
+}
+
+.appointment-status-form__row{
+    display: flex;
+    gap: 0.9rem;
+    align-items: center;
+}
+
+.appointment-status-form__row input{
+    flex: 1;
+    min-width: 0;
+    height: 56px;
+    border: 1px solid #d7e1f2;
+    border-radius: 16px;
+    padding: 0 1rem;
+    font-size: 1rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #0f172a;
+    background: #f8fbff;
+}
+
+.appointment-status-form__row input:focus{
+    outline: none;
+    border-color: #5b5bd6;
+    box-shadow: 0 0 0 4px rgba(91, 91, 214, 0.12);
+}
+
+.appointment-status-form__row button{
+    min-width: 170px;
+    height: 56px;
+    border: none;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #4f46e5 0%, #2563eb 100%);
+    color: #ffffff;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.appointment-status-card{
+    padding: 2rem;
+}
+
+.appointment-status-card__head{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.appointment-status-card__eyebrow{
+    display: block;
+    margin-bottom: 0.45rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #64748b;
+}
+
+.appointment-status-card__head h3{
+    margin-bottom: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: #0f172a;
+}
+
+.appointment-status-badge{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+    padding: 0.6rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.appointment-status-badge--pending{
+    background: #fff5d9;
+    color: #b45309;
+}
+
+.appointment-status-badge--confirmed{
+    background: #dcfce7;
+    color: #166534;
+}
+
+.appointment-status-badge--completed{
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.appointment-status-badge--cancelled{
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.appointment-status-grid{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.appointment-status-grid > div{
+    padding: 1rem 1.1rem;
+    border: 1px solid #e8edf8;
+    border-radius: 18px;
+    background: #fbfdff;
+}
+
+.appointment-status-grid small{
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #64748b;
+}
+
+.appointment-status-grid strong{
+    color: #0f172a;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.appointment-status-note{
+    padding: 1rem 1.15rem;
+    border: 1px solid #dbe7ff;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #f5f8ff 0%, #eef4ff 100%);
+    color: #334155;
+}
+
+.appointment-status-note p:last-child{
+    margin-bottom: 0;
+}
+
+.appointment-status-empty{
+    padding: 2rem;
+    color: #475569;
+}
+
+.appointment-status-empty h3{
+    margin-bottom: 0.65rem;
+    color: #0f172a;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+@media (max-width: 767.98px){
+    .appointment-status-section{
+        padding: 3.5rem 0 4rem;
+    }
+
+    .appointment-status-search,
+    .appointment-status-card,
+    .appointment-status-empty{
+        padding: 1.35rem;
+        border-radius: 22px;
+    }
+
+    .appointment-status-search h2,
+    .appointment-status-card__head h3{
+        font-size: 1.55rem;
+    }
+
+    .appointment-status-form__row,
+    .appointment-status-card__head{
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .appointment-status-form__row button{
+        width: 100%;
+    }
+
+    .appointment-status-grid{
+        grid-template-columns: 1fr;
+    }
+
+    .appointment-status-badge{
+        width: 100%;
+    }
+}
+
 
 /* =======================
    Form Styling

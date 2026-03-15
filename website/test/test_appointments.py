@@ -204,7 +204,7 @@ class AppointmentFormTests(TestCase):
 
         form = AppointmentForm(data={
             "name": "New Patient",
-            "phone": "456",
+            "phone": "09170000006",
             "email": "f@test.com",
             "appointment_date": booking_date,
             "appointment_time": time(10, 0),

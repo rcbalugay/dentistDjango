@@ -1,4 +1,6 @@
+import re
 from django import forms
+from django.db import transaction
 from django.utils import timezone
 from datetime import datetime, timedelta
 from .models import Appointment, Patient
@@ -32,7 +34,14 @@ class BaseAppointmentForm(forms.ModelForm):
             "name": forms.TextInput(attrs={"class": "form-control"}),
             "phone": forms.TextInput(attrs={"class": "form-control"}),
             "email": forms.EmailInput(attrs={"class": "form-control"}),
+            "notes": forms.Textarea(attrs={"class": "form-control", "rows": 3, "placeholder": "Enter notes about the case"}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.unavailable_reason = ""
+        self.unavailable_date = None
+        self.unavailable_time = None
 
     def validate_slot_collision(self, cleaned):
         appt_date = cleaned.get("appointment_date")
@@ -54,12 +63,23 @@ class BaseAppointmentForm(forms.ModelForm):
             qs = qs.exclude(pk=self.instance.pk)
 
         if qs.exists():
+            self.unavailable_reason = "booked"
+            self.unavailable_date = appt_date
+            self.unavailable_time = appt_time
             raise forms.ValidationError(
                 "The selected date or time is already booked. Please choose a different date or time."
             )
 
         return cleaned
 
+    def clean_phone(self):
+        raw_phone = self.cleaned_data.get("phone", "")
+        digits = re.sub(r"\D", "", raw_phone)
+        if len(digits) < 10:
+            raise forms.ValidationError("Enter a valid phone number.")
+        return digits
+
+    @transaction.atomic
     def save(self, commit=True, status=None):
         instance = super().save(commit=False)
 
@@ -99,6 +119,21 @@ class BaseAppointmentForm(forms.ModelForm):
             )
 
         if patient:
+            changed_fields = []
+
+            if name and patient.name != name:
+                patient.name = name
+                changed_fields.append("name")
+            if phone and patient.phone != phone:
+                patient.phone = phone
+                changed_fields.append("phone")
+            if email and patient.email != email:
+                patient.email = email
+                changed_fields.append("email")
+
+            if changed_fields:
+                patient.save(update_fields=changed_fields)
+
             instance.patient = patient
 
         if status is not None:
@@ -111,6 +146,25 @@ class BaseAppointmentForm(forms.ModelForm):
 
 
 class AppointmentForm(BaseAppointmentForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["phone"].required = True
+        self.fields["email"].required = True
+
+        self.fields["name"].widget.attrs.update({
+            "class": "form-control-custom",
+            "placeholder": "Juan Dela Cruz",
+        })
+        self.fields["phone"].widget.attrs.update({
+            "class": "form-control-custom",
+            "placeholder": "+63 912 345 6789",
+        })
+        self.fields["email"].widget.attrs.update({
+            "class": "form-control-custom",
+            "placeholder": "you@example.com",
+        })
+
     def clean(self):
         cleaned = super().clean()
         appt_date = cleaned.get("appointment_date")
@@ -122,6 +176,9 @@ class AppointmentForm(BaseAppointmentForm):
         today = timezone.localdate()
 
         if appt_date < today:
+            self.unavailable_reason = "too_late"
+            self.unavailable_date = appt_date
+            self.unavailable_time = appt_time
             self.add_error("appointment_date", "Please choose today or a future date.")
 
         if appt_date.weekday() not in CLINIC_OPEN_WEEKDAYS:
@@ -153,6 +210,9 @@ class AppointmentForm(BaseAppointmentForm):
         cutoff_dt = timezone.now() + timedelta(hours=SAME_DAY_BOOKING_CUTOFF_HOURS)
 
         if appointment_dt < cutoff_dt:
+            self.unavailable_reason = "too_late"
+            self.unavailable_date = appt_date
+            self.unavailable_time = appt_time
             self.add_error(
                 "appointment_time",
                 f"Appointments must be booked at least {SAME_DAY_BOOKING_CUTOFF_HOURS} hours in advance.",
