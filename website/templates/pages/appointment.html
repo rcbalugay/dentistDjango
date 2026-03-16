@@ -36,7 +36,7 @@
 
         {% csrf_token %}
 
-        {# Show the “slot already booked” error from AppointmentForm.clean() #}
+        {# Show the â€œslot already bookedâ€ error from AppointmentForm.clean() #}
         {% if form.non_field_errors %}
           <div class="alert alert-danger mb-3">
             {% for err in form.non_field_errors %}
@@ -104,9 +104,6 @@
           <!-- Timeslots (shown only after a date is picked) -->
           <div class="col-lg-6">
             <p class="section-label mb-2">Pick a Timeslot</p>
-            {% for error in form.appointment_time.errors %}
-              <div class="text-danger small mt-1">{{ error }}</div>
-            {% endfor %}
             <div id="timeslotWrap" class="timeslots timeslots--hidden" aria-live="polite">
               <p class="muted mb-2" id="slotHint">Select a date to see available time slots</p>
               <div id="timeslotList" class="slot-list"></div>
@@ -130,39 +127,39 @@
   </section>
 
   {% if success_dialog %}
-    <div id="appointmentSuccessDialog" class="appt-success-dialog is-open" role="dialog" aria-modal="true" aria-labelledby="appointmentSuccessTitle">
-      <div class="appt-success-dialog__backdrop" data-dialog-close></div>
-      <div class="appt-success-dialog__card">
-        <button type="button" class="appt-success-dialog__close" aria-label="Close" data-dialog-close>&times;</button>
-        <div class="appt-success-dialog__hero">
-          <div class="appt-success-dialog__icon"></div>
-          <h2 id="appointmentSuccessTitle">Request Submitted!</h2>
+    <div id="bookingSuccessModal" class="booking-success is-open" role="dialog" aria-modal="true" aria-labelledby="bookingSuccessTitle">
+      <div class="booking-success__backdrop" data-dialog-close></div>
+      <div class="booking-success__card">
+        <button type="button" class="booking-success__close" aria-label="Close" data-dialog-close>&times;</button>
+        <div class="booking-success__hero">
+          <div class="booking-success__icon"></div>
+          <h2 id="bookingSuccessTitle">Request Submitted!</h2>
           <p>Your appointment request has been received. Please keep your appointment ID for tracking.</p>
         </div>
-        <div class="appt-success-dialog__body">
-          <div class="appt-success-dialog__codebox">
+        <div class="booking-success__body">
+          <div class="booking-success__codebox">
             <div>
               <small>Appointment ID</small>
-              <div id="appointmentCodeValue" class="appt-success-dialog__code">{{ success_dialog.appointment_code }}</div>
+              <div id="appointmentCodeValue" class="booking-success__code">{{ success_dialog.appointment_code }}</div>
             </div>
-            <button type="button" id="copyAppointmentCode" class="appt-success-dialog__copy" data-code="{{ success_dialog.appointment_code }}">
+            <button type="button" id="copyAppointmentCode" class="booking-success__copy" data-code="{{ success_dialog.appointment_code }}">
               Copy ID
             </button>
           </div>
 
-          <div class="appt-success-dialog__notice">
+          <div class="booking-success__notice">
             <p><strong>Please track your appointment using the ID above.</strong> We will contact you to confirm your appointment details.</p>
             <p>You will receive a reminder call one day before your visit.</p>
           </div>
 
-          <div class="appt-success-dialog__steps-title">What's next?</div>
-          <ol class="appt-success-dialog__steps">
-            <li><span class="appt-success-dialog__steps-number">1</span><span>Save your appointment ID for tracking.</span></li>
-            <li><span class="appt-success-dialog__steps-number">2</span><span>Wait for our confirmation call or email.</span></li>
-            <li><span class="appt-success-dialog__steps-number">3</span><span>Expect a reminder call one day before the appointment.</span></li>
+          <div class="booking-success__steps-title">What's next?</div>
+          <ol class="booking-success__steps">
+            <li><span class="booking-success__steps-number">1</span><span>Save your appointment ID for tracking.</span></li>
+            <li><span class="booking-success__steps-number">2</span><span>Wait for our confirmation call or email.</span></li>
+            <li><span class="booking-success__steps-number">3</span><span>Expect a reminder call one day before the appointment.</span></li>
           </ol>
 
-          <div class="appt-success-dialog__actions">
+          <div class="booking-success__actions">
             <button type="button" class="btn btn-light" data-dialog-close>Close</button>
             <a href="{{ success_dialog.tracking_url }}" class="btn btn-primary">Track Status</a>
           </div>
@@ -172,31 +169,31 @@
   {% endif %}
 
   {% if error_dialog %}
-    <div id="appointmentErrorDialog" class="appt-error-dialog is-open" role="dialog" aria-modal="true" aria-labelledby="appointmentErrorTitle">
-      <div class="appt-error-dialog__backdrop" data-error-dialog-close></div>
-      <div class="appt-error-dialog__card">
-        <button type="button" class="appt-error-dialog__close" aria-label="Close" data-error-dialog-close>&times;</button>
-        <div class="appt-error-dialog__hero">
-          <div class="appt-error-dialog__icon"></div>
-          <h2 id="appointmentErrorTitle">{{ error_dialog.title }}</h2>
+    <div id="bookingWarningModal" class="booking-alert booking-alert--warning is-open" role="dialog" aria-modal="true" aria-labelledby="bookingWarningTitle">
+      <div class="booking-alert__backdrop" data-error-dialog-close></div>
+      <div class="booking-alert__card">
+        <button type="button" class="booking-alert__close" aria-label="Close" data-error-dialog-close>&times;</button>
+        <div class="booking-alert__hero">
+          <div class="booking-alert__icon"></div>
+          <h2 id="bookingWarningTitle">{{ error_dialog.title }}</h2>
           <p>{{ error_dialog.subtitle }}</p>
         </div>
-        <div class="appt-error-dialog__body">
-          <div class="appt-error-dialog__detail">
-            <div class="appt-error-dialog__detail-title">{{ error_dialog.detail_title }}</div>
-            <div class="appt-error-dialog__detail-meta">
+        <div class="booking-alert__body">
+          <div class="booking-alert__detail">
+            <div class="booking-alert__detail-title">{{ error_dialog.detail_title }}</div>
+            <div class="booking-alert__detail-meta">
               <span>{{ error_dialog.requested_date }}</span>
               <span>{{ error_dialog.requested_time }}</span>
             </div>
           </div>
 
           {% if error_dialog.suggestions %}
-            <div class="appt-error-dialog__section-title">Available Time Slots</div>
-            <div class="appt-error-dialog__suggestions">
+            <div class="booking-alert__section-title">Available Time Slots</div>
+            <div class="booking-alert__suggestions">
               {% for suggestion in error_dialog.suggestions %}
                 <button
                   type="button"
-                  class="appt-error-dialog__suggestion"
+                  class="booking-alert__suggestion"
                   data-suggest-date="{{ suggestion.date_iso }}"
                   data-suggest-time="{{ suggestion.time_value }}"
                 >
@@ -207,9 +204,9 @@
             </div>
           {% endif %}
 
-          <div class="appt-error-dialog__tip">{{ error_dialog.tip }}</div>
+          <div class="booking-alert__tip">{{ error_dialog.tip }}</div>
 
-          <div class="appt-error-dialog__actions">
+          <div class="booking-alert__actions">
             <button type="button" class="btn btn-light" data-error-dialog-close>Cancel</button>
             <button type="button" class="btn btn-primary" id="chooseDifferentTimeButton">Choose Different Time</button>
           </div>
@@ -218,20 +215,20 @@
     </div>
   {% endif %}
 
-  <div id="appointmentClientDialog" class="appt-error-dialog" role="dialog" aria-modal="true" aria-labelledby="appointmentClientDialogTitle">
-    <div class="appt-error-dialog__backdrop" data-client-dialog-close></div>
-    <div class="appt-error-dialog__card appt-error-dialog__card--compact">
-      <button type="button" class="appt-error-dialog__close" aria-label="Close" data-client-dialog-close>&times;</button>
-      <div class="appt-error-dialog__hero appt-error-dialog__hero--soft">
-        <div class="appt-error-dialog__icon appt-error-dialog__icon--soft"></div>
-        <h2 id="appointmentClientDialogTitle">Complete Your Booking</h2>
-        <p id="appointmentClientDialogSubtitle">A few details are still missing before we can send your request.</p>
+  <div id="bookingNoticeModal" class="booking-alert booking-alert--notice" role="dialog" aria-modal="true" aria-labelledby="bookingNoticeTitle">
+    <div class="booking-alert__backdrop" data-client-dialog-close></div>
+    <div class="booking-alert__card booking-alert__card--compact">
+      <button type="button" class="booking-alert__close" aria-label="Close" data-client-dialog-close>&times;</button>
+      <div class="booking-alert__hero booking-alert__hero--soft">
+        <div class="booking-alert__icon booking-alert__icon--soft"></div>
+        <h2 id="bookingNoticeTitle">Complete Your Booking</h2>
+        <p id="bookingNoticeSubtitle">A few details are still missing before we can send your request.</p>
       </div>
-      <div class="appt-error-dialog__body">
-        <div id="appointmentClientDialogMessage" class="appt-error-dialog__message">
+      <div class="booking-alert__body">
+        <div id="bookingNoticeMessage" class="booking-alert__message">
           Please review the form and try again.
         </div>
-        <div class="appt-error-dialog__actions appt-error-dialog__actions--single">
+        <div class="booking-alert__actions booking-alert__actions--single">
           <button type="button" class="btn btn-primary" data-client-dialog-close>Okay</button>
         </div>
       </div>
@@ -256,16 +253,16 @@
 {% if success_dialog %}
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    var dialog = document.getElementById('appointmentSuccessDialog');
+    var dialog = document.getElementById('bookingSuccessModal');
     if (!dialog) {
       return;
     }
 
-    document.body.classList.add('appt-dialog-open');
+    document.body.classList.add('booking-modal-open');
 
     function closeDialog() {
       dialog.classList.remove('is-open');
-      document.body.classList.remove('appt-dialog-open');
+      document.body.classList.remove('booking-modal-open');
     }
 
     dialog.querySelectorAll('[data-dialog-close]').forEach(function (element) {
@@ -299,14 +296,14 @@
 {% if error_dialog %}
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    var dialog = document.getElementById('appointmentErrorDialog');
+    var dialog = document.getElementById('bookingWarningModal');
     if (!dialog) {
       return;
     }
 
     var formSection = document.getElementById('appointment-form-section');
 
-    document.body.classList.add('appt-dialog-open');
+    document.body.classList.add('booking-modal-open');
 
     function scrollToForm() {
       if (formSection) {
@@ -316,7 +313,7 @@
 
     function closeDialog() {
       dialog.classList.remove('is-open');
-      document.body.classList.remove('appt-dialog-open');
+      document.body.classList.remove('booking-modal-open');
       scrollToForm();
     }
 

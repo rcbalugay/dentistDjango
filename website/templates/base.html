@@ -80,7 +80,7 @@
 
           <!-- RIGHT -->
           <div class="navbar-cta">
-            <a href="{% url 'appointment_form' %}" class="btn btn-pill btn-dark mr-2">BOOK NOW</a>
+            <a href="{% url 'appointment_form' %}" class="btn btn-pill btn-dark mr-2" data-booking-choice-trigger>BOOK NOW</a>
             <a href="{% url 'dashboard:login' %}?next={% url 'dashboard:home' %}"
                class="btn btn-pill btn-outline-dark">SIGN IN</a>
 	      </div>
@@ -229,7 +229,7 @@ End of Footer Area -->
       <div class="col-md-12">
         <div class="ftco-footer-widget">
           <h2 class="ftco-heading-2" style="font-size: 24px; text-transform: uppercase; letter-spacing: 2px;">CONTACT US</h2>
-          <p>Location: <a href="#" style="color: #fff; text-decoration: underline;">Purok 1 Planas Bridge, Porac, Pampanga<br></a>Nearest Landmarks: <a style="color: #fff; text-decoration: none;">Nathaniel’s Water Station, Planas Tricycle Terminal Station, Gasoline Station</a></p>
+          <p>Location: <a href="#" style="color: #fff; text-decoration: underline;">Purok 1 Planas Bridge, Porac, Pampanga<br></a>Nearest Landmarks: <a style="color: #fff; text-decoration: none;">Nathanielâ€™s Water Station, Planas Tricycle Terminal Station, Gasoline Station</a></p>
           <p style="color: #fff;">(+63) 967 406 4184</p>
           <p><a href="mailto:EMAIL" style="color: #fff; text-decoration: underline;">EMAIL</a></p>
         </div>
@@ -278,6 +278,28 @@ End of Footer Area -->
   </div>
 </footer>
 <!-- End of Footer Area -->
+
+<div id="bookingChoiceModal" class="booking-choice" role="dialog" aria-modal="true" aria-labelledby="bookingChoiceTitle">
+  <div class="booking-choice__backdrop" data-booking-choice-close></div>
+  <div class="booking-choice__card">
+    <button type="button" class="booking-choice__close" aria-label="Close" data-booking-choice-close>&times;</button>
+    <div class="booking-choice__hero">
+      <div class="booking-choice__icon"></div>
+      <h2 id="bookingChoiceTitle">How would you like to continue?</h2>
+      <p>Choose whether you want to book a new appointment or check an existing one.</p>
+    </div>
+    <div class="booking-choice__body">
+      <a href="{% url 'appointment_form' %}" class="booking-choice__option">
+        <strong>Book Appointment</strong>
+        <span>Schedule a new visit with our clinic.</span>
+      </a>
+      <a href="{% url 'appointment_status' %}" class="booking-choice__option">
+        <strong>Track Appointment</strong>
+        <span>Check your appointment request using your appointment ID.</span>
+      </a>
+    </div>
+  </div>
+</div>
   
 
 <!-- loader -->
@@ -307,6 +329,41 @@ End of Footer Area -->
   {% endif %}
   <script src=" {% static 'website/js/google-map.js' %} "></script>
   <script src=" {% static 'website/js/main.js' %} "></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var dialog = document.getElementById('bookingChoiceModal');
+      if (!dialog) {
+        return;
+      }
+
+      function openDialog() {
+        dialog.classList.add('is-open');
+        document.body.classList.add('booking-modal-open');
+      }
+
+      function closeDialog() {
+        dialog.classList.remove('is-open');
+        document.body.classList.remove('booking-modal-open');
+      }
+
+      document.querySelectorAll('[data-booking-choice-trigger]').forEach(function (trigger) {
+        trigger.addEventListener('click', function (event) {
+          event.preventDefault();
+          openDialog();
+        });
+      });
+
+      dialog.querySelectorAll('[data-booking-choice-close]').forEach(function (element) {
+        element.addEventListener('click', closeDialog);
+      });
+
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && dialog.classList.contains('is-open')) {
+          closeDialog();
+        }
+      });
+    });
+  </script>
     
   </body>
 </html>

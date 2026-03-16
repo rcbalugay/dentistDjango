@@ -34,7 +34,7 @@ elif not SECRET_KEY:
 # Hosts
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 ALLOWED_HOSTS = [h.strip() for h in ALLOWED_HOSTS if h.strip()]
-TIME_ZONE = os.getenv("TIME_ZONE", "UTC")
+TIME_ZONE = os.getenv("TIME_ZONE", "Asia/Manila")
 
 # --- App-specific ---
 WEATHERAPI_KEY = os.getenv("WEATHERAPI_KEY", "")
@@ -128,7 +128,6 @@ CACHES = {
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 

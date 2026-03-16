@@ -7,10 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const timeField   = document.getElementById('appointment_time');
   const form        = document.getElementById('appointmentForm');
   const matrixContainer = document.getElementById('mobileMatrix');
-  const clientDialog = document.getElementById('appointmentClientDialog');
-  const clientDialogTitle = document.getElementById('appointmentClientDialogTitle');
-  const clientDialogSubtitle = document.getElementById('appointmentClientDialogSubtitle');
-  const clientDialogMessage = document.getElementById('appointmentClientDialogMessage');
+  const clientDialog = document.getElementById('bookingNoticeModal');
+  const clientDialogTitle = document.getElementById('bookingNoticeTitle');
+  const clientDialogSubtitle = document.getElementById('bookingNoticeSubtitle');
+  const clientDialogMessage = document.getElementById('bookingNoticeMessage');
   let selectedDateIso = dateInput && dateInput.value ? dateInput.value : '';
   let selectedTime = timeField && timeField.value ? timeField.value : '';
   let renderMatrix = null;
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  // Build time labels: 9:00 AM – 5:00 PM (1-hour steps)
+  // Build time labels: 9:00 AM â€“ 5:00 PM (1-hour steps)
   const buildDefaultSlotLabels = () => {
     const labels = [];
     for (let h = 9; h <= 17; h++) {
@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     clientDialog.classList.add('is-open');
-    document.body.classList.add('appt-dialog-open');
+    document.body.classList.add('booking-modal-open');
   };
 
   const closeClientDialog = () => {
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     clientDialog.classList.remove('is-open');
-    document.body.classList.remove('appt-dialog-open');
+    document.body.classList.remove('booking-modal-open');
   };
 
   if (clientDialog) {
@@ -316,7 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
         day: 'numeric'
       });
 
-      weekLabel.textContent = `${fmtShort(start)} – ${fmtShort(end)}`;
+      weekLabel.textContent = `${fmtShort(start)} â€“ ${fmtShort(end)}`;
 
       header.appendChild(prevBtn);
       header.appendChild(weekLabel);
@@ -392,7 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
           if (!day.open) {
             td.className = 'appt-matrix-closed';
-            td.textContent = '—';
+            td.textContent = 'â€”';
             row.appendChild(td);
             return;
           }

@@ -2096,7 +2096,7 @@ h1, h2, h3, h4, h5, .h1, .h2, .h3, .h4{
   }
 
   /* Optional: if your mobile menu is dark and you use an outline button,
-     bump contrast so it’s readable */
+     bump contrast so itâ€™s readable */
   .navbar-dark.bg-dark .navbar-cta .btn.btn-outline-dark {
     border-color: #fff;
     color: #fff;
@@ -2111,6 +2111,188 @@ h1, h2, h3, h4, h5, .h1, .h2, .h3, .h4{
 @media (max-width: 1023px) {
   .navbar-brand img{
     height: 125px;
+  }
+}
+
+.booking-choice{
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 1100;
+  isolation: isolate;
+}
+
+.booking-choice.is-open{
+  display: flex;
+}
+
+.booking-choice__backdrop{
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.booking-choice__card{
+  position: relative;
+  z-index: 1;
+  width: min(100%, 520px);
+  margin: auto;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 30px 80px rgba(17, 24, 39, 0.24);
+  overflow: hidden;
+}
+
+.booking-choice__close{
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.18);
+  color: #475569;
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.booking-choice__hero{
+  padding: 2rem 1.5rem 1.35rem;
+  text-align: center;
+  background:
+    radial-gradient(circle at top right, rgba(216, 180, 254, 0.28), transparent 34%),
+    radial-gradient(circle at bottom left, rgba(196, 181, 253, 0.2), transparent 28%),
+    linear-gradient(180deg, #faf5ff 0%, #ffffff 100%);
+}
+
+.booking-choice__icon{
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 1rem;
+  border-radius: 999px;
+  position: relative;
+  background: radial-gradient(circle at 30% 30%, #a855f7 0%, #8b5cf6 48%, #6d28d9 100%);
+  box-shadow:
+    0 18px 36px rgba(139, 92, 246, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.32);
+}
+
+.booking-choice__icon::before{
+  content: "";
+  position: absolute;
+  inset: -9px;
+  border-radius: inherit;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.18) 0%, rgba(168, 85, 247, 0.08) 55%, transparent 72%);
+  z-index: -1;
+}
+
+.booking-choice__icon::after{
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 26px;
+  height: 20px;
+  border: 3px solid #ffffff;
+  border-radius: 8px;
+  transform: translate(-50%, -50%);
+}
+
+.booking-choice__hero h2{
+  margin-bottom: 0.45rem;
+  font-size: 1.95rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.booking-choice__hero p{
+  max-width: 28rem;
+  margin: 0 auto;
+  color: #64748b;
+  font-size: 1rem;
+}
+
+.booking-choice__body{
+  padding: 1.35rem;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.booking-choice__option{
+  display: block;
+  padding: 1rem 1.1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: #ffffff;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.booking-choice__option strong{
+  display: block;
+  margin-bottom: 0.25rem;
+  color: #0f172a;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.booking-choice__option span{
+  color: #64748b;
+  font-size: 0.96rem;
+}
+
+.booking-choice__option:hover,
+.booking-choice__option:focus{
+  transform: translateY(-1px);
+  border-color: #c4b5fd;
+  box-shadow: 0 14px 28px rgba(139, 92, 246, 0.12);
+}
+
+@media (max-width: 767.98px){
+  .booking-choice{
+    padding: 0.75rem;
+  }
+
+  .booking-choice__card{
+    width: min(100%, 100%);
+    border-radius: 22px;
+  }
+
+  .booking-choice__hero{
+    padding: 1.6rem 1.15rem 1.1rem;
+  }
+
+  .booking-choice__hero h2{
+    font-size: 1.5rem;
+  }
+
+  .booking-choice__hero p{
+    font-size: 0.95rem;
+  }
+
+  .booking-choice__icon{
+    width: 64px;
+    height: 64px;
+  }
+
+  .booking-choice__icon::before{
+    inset: -7px;
+  }
+
+  .booking-choice__icon::after{
+    width: 22px;
+    height: 17px;
+  }
+
+  .booking-choice__body{
+    padding: 1rem;
   }
 }
 
@@ -3174,7 +3356,7 @@ textarea.form-control{
     margin-top: 0;
 }
 
-.appt-success-dialog{
+.booking-success{
     position: fixed;
     inset: 0;
     display: none;
@@ -3187,11 +3369,11 @@ textarea.form-control{
     z-index: 1100;
 }
 
-.appt-success-dialog.is-open{
+.booking-success.is-open{
     display: flex;
 }
 
-.appt-success-dialog__backdrop{
+.booking-success__backdrop{
     position: fixed;
     inset: 0;
     background: rgba(17, 24, 39, 0.45);
@@ -3199,7 +3381,7 @@ textarea.form-control{
     -webkit-backdrop-filter: blur(6px);
 }
 
-.appt-success-dialog__card{
+.booking-success__card{
     position: relative;
     z-index: 1;
     width: min(100%, 620px);
@@ -3209,7 +3391,7 @@ textarea.form-control{
     box-shadow: 0 30px 80px rgba(17, 24, 39, 0.24);
 }
 
-.appt-success-dialog__close{
+.booking-success__close{
     position: absolute;
     top: 0.85rem;
     right: 0.85rem;
@@ -3224,7 +3406,7 @@ textarea.form-control{
     cursor: pointer;
 }
 
-.appt-success-dialog__hero{
+.booking-success__hero{
     padding: 2rem 1.75rem 1.5rem;
     text-align: center;
     background:
@@ -3233,7 +3415,7 @@ textarea.form-control{
         linear-gradient(180deg, #f2fff6 0%, #ecfff7 100%);
 }
 
-.appt-success-dialog__icon{
+.booking-success__icon{
     width: 76px;
     height: 76px;
     margin: 0 auto 1rem;
@@ -3245,7 +3427,7 @@ textarea.form-control{
         inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
-.appt-success-dialog__icon::before{
+.booking-success__icon::before{
     content: "";
     position: absolute;
     inset: -10px;
@@ -3254,7 +3436,7 @@ textarea.form-control{
     z-index: -1;
 }
 
-.appt-success-dialog__icon::after{
+.booking-success__icon::after{
     content: "";
     position: absolute;
     left: 50%;
@@ -3267,14 +3449,14 @@ textarea.form-control{
     border-radius: 2px;
 }
 
-.appt-success-dialog__hero h2{
+.booking-success__hero h2{
     margin-bottom: 0.45rem;
     font-size: 2rem;
     font-weight: 700;
     color: #0f172a;
 }
 
-.appt-success-dialog__hero p{
+.booking-success__hero p{
     max-width: 32rem;
     margin: 0 auto;
     margin-bottom: 0;
@@ -3282,11 +3464,11 @@ textarea.form-control{
     font-size: 1rem;
 }
 
-.appt-success-dialog__body{
+.booking-success__body{
     padding: 1.5rem;
 }
 
-.appt-success-dialog__codebox{
+.booking-success__codebox{
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -3298,7 +3480,7 @@ textarea.form-control{
     background: linear-gradient(180deg, #f5f8ff 0%, #eef4ff 100%);
 }
 
-.appt-success-dialog__codebox small{
+.booking-success__codebox small{
     display: block;
     margin-bottom: 0.4rem;
     font-size: 0.82rem;
@@ -3307,14 +3489,14 @@ textarea.form-control{
     color: #64748b;
 }
 
-.appt-success-dialog__code{
+.booking-success__code{
     font-size: 1.45rem;
     font-weight: 700;
     letter-spacing: 0.08em;
     color: #0f172a;
 }
 
-.appt-success-dialog__copy{
+.booking-success__copy{
     flex-shrink: 0;
     min-width: 120px;
     border: 1px solid #d6ddf3;
@@ -3326,7 +3508,7 @@ textarea.form-control{
     cursor: pointer;
 }
 
-.appt-success-dialog__notice{
+.booking-success__notice{
     margin-bottom: 1.25rem;
     padding: 1rem 1.15rem;
     border: 1px solid #f8cc68;
@@ -3335,11 +3517,11 @@ textarea.form-control{
     color: #4b5563;
 }
 
-.appt-success-dialog__notice p:last-child{
+.booking-success__notice p:last-child{
     margin-bottom: 0;
 }
 
-.appt-success-dialog__steps-title{
+.booking-success__steps-title{
     margin-bottom: 0.85rem;
     font-size: 0.92rem;
     font-weight: 700;
@@ -3348,13 +3530,13 @@ textarea.form-control{
     color: #64748b;
 }
 
-.appt-success-dialog__steps{
+.booking-success__steps{
     margin: 0 0 1.25rem;
     padding: 0;
     list-style: none;
 }
 
-.appt-success-dialog__steps li{
+.booking-success__steps li{
     display: flex;
     align-items: flex-start;
     gap: 0.85rem;
@@ -3362,7 +3544,7 @@ textarea.form-control{
     color: #334155;
 }
 
-.appt-success-dialog__steps-number{
+.booking-success__steps-number{
     width: 28px;
     height: 28px;
     flex-shrink: 0;
@@ -3375,121 +3557,121 @@ textarea.form-control{
     font-weight: 700;
 }
 
-.appt-success-dialog__actions{
+.booking-success__actions{
     display: flex;
     gap: 0.75rem;
     justify-content: flex-end;
 }
 
-.appt-success-dialog__actions .btn{
+.booking-success__actions .btn{
     min-width: 150px;
     border-radius: 16px;
     padding: 0.8rem 1.15rem;
     font-weight: 700;
 }
 
-body.appt-dialog-open{
+body.booking-modal-open{
     overflow: hidden;
     height: 100vh;
 }
 
 @media (max-width: 991.98px){
-    .appt-success-dialog__card{
+    .booking-success__card{
         width: min(100%, 560px);
     }
 
-    .appt-success-dialog__hero h2{
+    .booking-success__hero h2{
         font-size: 1.8rem;
     }
 
-    .appt-success-dialog__code{
+    .booking-success__code{
         font-size: 1.3rem;
     }
 }
 
 @media (max-width: 767.98px), (max-height: 820px){
-    .appt-success-dialog{
+    .booking-success{
         align-items: flex-start;
     }
 
-    .appt-success-dialog__card{
+    .booking-success__card{
         margin: 0 auto;
     }
 }
 
 @media (max-width: 767.98px){
-    .appt-success-dialog{
+    .booking-success{
         padding: 0.75rem;
     }
 
-    .appt-success-dialog__card{
+    .booking-success__card{
         border-radius: 22px;
     }
 
-    .appt-success-dialog__hero{
+    .booking-success__hero{
         padding: 1.5rem 1.15rem 1.1rem;
     }
 
-    .appt-success-dialog__icon{
+    .booking-success__icon{
         width: 64px;
         height: 64px;
         margin-bottom: 0.85rem;
     }
 
-    .appt-success-dialog__icon::before{
+    .booking-success__icon::before{
         inset: -8px;
     }
 
-    .appt-success-dialog__icon::after{
+    .booking-success__icon::after{
         width: 15px;
         height: 28px;
         border-right-width: 4px;
         border-bottom-width: 4px;
     }
 
-    .appt-success-dialog__hero h2{
+    .booking-success__hero h2{
         font-size: 1.45rem;
     }
 
-    .appt-success-dialog__hero p{
+    .booking-success__hero p{
         font-size: 0.95rem;
     }
 
-    .appt-success-dialog__body{
+    .booking-success__body{
         padding: 1rem;
     }
 
-    .appt-success-dialog__codebox{
+    .booking-success__codebox{
         flex-direction: column;
         align-items: stretch;
         gap: 0.85rem;
         padding: 0.95rem 1rem;
     }
 
-    .appt-success-dialog__code{
+    .booking-success__code{
         font-size: 1.1rem;
         letter-spacing: 0.05em;
     }
 
-    .appt-success-dialog__notice{
+    .booking-success__notice{
         padding: 0.9rem 1rem;
     }
 
-    .appt-success-dialog__steps li{
+    .booking-success__steps li{
         gap: 0.7rem;
     }
 
-    .appt-success-dialog__actions{
+    .booking-success__actions{
         flex-direction: column;
     }
 
-    .appt-success-dialog__actions .btn,
-    .appt-success-dialog__copy{
+    .booking-success__actions .btn,
+    .booking-success__copy{
         width: 100%;
     }
 }
 
-.appt-error-dialog{
+.booking-alert{
     position: fixed;
     inset: 0;
     display: none;
@@ -3502,11 +3684,11 @@ body.appt-dialog-open{
     z-index: 1100;
 }
 
-.appt-error-dialog.is-open{
+.booking-alert.is-open{
     display: flex;
 }
 
-.appt-error-dialog__backdrop{
+.booking-alert__backdrop{
     position: fixed;
     inset: 0;
     background: rgba(17, 24, 39, 0.45);
@@ -3514,7 +3696,7 @@ body.appt-dialog-open{
     -webkit-backdrop-filter: blur(6px);
 }
 
-.appt-error-dialog__card{
+.booking-alert__card{
     position: relative;
     z-index: 1;
     width: min(100%, 560px);
@@ -3524,7 +3706,7 @@ body.appt-dialog-open{
     box-shadow: 0 30px 80px rgba(17, 24, 39, 0.24);
 }
 
-.appt-error-dialog__close{
+.booking-alert__close{
     position: absolute;
     top: 0.85rem;
     right: 0.85rem;
@@ -3539,7 +3721,7 @@ body.appt-dialog-open{
     cursor: pointer;
 }
 
-.appt-error-dialog__hero{
+.booking-alert__hero{
     padding: 2rem 1.75rem 1.45rem;
     text-align: center;
     background:
@@ -3548,14 +3730,14 @@ body.appt-dialog-open{
         linear-gradient(180deg, #fff5f2 0%, #fff9f6 100%);
 }
 
-.appt-error-dialog__hero--soft{
+.booking-alert__hero--soft{
     background:
         radial-gradient(circle at top right, rgba(191, 219, 254, 0.34), transparent 32%),
         radial-gradient(circle at bottom left, rgba(224, 231, 255, 0.26), transparent 28%),
         linear-gradient(180deg, #f5f9ff 0%, #fbfdff 100%);
 }
 
-.appt-error-dialog__icon{
+.booking-alert__icon{
     width: 76px;
     height: 76px;
     margin: 0 auto 1rem;
@@ -3567,14 +3749,14 @@ body.appt-dialog-open{
         inset 0 1px 0 rgba(255, 255, 255, 0.32);
 }
 
-.appt-error-dialog__icon--soft{
+.booking-alert__icon--soft{
     background: radial-gradient(circle at 30% 30%, #7dd3fc 0%, #3b82f6 48%, #2563eb 100%);
     box-shadow:
         0 18px 36px rgba(37, 99, 235, 0.2),
         inset 0 1px 0 rgba(255, 255, 255, 0.32);
 }
 
-.appt-error-dialog__icon::before{
+.booking-alert__icon::before{
     content: "";
     position: absolute;
     inset: -10px;
@@ -3583,11 +3765,11 @@ body.appt-dialog-open{
     z-index: -1;
 }
 
-.appt-error-dialog__icon--soft::before{
+.booking-alert__icon--soft::before{
     background: radial-gradient(circle, rgba(96, 165, 250, 0.2) 0%, rgba(96, 165, 250, 0.08) 55%, transparent 72%);
 }
 
-.appt-error-dialog__icon::after{
+.booking-alert__icon::after{
     content: "!";
     position: absolute;
     left: 50%;
@@ -3599,36 +3781,36 @@ body.appt-dialog-open{
     line-height: 1;
 }
 
-.appt-error-dialog__icon--soft::after{
+.booking-alert__icon--soft::after{
     content: "i";
     transform: translate(-50%, -56%);
     font-size: 1.8rem;
     font-weight: 600;
 }
 
-.appt-error-dialog__hero h2{
+.booking-alert__hero h2{
     margin-bottom: 0.45rem;
     font-size: 2rem;
     font-weight: 700;
     color: #0f172a;
 }
 
-.appt-error-dialog__hero p{
+.booking-alert__hero p{
     max-width: 28rem;
     margin: 0 auto;
     color: #64748b;
     font-size: 1rem;
 }
 
-.appt-error-dialog__body{
+.booking-alert__body{
     padding: 1.5rem;
 }
 
-.appt-error-dialog__card--compact{
+.booking-alert__card--compact{
     width: min(100%, 500px);
 }
 
-.appt-error-dialog__detail{
+.booking-alert__detail{
     padding: 1rem 1.1rem;
     margin-bottom: 1.25rem;
     border: 1px solid #fecaca;
@@ -3636,14 +3818,14 @@ body.appt-dialog-open{
     background: linear-gradient(180deg, #fff6f6 0%, #fffafb 100%);
 }
 
-.appt-error-dialog__detail-title{
+.booking-alert__detail-title{
     margin-bottom: 0.55rem;
     font-size: 1rem;
     font-weight: 700;
     color: #991b1b;
 }
 
-.appt-error-dialog__detail-meta{
+.booking-alert__detail-meta{
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem 1.1rem;
@@ -3651,7 +3833,7 @@ body.appt-dialog-open{
     font-weight: 500;
 }
 
-.appt-error-dialog__section-title{
+.booking-alert__section-title{
     margin-bottom: 0.75rem;
     font-size: 0.92rem;
     font-weight: 700;
@@ -3660,12 +3842,12 @@ body.appt-dialog-open{
     color: #64748b;
 }
 
-.appt-error-dialog__suggestions{
+.booking-alert__suggestions{
     display: grid;
     gap: 0.75rem;
 }
 
-.appt-error-dialog__suggestion{
+.booking-alert__suggestion{
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -3681,17 +3863,17 @@ body.appt-dialog-open{
     transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.appt-error-dialog__suggestion:hover{
+.booking-alert__suggestion:hover{
     transform: translateY(-1px);
     border-color: #93c5fd;
     box-shadow: 0 12px 24px rgba(37, 99, 235, 0.08);
 }
 
-.appt-error-dialog__suggestion span:last-child{
+.booking-alert__suggestion span:last-child{
     color: #2563eb;
 }
 
-.appt-error-dialog__tip{
+.booking-alert__tip{
     margin-top: 1rem;
     margin-bottom: 1.25rem;
     padding: 0.95rem 1rem;
@@ -3701,7 +3883,7 @@ body.appt-dialog-open{
     color: #1d4ed8;
 }
 
-.appt-error-dialog__message{
+.booking-alert__message{
     margin-bottom: 1.25rem;
     padding: 1rem 1.05rem;
     border: 1px solid #dbe7ff;
@@ -3710,98 +3892,98 @@ body.appt-dialog-open{
     color: #334155;
 }
 
-.appt-error-dialog__actions{
+.booking-alert__actions{
     display: flex;
     gap: 0.75rem;
     justify-content: flex-end;
 }
 
-.appt-error-dialog__actions .btn{
+.booking-alert__actions .btn{
     min-width: 160px;
     border-radius: 16px;
     padding: 0.8rem 1.15rem;
     font-weight: 700;
 }
 
-.appt-error-dialog__actions--single{
+.booking-alert__actions--single{
     justify-content: center;
 }
 
 @media (max-width: 991.98px){
-    .appt-error-dialog__card{
+    .booking-alert__card{
         width: min(100%, 520px);
     }
 
-    .appt-error-dialog__card--compact{
+    .booking-alert__card--compact{
         width: min(100%, 480px);
     }
 
-    .appt-error-dialog__hero h2{
+    .booking-alert__hero h2{
         font-size: 1.8rem;
     }
 }
 
 @media (max-width: 767.98px), (max-height: 820px){
-    .appt-error-dialog{
+    .booking-alert{
         align-items: flex-start;
     }
 
-    .appt-error-dialog__card{
+    .booking-alert__card{
         margin: 0 auto;
     }
 }
 
 @media (max-width: 767.98px){
-    .appt-error-dialog{
+    .booking-alert{
         padding: 0.75rem;
     }
 
-    .appt-error-dialog__card{
+    .booking-alert__card{
         border-radius: 22px;
     }
 
-    .appt-error-dialog__card--compact{
+    .booking-alert__card--compact{
         width: min(100%, 100%);
     }
 
-    .appt-error-dialog__hero{
+    .booking-alert__hero{
         padding: 1.45rem 1.15rem 1rem;
     }
 
-    .appt-error-dialog__icon{
+    .booking-alert__icon{
         width: 64px;
         height: 64px;
         margin-bottom: 0.85rem;
     }
 
-    .appt-error-dialog__icon::before{
+    .booking-alert__icon::before{
         inset: -8px;
     }
 
-    .appt-error-dialog__icon::after{
+    .booking-alert__icon::after{
         font-size: 1.75rem;
     }
 
-    .appt-error-dialog__hero h2{
+    .booking-alert__hero h2{
         font-size: 1.45rem;
     }
 
-    .appt-error-dialog__hero p{
+    .booking-alert__hero p{
         font-size: 0.95rem;
     }
 
-    .appt-error-dialog__body{
+    .booking-alert__body{
         padding: 1rem;
     }
 
-    .appt-error-dialog__detail-meta,
-    .appt-error-dialog__suggestion,
-    .appt-error-dialog__actions{
+    .booking-alert__detail-meta,
+    .booking-alert__suggestion,
+    .booking-alert__actions{
         flex-direction: column;
         align-items: stretch;
     }
 
-    .appt-error-dialog__actions .btn{
+    .booking-alert__actions .btn{
         width: 100%;
     }
 }
@@ -4237,7 +4419,7 @@ body.appt-dialog-open{
   border: 1px solid rgba(0, 0, 0, 0.08);
   background: #fff;
   padding: 12px;
-  /* no horizontal scrolling – we’ll make the table fit instead */
+  /* no horizontal scrolling â€“ weâ€™ll make the table fit instead */
   overflow-x: hidden;
 }
 
@@ -4321,7 +4503,7 @@ body.appt-dialog-open{
   font-weight: 600;
 }
 
-/* Base style – similar to your pill buttons */
+/* Base style â€“ similar to your pill buttons */
 .appt-matrix-nav{
   border-radius: 999px;
   font-size: 0.78rem;
@@ -4334,7 +4516,7 @@ body.appt-dialog-open{
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
-/* Filled version for "Next" – like your primary purple buttons */
+/* Filled version for "Next" â€“ like your primary purple buttons */
 .appt-matrix-nav-next{
   background: #9b59b6;
   color: #ffffff;
@@ -4358,7 +4540,7 @@ body.appt-dialog-open{
   box-shadow: none;
 }
 
-/* “Closed” days softer */
+/* â€œClosedâ€ days softer */
 .appt-matrix-closed, .appt-matrix-closed-header{
   color: #b9b9b9;
   font-size: 0.78rem;
