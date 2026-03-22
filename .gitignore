@@ -20,6 +20,7 @@ venv*/
 # SQLite database (if you're using one)
 db.sqlite3
 db.sqlite3-journal
+db.sqlite3.*
 
 # Local settings (if you ever create them)
 local_settings.py
