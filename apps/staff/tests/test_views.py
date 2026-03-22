@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from website.models import Appointment
+from apps.appointments.models import Appointment
 
 # Create your tests here.
 @override_settings(WEATHERAPI_KEY="", SECURE_SSL_REDIRECT=False)

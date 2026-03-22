@@ -5,7 +5,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from website.models import Appointment
+from apps.appointments.models import Appointment
 from apps.staff.services.time_utils import parse_date
 from apps.appointments.forms import StaffAppointmentForm
 

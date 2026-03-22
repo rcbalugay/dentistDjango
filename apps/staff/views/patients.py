@@ -5,7 +5,8 @@ from django.db.models import Count, Max, Min, Q
 from django.shortcuts import render
 from django.utils import timezone
 
-from website.models import Appointment, Patient
+from apps.appointments.models import Appointment
+from apps.patients.models import Patient
 
 from .auth import staff_only
 

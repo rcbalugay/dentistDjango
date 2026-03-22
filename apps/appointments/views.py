@@ -9,7 +9,7 @@ from .constants import (
     CLINIC_SLOT_TIMES,
     SAME_DAY_BOOKING_CUTOFF_HOURS,
 )
-from website.models import Appointment
+from apps.appointments.models import Appointment
 from .forms import AppointmentForm
 
 def clinic_schedule_for_js():

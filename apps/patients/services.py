@@ -1,4 +1,4 @@
-from website.models import Patient
+from apps.patients.models import Patient
 
 from .selectors import find_matching_patient
 

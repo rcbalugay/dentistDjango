@@ -1,6 +1,6 @@
 from datetime import date, timedelta
 from django.db.models import Count
-from website.models import Appointment
+from apps.appointments.models import Appointment
 
 
 def _add_months(d: date, n: int) -> date:

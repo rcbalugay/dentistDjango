@@ -6,7 +6,7 @@ from django.shortcuts import render
 from apps.staff.services.dashboard import get_cached_weather, get_latest_appointments
 from django.utils import timezone
 from apps.staff.services.chart_utils import build_appointment_chart
-from website.models import Appointment
+from apps.appointments.models import Appointment
 from .auth import staff_only
 
 @login_required(login_url="dashboard:login")

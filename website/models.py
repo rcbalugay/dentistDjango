@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import Q
 
+# Legacy model app. Active appointment/patient logic lives under apps/.
 # Create your models here.
 class Patient(models.Model):
     name = models.CharField(max_length=120)

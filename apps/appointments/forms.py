@@ -3,7 +3,7 @@ from django import forms
 from django.db import transaction
 from django.utils import timezone
 from datetime import datetime, timedelta
-from website.models import Appointment
+from apps.appointments.models import Appointment
 from apps.patients.services import get_or_create_patient_record
 from .constants import (
     APPOINTMENT_SERVICES,

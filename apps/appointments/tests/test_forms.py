@@ -4,7 +4,8 @@ from unittest.mock import patch
 from django.utils import timezone
 from django.test import TestCase
 from django.db import IntegrityError, transaction
-from website.models import Appointment, Patient
+from apps.appointments.models import Appointment
+from apps.patients.models import Patient
 from apps.appointments.forms import AppointmentForm, StaffAppointmentForm
 from apps.appointments.constants import APPOINTMENT_SERVICES
 

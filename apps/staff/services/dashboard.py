@@ -3,7 +3,7 @@ from typing import Optional, Dict, List, Tuple
 from django.conf import settings
 from django.core.cache import cache
 
-from website.models import Appointment
+from apps.appointments.models import Appointment
 from .weather import client_ip, ip_for_query, weather_by_ip
 
 
