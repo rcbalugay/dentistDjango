@@ -2,9 +2,9 @@
 
 This is now a legacy Django app kept mainly for:
 
-- existing model ownership
-- admin registration
-- migrations
+- migration history
+- compatibility imports
+- app continuity during the modular refactor
 
 Active application code has moved to:
 
@@ -13,4 +13,9 @@ Active application code has moved to:
 - `apps.patients`
 - `apps.shared`
 
-Do not add new views, forms, templates, or business logic here unless the change is specifically about legacy model ownership or migration safety.
+Real model ownership for appointment and patient code now lives in:
+
+- `apps.appointments.models`
+- `apps.patients.models`
+
+Do not add new views, forms, templates, or business logic here unless the change is specifically about compatibility or migration safety.

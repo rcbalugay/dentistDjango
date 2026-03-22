@@ -1,4 +1,2 @@
-from django.db import models
-
-# Legacy model app. Active staff logic lives under apps.staff.
-# Create your models here.
+# Legacy app shell kept for compatibility and migration continuity.
+# Active staff logic lives in apps.staff.

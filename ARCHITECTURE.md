@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project is being refactored into a modular monolith.
+This project has been refactored into a modular monolith structure and will continue to be refined incrementally.
 
 Active application code lives under `apps/`:
 
@@ -102,6 +102,8 @@ Tests should live with the module they cover:
 
 - `apps/appointments/tests/...`
 - `apps/staff/tests/...`
+
+Additional module test packages should be added as those modules gain direct test coverage.
 
 ## Phase Status
 
