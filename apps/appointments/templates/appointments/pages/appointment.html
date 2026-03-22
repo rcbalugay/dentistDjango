@@ -1,0 +1,357 @@
+{% extends "public/base.html" %}
+{% load static %}
+{% block title %} Appointment | Dental Clinic {% endblock %}
+{% block page_messages %}{% endblock %}
+{% block content %}
+    <section class="hero-wrap hero-wrap-2" style="background-image: url('{% static 'website/images/bg_1.jpg' %}');" data-stellar-background-ratio="0.5">
+      <div class="overlay"></div>
+      <div class="container">
+        <div class="row no-gutters slider-text align-items-center justify-content-center">
+          <div class="col-md-9 ftco-animate text-center">
+            <h1 class="mb-2 bread">Appointment</h1>
+            <p class="breadcrumbs"><span class="mr-2"><a href="{% url 'home' %}">Home <i class="ion-ios-arrow-forward"></i></a></span> <span>Appointment <i class="ion-ios-arrow-forward"></i></span></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  <section id="appointment-form-section" class="appointment-section">
+    <div class="container">
+      <h1 class="appointment-title">Schedule your next Dental Appointment</h1>
+      {% if messages %}
+        <div class="mb-3">
+          {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+
+      <form id="appointmentForm" method="POST" action="{% url 'appointment_form' %}#appointment-form-section" class="appt-form">
+
+        {% csrf_token %}
+
+        {# Show the â€œslot already bookedâ€ error from AppointmentForm.clean() #}
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger mb-3">
+            {% for err in form.non_field_errors %}
+              {{ err }}
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <!-- Row: name + phone -->
+        <div class="row gx-3">
+          <div class="col-md-6">
+            <label class="form-label" for="{{ form.name.id_for_label }}">Name <span>(required)</span></label>
+            {{ form.name }}
+            {{ form.name.errors }}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label" for="{{ form.phone.id_for_label }}">Phone number <span>(required)</span></label>
+            {{ form.phone }}
+            {{ form.phone.errors }}
+          </div>
+        </div>
+
+        <!-- Row: email (full width) -->
+        <div class="row gx-3 mt-3">
+          <div class="col-12">
+            <label class="form-label" for="{{ form.email.id_for_label }}">Email <span>(required)</span></label>
+            {{ form.email }}
+            {{ form.email.errors }}
+          </div>
+        </div>
+
+        <!-- Services: exactly the 3 you wanted -->
+        <div class="row gx-3 mt-4">
+          <div class="col-12">
+              <p class="section-title">Our Services</p>
+
+              {{ form.services.errors }}
+
+              <div class="service-grid">
+                {% for checkbox in form.services %}
+                <label class="svc-card">
+                  {{ checkbox.tag }}
+                  <span class="svc-box"><span class="svc-tick"></span><span>{{ checkbox.choice_label }}</span></span>
+                </label>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Calendar + Timeslots (desktop layout) -->
+        <div class="row gx-3 mt-4 appt-grid desktop-picker">
+          <!-- Calendar (always visible on desktop) -->
+
+          <div class="col-lg-6">
+            <p class="section-label mb-2">Pick a Date</p>
+            {% for error in form.appointment_date.errors %}
+              <div class="text-danger small mt-1">{{ error }}</div>
+            {% endfor %}
+            <!-- inline calendar target -->
+            <input id="datepicker" name="appointment_date" type="text" class="d-none" value="{{ form.appointment_date.value|default:'' }}" />
+            <div id="calendarHost" aria-label="Calendar"></div>
+          </div>
+
+          <!-- Timeslots (shown only after a date is picked) -->
+          <div class="col-lg-6">
+            <p class="section-label mb-2">Pick a Timeslot</p>
+            <div id="timeslotWrap" class="timeslots timeslots--hidden" aria-live="polite">
+              <p class="muted mb-2" id="slotHint">Select a date to see available time slots</p>
+              <div id="timeslotList" class="slot-list"></div>
+              <!-- hidden field to carry the selected time -->
+              <input type="hidden" id="appointment_time" name="appointment_time" value="{{ form.appointment_time.value|default:'' }}">
+            </div>
+          </div>
+        </div>
+
+        <!-- Combined date & time matrix (mobile / tablet only) -->
+        <div id="mobileMatrix"
+            class="appt-matrix d-lg-none mt-4"
+            aria-label="Choose date and time">
+        </div>
+
+        <div class="text-center mt-4">
+        <button type="submit" class="btn btn-submit-custom mt-4">Request an Appointment</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  {% if success_dialog %}
+    <div id="bookingSuccessModal" class="booking-success is-open" role="dialog" aria-modal="true" aria-labelledby="bookingSuccessTitle">
+      <div class="booking-success__backdrop" data-dialog-close></div>
+      <div class="booking-success__card">
+        <button type="button" class="booking-success__close" aria-label="Close" data-dialog-close>&times;</button>
+        <div class="booking-success__hero">
+          <div class="booking-success__icon"></div>
+          <h2 id="bookingSuccessTitle">Request Submitted!</h2>
+          <p>Your appointment request has been received. Please keep your appointment ID for tracking.</p>
+        </div>
+        <div class="booking-success__body">
+          <div class="booking-success__codebox">
+            <div>
+              <small>Appointment ID</small>
+              <div id="appointmentCodeValue" class="booking-success__code">{{ success_dialog.appointment_code }}</div>
+            </div>
+            <button type="button" id="copyAppointmentCode" class="booking-success__copy" data-code="{{ success_dialog.appointment_code }}">
+              Copy ID
+            </button>
+          </div>
+
+          <div class="booking-success__notice">
+            <p><strong>Please track your appointment using the ID above.</strong> We will contact you to confirm your appointment details.</p>
+            <p>You will receive a reminder call one day before your visit.</p>
+          </div>
+
+          <div class="booking-success__steps-title">What's next?</div>
+          <ol class="booking-success__steps">
+            <li><span class="booking-success__steps-number">1</span><span>Save your appointment ID for tracking.</span></li>
+            <li><span class="booking-success__steps-number">2</span><span>Wait for our confirmation call or email.</span></li>
+            <li><span class="booking-success__steps-number">3</span><span>Expect a reminder call one day before the appointment.</span></li>
+          </ol>
+
+          <div class="booking-success__actions">
+            <button type="button" class="btn btn-light" data-dialog-close>Close</button>
+            <a href="{{ success_dialog.tracking_url }}" class="btn btn-primary">Track Status</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if error_dialog %}
+    <div id="bookingWarningModal" class="booking-alert booking-alert--warning is-open" role="dialog" aria-modal="true" aria-labelledby="bookingWarningTitle">
+      <div class="booking-alert__backdrop" data-error-dialog-close></div>
+      <div class="booking-alert__card">
+        <button type="button" class="booking-alert__close" aria-label="Close" data-error-dialog-close>&times;</button>
+        <div class="booking-alert__hero">
+          <div class="booking-alert__icon"></div>
+          <h2 id="bookingWarningTitle">{{ error_dialog.title }}</h2>
+          <p>{{ error_dialog.subtitle }}</p>
+        </div>
+        <div class="booking-alert__body">
+          <div class="booking-alert__detail">
+            <div class="booking-alert__detail-title">{{ error_dialog.detail_title }}</div>
+            <div class="booking-alert__detail-meta">
+              <span>{{ error_dialog.requested_date }}</span>
+              <span>{{ error_dialog.requested_time }}</span>
+            </div>
+          </div>
+
+          {% if error_dialog.suggestions %}
+            <div class="booking-alert__section-title">Available Time Slots</div>
+            <div class="booking-alert__suggestions">
+              {% for suggestion in error_dialog.suggestions %}
+                <button
+                  type="button"
+                  class="booking-alert__suggestion"
+                  data-suggest-date="{{ suggestion.date_iso }}"
+                  data-suggest-time="{{ suggestion.time_value }}"
+                >
+                  <span>{{ suggestion.date_label }}</span>
+                  <span>{{ suggestion.time_label }}</span>
+                </button>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <div class="booking-alert__tip">{{ error_dialog.tip }}</div>
+
+          <div class="booking-alert__actions">
+            <button type="button" class="btn btn-light" data-error-dialog-close>Cancel</button>
+            <button type="button" class="btn btn-primary" id="chooseDifferentTimeButton">Choose Different Time</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <div id="bookingNoticeModal" class="booking-alert booking-alert--notice" role="dialog" aria-modal="true" aria-labelledby="bookingNoticeTitle">
+    <div class="booking-alert__backdrop" data-client-dialog-close></div>
+    <div class="booking-alert__card booking-alert__card--compact">
+      <button type="button" class="booking-alert__close" aria-label="Close" data-client-dialog-close>&times;</button>
+      <div class="booking-alert__hero booking-alert__hero--soft">
+        <div class="booking-alert__icon booking-alert__icon--soft"></div>
+        <h2 id="bookingNoticeTitle">Complete Your Booking</h2>
+        <p id="bookingNoticeSubtitle">A few details are still missing before we can send your request.</p>
+      </div>
+      <div class="booking-alert__body">
+        <div id="bookingNoticeMessage" class="booking-alert__message">
+          Please review the form and try again.
+        </div>
+        <div class="booking-alert__actions booking-alert__actions--single">
+          <button type="button" class="btn btn-primary" data-client-dialog-close>Okay</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- Flatpickr assets -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+{% if form.errors or form.non_field_errors %}
+<script>
+  window.addEventListener('load', function () {
+    var target = document.getElementById('appointment-form-section');
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+</script>
+{% endif %}
+
+{% if success_dialog %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var dialog = document.getElementById('bookingSuccessModal');
+    if (!dialog) {
+      return;
+    }
+
+    document.body.classList.add('booking-modal-open');
+
+    function closeDialog() {
+      dialog.classList.remove('is-open');
+      document.body.classList.remove('booking-modal-open');
+    }
+
+    dialog.querySelectorAll('[data-dialog-close]').forEach(function (element) {
+      element.addEventListener('click', closeDialog);
+    });
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') {
+        closeDialog();
+      }
+    });
+
+    var copyButton = document.getElementById('copyAppointmentCode');
+    if (copyButton) {
+      copyButton.addEventListener('click', function () {
+        var code = copyButton.getAttribute('data-code') || '';
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(code).then(function () {
+            copyButton.textContent = 'Copied!';
+          });
+        } else {
+          copyButton.textContent = code;
+        }
+      });
+    }
+  });
+</script>
+{% endif %}
+
+{% if error_dialog %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var dialog = document.getElementById('bookingWarningModal');
+    if (!dialog) {
+      return;
+    }
+
+    var formSection = document.getElementById('appointment-form-section');
+
+    document.body.classList.add('booking-modal-open');
+
+    function scrollToForm() {
+      if (formSection) {
+        formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    function closeDialog() {
+      dialog.classList.remove('is-open');
+      document.body.classList.remove('booking-modal-open');
+      scrollToForm();
+    }
+
+    dialog.querySelectorAll('[data-error-dialog-close]').forEach(function (element) {
+      element.addEventListener('click', closeDialog);
+    });
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') {
+        closeDialog();
+      }
+    });
+
+    var chooseDifferentButton = document.getElementById('chooseDifferentTimeButton');
+    if (chooseDifferentButton) {
+      chooseDifferentButton.addEventListener('click', closeDialog);
+    }
+
+    dialog.querySelectorAll('[data-suggest-date][data-suggest-time]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        var dateValue = button.getAttribute('data-suggest-date');
+        var timeValue = button.getAttribute('data-suggest-time');
+
+        window.dispatchEvent(new CustomEvent('appointment:suggestion-selected', {
+          detail: {
+            dateValue: dateValue,
+            timeValue: timeValue
+          }
+        }));
+
+        closeDialog();
+      });
+    });
+  });
+</script>
+{% endif %}
+
+<!-- Page script -->
+ {{ clinic_schedule|json_script:"clinic-schedule" }}
+<script src="{% static 'website/js/appointment.js' %}"></script>
+{% endblock %}

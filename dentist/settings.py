@@ -51,6 +51,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'website',
     'dashboard',
+    "apps.public",
+    "apps.appointments",
+    "apps.staff",
+    "apps.shared",
+    "apps.patients",
 ]
 
 MIDDLEWARE = [
@@ -76,7 +81,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "website.context_processors.google_maps_key",
+                "apps.shared.context_processors.google_maps_key",
             ],
         },
     },
