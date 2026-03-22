@@ -17,7 +17,7 @@ Legacy Django apps still exist:
 - `website`
 - `dashboard`
 
-For now, those legacy apps mainly remain to preserve model ownership, admin registration, and migrations.
+Those legacy apps now mainly remain for migration history, legacy admin compatibility, and app continuity during the refactor.
 
 ## Module Responsibilities
 
@@ -67,14 +67,14 @@ Examples:
 
 ## Current Model Ownership
 
-Models have not been moved yet.
+Model ownership has now been moved into the modular apps:
 
-Current model ownership remains in legacy apps:
+- `apps.appointments.models.Appointment`
+- `apps.patients.models.Patient`
 
-- `website.models`
-- `dashboard.models`
+Legacy compatibility imports remain in `website.models` so older imports do not break immediately.
 
-This is intentional to avoid risky migration churn during Phase 1.
+`dashboard.models` is still a legacy app module and has not been given any new model ownership.
 
 ## Dependency Rules
 
@@ -106,7 +106,7 @@ Tests should live with the module they cover:
 ## Phase Status
 
 ### Phase 1
-Completed or in progress:
+Completed:
 
 - create modular app structure
 - move public code into `apps.public`
@@ -114,6 +114,8 @@ Completed or in progress:
 - move patient logic into `apps.patients`
 - move staff views/services/templates/static into `apps.staff`
 - move shared context processor into `apps.shared`
+- move model ownership for `Appointment` and `Patient` into modular apps
+- remove stale `website` content types and permissions for moved models
 
 ### Phase 2
 Planned:
@@ -125,5 +127,7 @@ Planned:
 ### Phase 3
 Planned separately:
 
-- evaluate moving models out of legacy apps
-- plan migrations carefully before changing model ownership
+- evaluate further legacy app reduction
+- decide whether `website` and `dashboard` can be slimmed down further
+- plan future infrastructure changes, such as PostgreSQL migration, as separate projects
+
