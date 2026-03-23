@@ -1,21 +1,79 @@
 from datetime import timedelta
+from urllib.parse import urlencode
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Count, Max, Min, Q
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils import timezone
 
 from apps.appointments.models import Appointment
-from apps.patients.models import Patient
+from apps.patients.forms import PatientDocumentForm
+from apps.patients.models import Patient, PatientDocument
 
 from .auth import staff_only
+
+
+PATIENT_QUEUE_SORT_OPTIONS = {"all", "newest", "oldest"}
+
+
+def patients_url(*, patient_id=None, query="", sort="all"):
+    params = {}
+    if query:
+        params["q"] = query
+    if sort and sort != "all":
+        params["sort"] = sort
+    if patient_id:
+        params["patient"] = patient_id
+    base_url = reverse("dashboard:patients")
+    return f"{base_url}?{urlencode(params)}" if params else base_url
+
 
 @login_required(login_url="dashboard:login")
 @user_passes_test(staff_only)
 def patients(request):
-    q = request.GET.get("q", "").strip()
+    q = ((request.POST.get("q") if request.method == "POST" else request.GET.get("q", "")) or "").strip()
+    sort = ((request.POST.get("sort") if request.method == "POST" else request.GET.get("sort", "all")) or "all").strip().lower()
+    if sort not in PATIENT_QUEUE_SORT_OPTIONS:
+        sort = "all"
     selected_key = request.GET.get("patient", "").strip()
     today = timezone.localdate()
+    document_form = PatientDocumentForm(prefix="doc")
+
+    if request.method == "POST":
+        selected_key = request.POST.get("patient_id", "").strip() or selected_key
+        target_patient = Patient.objects.filter(id=selected_key).first() if selected_key.isdigit() else None
+        action = request.POST.get("document_action", "")
+
+        if not target_patient:
+            messages.error(request, "Select a patient before uploading a file.")
+            return redirect(patients_url(query=q, sort=sort))
+
+        if action == "upload_insurance":
+            insurance_file = request.FILES.get("insurance_file")
+            insurance_title = request.POST.get("insurance_title", "").strip() or "Insurance attachment"
+            if not insurance_file:
+                messages.error(request, "Choose an insurance image or file to upload.")
+            else:
+                PatientDocument.objects.create(
+                    patient=target_patient,
+                    title=insurance_title,
+                    document_type=PatientDocument.TYPE_INSURANCE,
+                    file=insurance_file,
+                )
+                messages.success(request, "Insurance attachment uploaded.")
+            return redirect(patients_url(patient_id=target_patient.id, query=q, sort=sort))
+
+        if action == "upload_document":
+            document_form = PatientDocumentForm(request.POST, request.FILES, prefix="doc")
+            if document_form.is_valid():
+                document = document_form.save(commit=False)
+                document.patient = target_patient
+                document.save()
+                messages.success(request, "Patient document uploaded.")
+                return redirect(patients_url(patient_id=target_patient.id, query=q, sort=sort))
+            messages.error(request, "Please complete the document upload form.")
 
     patient_qs = Patient.objects.all()
     if q:
@@ -25,7 +83,7 @@ def patients(request):
             | Q(email__icontains=q)
         )
 
-    patient_queue = list(
+    patient_queue_qs = (
         patient_qs.annotate(
             first_seen=Min("appointments__created_at"),
             last_seen=Max("appointments__date"),
@@ -52,24 +110,28 @@ def patients(request):
             ),
         )
         .filter(total_appointments__gt=0)
-        .order_by("-last_seen", "name")
     )
+
+    if sort == "newest":
+        patient_queue_qs = patient_queue_qs.order_by("-created_at", "name")
+    elif sort == "oldest":
+        patient_queue_qs = patient_queue_qs.order_by("created_at", "name")
+    else:
+        patient_queue_qs = patient_queue_qs.order_by("-last_seen", "name")
+
+    patient_queue = list(patient_queue_qs)
 
     selected_patient = None
     upcoming_schedule = []
     visit_history = []
     document_items = []
+    insurance_document = None
     quick_stats = {
         "total": 0,
         "completed": 0,
         "upcoming": 0,
         "cancelled": 0,
         "adherence": 0,
-    }
-    assurance_card = {
-        "member_number": "",
-        "status": "New",
-        "expiry": today,
     }
 
     if patient_queue:
@@ -106,31 +168,24 @@ def patients(request):
             "adherence": adherence,
         }
 
-        assurance_card = {
-            "member_number": selected_patient.patient_code,
-            "status": "Active" if completed > 0 else "New",
-            "expiry": today + timedelta(days=365),
-        }
-
-        for a in visit_history[:4]:
-            services_label = ", ".join(a.services) if a.services else "General dental service"
-            note_words = len((a.notes or "").split())
-            document_items.append({
-                "title": f"Visit summary {a.appointment_code}",
-                "subtitle": services_label,
-                "meta": f"{a.date:%d %b %Y} - {note_words} note words",
-                "status": a.get_status_display(),
-            })
+        insurance_document = selected_patient.documents.filter(
+            document_type=PatientDocument.TYPE_INSURANCE
+        ).first()
+        document_items = list(
+            selected_patient.documents.exclude(document_type=PatientDocument.TYPE_INSURANCE)
+        )
 
     return render(request, "staff/pages/patients.html", {
         "active_page": "patients",
         "q": q,
+        "sort": sort,
         "today": today,
         "patient_queue": patient_queue,
         "selected_patient": selected_patient,
         "upcoming_schedule": upcoming_schedule,
         "visit_history": visit_history,
         "document_items": document_items,
+        "insurance_document": insurance_document,
         "quick_stats": quick_stats,
-        "assurance_card": assurance_card,
+        "document_form": document_form,
     })

@@ -7,214 +7,641 @@
       margin-top: 0.25rem;
     }
     .patients-shell {
-      background: #f8f9fd;
-      border-radius: 16px;
-      border: 1px solid #eceff7;
+      background: linear-gradient(180deg, #fbfcff 0%, #f4f7fd 100%);
+      border-radius: 20px;
+      border: 1px solid #e7ecf5;
       padding: 1rem;
-    }
-    .patients-heading h3 {
-      margin-bottom: 0.1rem;
-      font-weight: 700;
-    }
-    .patients-heading .text-muted {
-      font-size: 0.86rem;
-    }
-    .patients-search .form-control {
-      min-width: 240px;
-      border-radius: 999px;
-      border-color: #dde3f0;
+      box-shadow: 0 12px 32px rgba(23, 40, 85, 0.06);
     }
     .queue-card {
-      border-radius: 14px;
-      border: 1px solid #e6ebf5;
+      border-radius: 18px;
+      border: 1px solid #e5ebf5;
       overflow: hidden;
+      background: #fff;
+      box-shadow: 0 10px 28px rgba(34, 51, 84, 0.05);
+      display: flex;
+      flex-direction: column;
     }
     .queue-head {
-      border-bottom: 1px solid #eef2fa;
+      border-bottom: 1px solid #edf2fb;
       background: #fbfcff;
-      padding: 0.9rem 1rem;
+      padding: 1rem;
+    }
+    .queue-head-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+    .queue-head-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid #e3eaf7;
+      background: #fff;
+      color: #7d89a5;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 1rem;
+    }
+    .queue-search-form {
+      margin-top: 0.8rem;
+    }
+    .queue-search-shell {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      border: 1px solid #dfe6f4;
+      border-radius: 999px;
+      background: #fff;
+      padding: 0.3rem 0.35rem 0.3rem 0.8rem;
+      box-shadow: inset 0 1px 2px rgba(32, 47, 89, 0.02);
+    }
+    .queue-search-shell i {
+      color: #92a0bb;
+      font-size: 0.95rem;
+      flex-shrink: 0;
+    }
+    .queue-search-shell .form-control {
+      border: 0;
+      box-shadow: none;
+      background: transparent;
+      min-height: auto;
+      padding: 0;
+      font-size: 0.85rem;
+      color: #2d3651;
+    }
+    .queue-search-shell .form-control::placeholder {
+      color: #9aa7c0;
+    }
+    .queue-search-shell .queue-sort-select {
+      border: 0;
+      background: #f5f7fd;
+      color: #55627f;
+      border-radius: 999px;
+      min-height: 34px;
+      padding: 0 0.8rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      box-shadow: none;
+      flex-shrink: 0;
+      min-width: 92px;
+      cursor: pointer;
+    }
+    .queue-search-shell .queue-sort-select:focus {
+      outline: 0;
+      box-shadow: 0 0 0 0.15rem rgba(108, 92, 231, 0.12);
+    }
+    .queue-search-shell .btn {
+      border-radius: 999px;
+      min-width: 40px;
+      height: 34px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
     .queue-list {
-      max-height: 700px;
+      max-height: 620px;
       overflow: auto;
-      padding: 0.6rem;
+      padding: 0.7rem 0 0.7rem 0.7rem;
+      flex: 1 1 auto;
+      min-height: 0;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .queue-list::-webkit-scrollbar {
+      display: none;
     }
     .queue-item {
       display: block;
+      width: 100%;
+      box-sizing: border-box;
       text-decoration: none;
       color: inherit;
-      border: 1px solid #edf1f8;
-      border-radius: 12px;
-      padding: 0.7rem;
-      margin-bottom: 0.55rem;
+      border: 1px solid #e7edf7;
+      border-radius: 18px;
+      padding: 1rem 1rem 0.95rem;
+      margin-bottom: 0.8rem;
       background: #fff;
-      transition: all 0.15s ease;
+      box-shadow: 0 8px 20px rgba(35, 54, 96, 0.05);
+      transition: all 0.18s ease;
     }
     .queue-item:hover {
-      border-color: #c8d5f2;
-      box-shadow: 0 8px 20px rgba(31, 65, 133, 0.08);
+      border-color: #d5deef;
+      box-shadow: 0 14px 28px rgba(51, 82, 148, 0.1);
+      transform: translateY(-1px);
       text-decoration: none;
       color: inherit;
     }
     .queue-item.active {
-      border-color: #87a8ff;
-      box-shadow: 0 8px 22px rgba(95, 122, 191, 0.2);
-      background: linear-gradient(180deg, #fbfdff 0%, #f3f7ff 100%);
+      border-color: #53a8ff;
+      box-shadow: 0 14px 28px rgba(77, 146, 255, 0.16);
+      background: #fff;
+    }
+    .queue-layout {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      grid-template-areas:
+        "avatar spacer kebab"
+        "name name name"
+        "gap gap gap"
+        "footer footer enter";
+      grid-template-rows: auto auto 1fr auto;
+      row-gap: 0.55rem;
+      column-gap: 0.75rem;
+      align-items: start;
+      width: 100%;
+      max-width: 100%;
+      min-height: 132px;
     }
     .queue-avatar {
-      width: 40px;
-      height: 40px;
+      grid-area: avatar;
+    }
+    .queue-name-copy {
+      grid-area: name;
+      min-width: 0;
+    }
+    .queue-footer-copy {
+      grid-area: footer;
+      min-width: 0;
+      align-self: end;
+    }
+    .queue-kebab {
+      grid-area: kebab;
+      justify-self: end;
+    }
+    .queue-enter {
+      grid-area: enter;
+      justify-self: end;
+      align-self: end;
+    }
+    .queue-avatar {
+      width: 46px;
+      height: 46px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #5d7fff 0%, #66b1ff 100%);
+      background: linear-gradient(135deg, #5d7fff 0%, #56b0ff 100%);
       color: #fff;
       font-weight: 700;
-      font-size: 0.9rem;
+      font-size: 1rem;
+      box-shadow: 0 6px 16px rgba(79, 125, 255, 0.28);
+      flex-shrink: 0;
+    }
+    .queue-kebab {
+      color: #7e879d;
+      font-size: 0.95rem;
+      line-height: 1;
+      padding-top: 0.15rem;
     }
     .queue-name {
-      font-weight: 600;
-      line-height: 1.15;
+      font-size: 0.94rem;
+      font-weight: 700;
+      line-height: 1.2;
+      color: #20293f;
+      margin-bottom: 0;
     }
     .queue-meta {
-      font-size: 0.75rem;
-      color: #8991a8;
+      font-size: 0.78rem;
+      color: #8b94a9;
+      line-height: 1.35;
+      margin-bottom: 0;
     }
-    .queue-counts .badge {
-      font-size: 0.68rem;
-      font-weight: 600;
+    .queue-enter {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid #dfe6f3;
+      background: #fff;
+      color: #6d7892;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 16px rgba(52, 69, 107, 0.06);
+      flex-shrink: 0;
+    }
+    .queue-item.active .queue-enter {
+      border-color: #cfe2ff;
+      color: #4d78ff;
     }
     .profile-card,
     .detail-card,
     .history-card,
-    .docs-card {
-      border-radius: 14px;
-      border: 1px solid #e6ebf5;
+    .docs-card,
+    .insurance-card,
+    .snapshot-card {
+      border-radius: 18px;
+      border: 1px solid #e5ebf5;
+      background: #fff;
+      box-shadow: 0 10px 28px rgba(34, 51, 84, 0.05);
+    }
+    .profile-card .card-body,
+    .detail-card .card-body,
+    .history-card .card-body,
+    .docs-card .card-body,
+    .insurance-card .card-body,
+    .snapshot-card .card-body {
+      padding: 1.15rem;
     }
     .profile-avatar {
-      width: 56px;
-      height: 56px;
+      width: 60px;
+      height: 60px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #1f75ff 0%, #38b5ff 100%);
+      background: linear-gradient(135deg, #1d70ff 0%, #32b1ff 100%);
       color: #fff;
-      font-size: 1rem;
+      font-size: 1.05rem;
       font-weight: 700;
+      box-shadow: 0 8px 18px rgba(50, 116, 255, 0.25);
     }
     .member-pill {
       display: inline-block;
-      font-size: 0.65rem;
+      font-size: 0.66rem;
       font-weight: 700;
-      background: #e9f7eb;
-      color: #2d9a43;
-      border: 1px solid #cdeed4;
+      background: #eaf7ec;
+      color: #289447;
+      border: 1px solid #cfe9d5;
       border-radius: 999px;
-      padding: 0.12rem 0.5rem;
+      padding: 0.14rem 0.5rem;
       vertical-align: middle;
-      margin-left: 0.4rem;
+      margin-left: 0.45rem;
       text-transform: uppercase;
       letter-spacing: 0.04em;
     }
+    .profile-subline {
+      color: #8893aa;
+      font-size: 0.82rem;
+    }
     .profile-actions .btn {
-      border-radius: 10px;
-      width: 36px;
-      height: 36px;
+      border-radius: 12px;
+      min-width: 38px;
+      height: 38px;
       padding: 0;
       display: inline-flex;
       align-items: center;
       justify-content: center;
     }
+    .profile-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+    .profile-summary-chip {
+      border-radius: 14px;
+      border: 1px solid #e8edf7;
+      background: linear-gradient(180deg, #ffffff 0%, #f6f8fd 100%);
+      padding: 0.85rem 0.95rem;
+      min-height: 78px;
+    }
+    .profile-summary-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #93a0bb;
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+    }
+    .profile-summary-value {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #25324e;
+      line-height: 1.1;
+    }
+    .info-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
     .info-list li {
       display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 0.75rem;
-      padding: 0.42rem 0;
+      gap: 0.85rem;
+      padding: 0.65rem 0;
       border-bottom: 1px dashed #edf2fa;
-      font-size: 0.86rem;
     }
     .info-list li:last-child {
       border-bottom: 0;
+      padding-bottom: 0;
     }
-    .info-list .label {
-      color: #8e95aa;
+    .info-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #edf3ff;
+      color: #4675f4;
+      flex-shrink: 0;
+    }
+    .info-copy .label {
+      display: block;
+      font-size: 0.74rem;
+      color: #8a93aa;
+      margin-bottom: 0.08rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .info-copy .value {
+      display: block;
+      font-size: 0.9rem;
+      color: #26324b;
+      font-weight: 600;
+      word-break: break-word;
     }
     .timeline-item {
       position: relative;
-      padding-left: 1rem;
-      margin-bottom: 0.9rem;
+      padding-left: 1.2rem;
+      margin-bottom: 1rem;
     }
     .timeline-item::before {
       content: "";
       position: absolute;
       left: 0;
-      top: 0.25rem;
-      width: 8px;
-      height: 8px;
+      top: 0.28rem;
+      width: 9px;
+      height: 9px;
       border-radius: 50%;
-      background: #5e83ff;
-      box-shadow: 0 0 0 3px #e7eeff;
+      background: #5a81ff;
+      box-shadow: 0 0 0 4px #ebf1ff;
     }
     .timeline-date {
-      color: #8e95aa;
+      color: #8d95ab;
       font-size: 0.74rem;
-      margin-bottom: 0.1rem;
+      margin-bottom: 0.12rem;
     }
     .timeline-title {
       font-weight: 600;
-      margin-bottom: 0.05rem;
+      margin-bottom: 0.08rem;
+      color: #24324e;
     }
     .timeline-sub {
-      color: #8e95aa;
-      font-size: 0.78rem;
+      color: #8a92a8;
+      font-size: 0.79rem;
     }
-    .assurance-card {
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      background: linear-gradient(135deg, #4f6dff 0%, #8a4cff 100%);
+    .insurance-card {
+      background: linear-gradient(135deg, #586df8 0%, #a04be0 100%);
       color: #fff;
+      overflow: hidden;
+    }
+    .insurance-card .section-kicker {
+      color: rgba(255, 255, 255, 0.82);
+    }
+    .insurance-card .section-title {
+      color: #fff;
+    }
+    .insurance-panel {
+      border-radius: 16px;
       padding: 0.9rem;
-      margin-bottom: 0.9rem;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
     }
-    .assurance-card .muted {
-      opacity: 0.82;
-      font-size: 0.74rem;
-    }
-    .assurance-number {
-      font-size: 1.45rem;
-      line-height: 1.15;
-      font-weight: 700;
-      letter-spacing: 0.01em;
-      margin-bottom: 0.75rem;
-    }
-    .member-box {
-      border: 1px solid #e9edf8;
-      border-radius: 12px;
-      padding: 0.85rem;
-      background: #fff;
-    }
-    .adherence-ring {
-      --progress: 0;
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      background: conic-gradient(#4f93ff calc(var(--progress) * 1%), #ecf2ff 0);
-      display: grid;
-      place-items: center;
-    }
-    .adherence-ring span {
-      width: 54px;
-      height: 54px;
-      border-radius: 50%;
+    .insurance-preview {
+      width: 100%;
+      min-height: 190px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px dashed rgba(255, 255, 255, 0.28);
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #fff;
+      overflow: hidden;
+      margin-bottom: 0.85rem;
+      position: relative;
+    }
+    .insurance-preview-trigger {
+      cursor: pointer;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+    }
+    .insurance-preview-trigger:hover {
+      transform: translateY(-1px);
+      border-color: rgba(255, 255, 255, 0.45);
+      box-shadow: 0 14px 26px rgba(20, 29, 74, 0.16);
+    }
+    .insurance-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .insurance-placeholder {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.9);
+      padding: 1rem;
+    }
+    .insurance-placeholder i {
+      display: block;
+      font-size: 1.55rem;
+      margin-bottom: 0.4rem;
+    }
+    .insurance-preview-badge {
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.38rem 0.72rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
       font-weight: 700;
-      color: #2e3e66;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 16px rgba(30, 39, 87, 0.16);
+    }
+    .insurance-meta {
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 0.8rem;
+      margin-bottom: 0.8rem;
+    }
+    .insurance-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      text-align: center;
+    }
+    .insurance-toolbar-copy {
+      flex: 0 1 260px;
+      min-width: 0;
+      text-align: center;
+    }
+    .insurance-toolbar-copy .upload-filename {
+      margin-bottom: 0.1rem;
+    }
+    .insurance-toolbar-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.55rem;
+    }
+    .insurance-upload .custom-file-label,
+    .insurance-upload .custom-file-input {
+      border-radius: 12px;
+    }
+    .insurance-upload .btn-light {
+      border-radius: 999px;
+      font-weight: 600;
+      color: #3550ba;
+    }
+    .upload-stack {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0.7rem;
+    }
+    .upload-field {
+      width: 100%;
+      border-radius: 16px;
+      padding: 1rem 0.9rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      border: 1px dashed rgba(116, 137, 196, 0.35);
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .upload-field-soft {
+      background: linear-gradient(180deg, #fdfefe 0%, #f2f6fe 100%);
+      border-color: #d7e1f4;
+    }
+    .upload-field-inline {
+      padding: 0.85rem 0.95rem;
+    }
+    .upload-input-native {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    .upload-trigger {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      min-width: 180px;
+      min-height: 46px;
+      padding: 0.7rem 1.2rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+      margin-bottom: 0;
+    }
+    .upload-trigger:hover {
+      transform: translateY(-1px);
+      text-decoration: none;
+    }
+    .upload-trigger-light {
+      background: #fff;
+      color: #3550ba;
+      box-shadow: 0 10px 22px rgba(32, 53, 129, 0.18);
+    }
+    .upload-trigger-light:hover {
+      color: #2f47aa;
+      box-shadow: 0 14px 26px rgba(32, 53, 129, 0.24);
+    }
+    .upload-trigger-soft {
+      background: linear-gradient(135deg, #5d6ef4 0%, #6554df 100%);
+      color: #fff;
+      box-shadow: 0 12px 24px rgba(85, 102, 215, 0.2);
+    }
+    .upload-trigger-soft:hover {
+      color: #fff;
+      box-shadow: 0 16px 28px rgba(85, 102, 215, 0.28);
+    }
+    .upload-filename {
+      font-size: 0.88rem;
+      font-weight: 600;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+    .upload-filename.muted-light {
+      color: rgba(255, 255, 255, 0.92);
+    }
+    .upload-filename.muted-dark {
+      color: #50617f;
+    }
+    .upload-caption {
+      font-size: 0.78rem;
+      line-height: 1.45;
+      max-width: 250px;
+    }
+    .upload-caption.light-copy {
+      color: rgba(255, 255, 255, 0.78);
+    }
+    .upload-caption.dark-copy {
+      color: #7d88a1;
+    }
+    .upload-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.65rem;
+      width: 100%;
+    }
+    .upload-inline {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+    }
+    .upload-inline-copy {
+      flex: 1 1 190px;
+      min-width: 0;
+      text-align: center;
+    }
+    .upload-inline-copy .upload-filename {
+      margin-bottom: 0.18rem;
+    }
+    .upload-inline-copy .upload-caption {
+      max-width: none;
+      margin: 0;
+    }
+    .upload-current-link {
+      margin-top: 0.55rem;
+    }
+    .snapshot-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+    .snapshot-item {
+      border-radius: 14px;
+      padding: 0.85rem;
+      border: 1px solid #edf1f8;
+      background: linear-gradient(180deg, #ffffff 0%, #f7f9fe 100%);
+    }
+    .snapshot-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #8c95ac;
+      margin-bottom: 0.2rem;
+    }
+    .snapshot-value {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #25324e;
     }
     .history-table th {
       border-top: 0;
@@ -227,74 +654,252 @@
       vertical-align: middle;
       font-size: 0.85rem;
     }
-    .history-table .badge {
-      font-size: 0.68rem;
+    .history-table td.status-cell {
+      min-width: 135px;
+    }
+    .history-table td.result-cell {
+      min-width: 150px;
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      border-radius: 999px;
+      padding: 0.42rem 0.78rem;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      border: 1px solid transparent;
+      box-shadow: 0 8px 18px rgba(33, 47, 84, 0.06);
+      white-space: nowrap;
+    }
+    .status-pill i {
+      font-size: 0.72rem;
+      line-height: 1;
+    }
+    .status-pill.status-completed {
+      background: #e7f9ed;
+      color: #059669;
+      border-color: #cbeed7;
+    }
+    .status-pill.status-confirmed {
+      background: #e6f0ff;
+      color: #6c5ce7;
+      border-color: #d3defd;
+    }
+    .status-pill.status-pending {
+      background: #fff5e6;
+      color: #f59e0b;
+      border-color: #ffd7a0;
+    }
+    .status-pill.status-cancelled {
+      background: #ffe4e6;
+      color: #e11d48;
+      border-color: #f8bcc8;
+    }
+    .result-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.42rem;
+      border-radius: 999px;
+      padding: 0.42rem 0.78rem;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      border: 1px solid transparent;
+      box-shadow: 0 8px 18px rgba(33, 47, 84, 0.06);
+      white-space: nowrap;
+    }
+    .result-pill i {
+      font-size: 0.72rem;
+      line-height: 1;
+    }
+    .result-pill.result-done {
+      background: #e7f9ed;
+      color: #059669;
+      border-color: #cbeed7;
+    }
+    .result-pill.result-ongoing {
+      background: #e6f0ff;
+      color: #6c5ce7;
+      border-color: #d3defd;
+    }
+    .result-pill.result-not-completed {
+      background: #ffe4e6;
+      color: #e11d48;
+      border-color: #f8bcc8;
+    }
+    .doc-upload {
+      border-radius: 16px;
+      background: linear-gradient(180deg, #f7f9ff 0%, #eef3fb 100%);
+      border: 1px solid #e1e8f6;
+      padding: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    .doc-upload .form-label {
+      font-size: 0.74rem;
+      color: #7f89a0;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
       font-weight: 600;
+      margin-bottom: 0.35rem;
+    }
+    .doc-upload .btn-primary,
+    .insurance-upload .btn-light {
+      min-width: 130px;
+    }
+    .doc-upload .form-control,
+    .doc-upload .form-control-sm,
+    .doc-upload select {
+      min-height: 50px;
+      border-radius: 12px;
+      border-color: #d7dfef;
+      background: rgba(255, 255, 255, 0.88);
+      box-shadow: inset 0 1px 2px rgba(33, 47, 84, 0.02);
+      font-size: 0.94rem;
     }
     .doc-item {
       border: 1px solid #edf1f8;
-      border-radius: 10px;
-      padding: 0.65rem 0.75rem;
-      margin-bottom: 0.55rem;
+      border-radius: 14px;
+      padding: 0.8rem;
+      margin-bottom: 0.65rem;
       background: #fff;
+      box-shadow: 0 6px 18px rgba(37, 55, 96, 0.04);
+    }
+    .doc-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #eef3ff;
+      color: #4d74f7;
+      font-size: 1rem;
+      flex-shrink: 0;
     }
     .doc-item h6 {
-      margin-bottom: 0.1rem;
-      font-size: 0.85rem;
+      margin-bottom: 0.12rem;
+      font-size: 0.88rem;
+      color: #273453;
     }
-    .doc-item p {
+    .doc-meta,
+    .doc-subtitle {
       margin: 0;
-      color: #8e95aa;
-      font-size: 0.75rem;
+      color: #8d95ab;
+      font-size: 0.76rem;
+    }
+    .doc-item .btn {
+      border-radius: 10px;
+    }
+    .section-kicker {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #8992a8;
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+    }
+    .section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #25324e;
+      margin-bottom: 0;
+    }
+    @media (max-width: 1199.98px) {
+      .queue-list {
+        max-height: 420px;
+      }
+    }
+    @media (min-width: 1200px) {
+      .queue-column {
+        align-self: flex-start;
+      }
+      .queue-list {
+        max-height: 1110px;
+        align-self: stretch;
+        width: 100%;
+      }
+    }
+    @media (max-width: 767.98px) {
+      .profile-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .snapshot-grid {
+        grid-template-columns: 1fr;
+      }
+      .insurance-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .insurance-toolbar-actions {
+        justify-content: center;
+      }
+      .queue-search-shell {
+        padding-left: 0.7rem;
+      }
+      .upload-inline {
+        flex-direction: column;
+      }
+      .upload-inline-copy {
+        flex-basis: auto;
+      }
+      .profile-actions {
+        margin-top: 0.75rem;
+      }
+      .profile-actions .btn {
+        margin-bottom: 0.35rem;
+      }
     }
   </style>
 {% endblock %}
 
 {% block content %}
   <div class="patients-workspace">
-    <div class="d-flex flex-wrap justify-content-between align-items-end mb-3">
-      <div class="patients-heading">
-        <h3>Patients</h3>
-        <p class="text-muted mb-0">Queue and profile summary for your clinic records.</p>
-      </div>
-      <form method="get" class="patients-search d-flex mt-2 mt-md-0">
-        <input type="text" class="form-control" name="q" value="{{ q }}" placeholder="Search name, phone, email">
-        {% if selected_patient %}
-          <input type="hidden" name="patient" value="{{ selected_patient.id }}">
-        {% endif %}
-        <button class="btn btn-primary rounded-pill ml-2 px-3" type="submit">Search</button>
-      </form>
-    </div>
-
     <div class="patients-shell">
       <div class="row">
-        <div class="col-xl-3 mb-3 mb-xl-0">
+        <div class="col-xl-3 mb-3 mb-xl-0 queue-column">
           <div class="card queue-card h-100">
-            <div class="queue-head d-flex justify-content-between align-items-center">
-              <div>
-                <h6 class="mb-1">List of Patients</h6>
-                <small class="text-muted">{{ patient_queue|length }} records</small>
+            <div class="queue-head">
+              <div class="queue-head-top">
+                <div>
+                  <h6 class="mb-1">Patient Queue</h6>
+                  <small class="text-muted">{{ patient_queue|length }} records</small>
+                </div>
+                <span class="queue-head-icon"><i class="ti-search"></i></span>
               </div>
-              <i class="ti-user"></i>
+              <form method="get" class="queue-search-form">
+                {% if selected_patient %}
+                  <input type="hidden" name="patient" value="{{ selected_patient.id }}">
+                {% endif %}
+                <div class="queue-search-shell">
+                  <i class="ti-search"></i>
+                  <input type="text" class="form-control" name="q" value="{{ q }}" placeholder="Search patients">
+                  <select class="queue-sort-select" name="sort" aria-label="Sort patients">
+                    <option value="all" {% if sort == "all" %}selected{% endif %}>All</option>
+                    <option value="newest" {% if sort == "newest" %}selected{% endif %}>Newest</option>
+                    <option value="oldest" {% if sort == "oldest" %}selected{% endif %}>Oldest</option>
+                  </select>
+                  <button class="btn btn-primary btn-sm" type="submit" aria-label="Search patients">
+                    <i class="ti-arrow-right text-white"></i>
+                  </button>
+                </div>
+              </form>
             </div>
             <div class="queue-list">
               {% for p in patient_queue %}
                 <a class="queue-item {% if selected_patient and p.id == selected_patient.id %}active{% endif %}"
-                   href="?{% if q %}q={{ q|urlencode }}&{% endif %}patient={{ p.id }}">
-                  <div class="d-flex align-items-start justify-content-between">
-                    <div class="d-flex align-items-center">
-                      <div class="queue-avatar mr-2">{{ p.name|slice:":1"|upper }}</div>
-                      <div>
-                        <div class="queue-name">{{ p.name }}</div>
-                        <div class="queue-meta">Joined {{ p.first_seen|date:"d M Y" }}</div>
-                      </div>
+                   href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if sort and sort != 'all' %}sort={{ sort|urlencode }}&{% endif %}patient={{ p.id }}">
+                  <div class="queue-layout">
+                    <div class="queue-avatar">{{ p.name|slice:":1"|upper }}</div>
+                    <div class="queue-name-copy">
+                      <div class="queue-name">{{ p.name }}</div>
                     </div>
-                    <i class="ti-angle-right text-muted"></i>
-                  </div>
-                  <div class="queue-counts mt-2">
-                    <span class="badge badge-light mr-1">Total {{ p.total_appointments }}</span>
-                    <span class="badge badge-warning text-dark mr-1">Pending {{ p.pending_count }}</span>
-                    <span class="badge badge-success">Done {{ p.completed_count }}</span>
+                    <div class="queue-footer-copy">
+                      <div class="queue-meta">Register: {{ p.created_at|date:"d M Y" }}</div>
+                    </div>
+                    <span class="queue-kebab"><i class="ti-more-alt"></i></span>
+                    <span class="queue-enter"><i class="ti-arrow-right"></i></span>
                   </div>
                 </a>
               {% empty %}
@@ -318,21 +923,39 @@
                       <h4 class="mb-1">
                         {{ selected_patient.name }}
                         {% if quick_stats.completed > 0 %}
-                          <span class="member-pill">Member</span>
+                          <span class="member-pill">Active Patient</span>
                         {% endif %}
                       </h4>
-                      <div class="text-muted small">
-                        Joined {{ selected_patient.first_seen|date:"d M Y" }}
+                      <div class="profile-subline">
+                        Created {{ selected_patient.created_at|date:"d M Y" }}
                         <span class="mx-2">|</span>
-                        Last visit {{ selected_patient.last_seen|date:"d M Y" }}
+                        Last visit {{ selected_patient.last_seen|date:"d M Y"|default:"No visits yet" }}
                       </div>
                     </div>
                   </div>
                   <div class="profile-actions">
-                    <button class="btn btn-outline-secondary mr-1" type="button"><i class="ti-email"></i></button>
-                    <button class="btn btn-outline-secondary mr-1" type="button"><i class="ti-mobile"></i></button>
-                    <button class="btn btn-outline-secondary mr-1" type="button"><i class="ti-printer"></i></button>
-                    <button class="btn btn-outline-primary" type="button"><i class="ti-pencil-alt"></i></button>
+                    <a class="btn btn-outline-secondary mr-1" href="mailto:{{ selected_patient.email|default:'' }}" title="Email patient"><i class="ti-email"></i></a>
+                    <a class="btn btn-outline-secondary mr-1" href="tel:{{ selected_patient.phone|default:'' }}" title="Call patient"><i class="ti-mobile"></i></a>
+                    <button class="btn btn-outline-secondary mr-1" type="button" title="Print patient record"><i class="ti-printer"></i></button>
+                    <button class="btn btn-outline-primary" type="button" title="Edit patient"><i class="ti-pencil-alt"></i></button>
+                  </div>
+                </div>
+                <div class="profile-summary-grid">
+                  <div class="profile-summary-chip">
+                    <div class="profile-summary-label">Total Visits</div>
+                    <div class="profile-summary-value">{{ quick_stats.total }}</div>
+                  </div>
+                  <div class="profile-summary-chip">
+                    <div class="profile-summary-label">Completed</div>
+                    <div class="profile-summary-value">{{ quick_stats.completed }}</div>
+                  </div>
+                  <div class="profile-summary-chip">
+                    <div class="profile-summary-label">Upcoming</div>
+                    <div class="profile-summary-value">{{ quick_stats.upcoming }}</div>
+                  </div>
+                  <div class="profile-summary-chip">
+                    <div class="profile-summary-label">Cancelled</div>
+                    <div class="profile-summary-value">{{ quick_stats.cancelled }}</div>
                   </div>
                 </div>
               </div>
@@ -342,13 +965,37 @@
               <div class="col-lg-4 mb-3">
                 <div class="card detail-card h-100">
                   <div class="card-body">
-                    <h6 class="mb-3">Basic Information</h6>
-                    <ul class="list-unstyled info-list mb-0">
-                      <li><span class="label">Phone</span><span>{{ selected_patient.phone|default:"-" }}</span></li>
-                      <li><span class="label">Email</span><span>{{ selected_patient.email|default:"-" }}</span></li>
-                      <li><span class="label">Total Visits</span><span>{{ quick_stats.total }}</span></li>
-                      <li><span class="label">Completed</span><span>{{ quick_stats.completed }}</span></li>
-                      <li><span class="label">Upcoming</span><span>{{ quick_stats.upcoming }}</span></li>
+                    <div class="section-kicker">Patient Profile</div>
+                    <h6 class="section-title mb-3">Basic Information</h6>
+                    <ul class="info-list">
+                      <li>
+                        <span class="info-icon"><i class="ti-id-badge"></i></span>
+                        <span class="info-copy">
+                          <span class="label">Patient Code</span>
+                          <span class="value">{{ selected_patient.patient_code|default:"-" }}</span>
+                        </span>
+                      </li>
+                      <li>
+                        <span class="info-icon"><i class="ti-mobile"></i></span>
+                        <span class="info-copy">
+                          <span class="label">Contact Info</span>
+                          <span class="value">{{ selected_patient.phone|default:"No phone on file" }}</span>
+                        </span>
+                      </li>
+                      <li>
+                        <span class="info-icon"><i class="ti-email"></i></span>
+                        <span class="info-copy">
+                          <span class="label">Patient Email</span>
+                          <span class="value">{{ selected_patient.email|default:"No email on file" }}</span>
+                        </span>
+                      </li>
+                      <li>
+                        <span class="info-icon"><i class="ti-calendar"></i></span>
+                        <span class="info-copy">
+                          <span class="label">Joined Date</span>
+                          <span class="value">{{ selected_patient.created_at|date:"d M Y" }}</span>
+                        </span>
+                      </li>
                     </ul>
                   </div>
                 </div>
@@ -357,10 +1004,11 @@
               <div class="col-lg-4 mb-3">
                 <div class="card detail-card h-100">
                   <div class="card-body">
-                    <h6 class="mb-3">Appointment Schedule</h6>
+                    <div class="section-kicker">Calendar</div>
+                    <h6 class="section-title mb-3">Appointment Schedule</h6>
                     {% for appt in upcoming_schedule %}
                       <div class="timeline-item">
-                        <div class="timeline-date">{{ appt.date|date:"d M Y" }} - {{ appt.timeslot }}</div>
+                        <div class="timeline-date">{{ appt.date|date:"d M Y" }} · {{ appt.timeslot }}</div>
                         <div class="timeline-title">
                           {% if appt.services %}
                             {{ appt.services|join:", " }}
@@ -378,32 +1026,66 @@
               </div>
 
               <div class="col-lg-4 mb-3">
-                <div class="assurance-card">
-                  <div class="muted mb-1">Data of assurance</div>
-                  <div class="assurance-number">{{ assurance_card.member_number }}</div>
-                  <div class="d-flex justify-content-between">
-                    <div>
-                      <div class="muted">Expiry</div>
-                      <div>{{ assurance_card.expiry|date:"d/m/Y" }}</div>
-                    </div>
-                    <div>
-                      <div class="muted">Status</div>
-                      <div>{{ assurance_card.status }}</div>
+                <div class="card insurance-card mb-3">
+                  <div class="card-body">
+                    <div class="section-kicker">Insurance Record</div>
+                    <h6 class="section-title mb-3">Coverage Document</h6>
+                    <div class="insurance-panel">
+                      <form method="post" enctype="multipart/form-data" class="insurance-upload">
+                        {% csrf_token %}
+                        <input type="hidden" name="document_action" value="upload_insurance">
+                        <input type="hidden" name="patient_id" value="{{ selected_patient.id }}">
+                        <input type="hidden" name="q" value="{{ q }}">
+                        <input type="hidden" name="sort" value="{{ sort }}">
+                        <input type="hidden" name="insurance_title" value="Insurance attachment">
+                        <input type="file" class="upload-input-native js-file-upload" id="insuranceFile" name="insurance_file" data-target="insuranceFileName">
+                        <label class="insurance-preview insurance-preview-trigger" for="insuranceFile">
+                        {% if insurance_document and insurance_document.is_image %}
+                          <img src="{{ insurance_document.file.url }}" alt="{{ insurance_document.title }}">
+                        {% elif insurance_document %}
+                          <div class="insurance-placeholder">
+                            <i class="ti-files"></i>
+                            <strong>{{ insurance_document.title }}</strong>
+                            <div class="small mt-1">{{ insurance_document.filename }}</div>
+                          </div>
+                        {% else %}
+                          <div class="insurance-placeholder">
+                            <i class="ti-image"></i>
+                            <strong>No insurance image uploaded yet</strong>
+                            <div class="small mt-1">Click this panel to choose an insurance image or proof file.</div>
+                          </div>
+                        {% endif %}
+                        <span class="insurance-preview-badge">
+                          <i class="ti-upload"></i>
+                          {% if insurance_document %}Click to replace{% else %}Click to upload{% endif %}
+                        </span>
+                      </label>
+
+                      {% if insurance_document %}
+                        <div class="insurance-meta">
+                          Latest file: {{ insurance_document.filename }} · {{ insurance_document.uploaded_at|date:"d M Y" }}
+                        </div>
+                      {% endif %}
+
+                        <div class="insurance-toolbar">
+                          <div class="insurance-toolbar-copy">
+                            <div class="upload-filename muted-light" id="insuranceFileName">
+                              {% if insurance_document %}Current: {{ insurance_document.filename }}{% else %}No file chosen yet{% endif %}
+                            </div>
+                            <div class="upload-caption light-copy">PNG, JPG, PDF, or other proof files.</div>
+                          </div>
+                          <div class="insurance-toolbar-actions">
+                            {% if insurance_document %}
+                              <a class="btn btn-outline-light btn-sm" href="{{ insurance_document.file.url }}" target="_blank">Open Current</a>
+                            {% endif %}
+                            <button class="btn btn-light btn-sm" type="submit">Upload Insurance</button>
+                          </div>
+                        </div>
+                      </form>
                     </div>
                   </div>
                 </div>
 
-                <div class="member-box">
-                  <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                      <h6 class="mb-1">Member Dentalica</h6>
-                      <small class="text-muted">Treatment adherence</small>
-                    </div>
-                    <div class="adherence-ring" style="--progress: {{ quick_stats.adherence|floatformat:0 }};">
-                      <span>{{ quick_stats.adherence|floatformat:0 }}%</span>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -411,12 +1093,17 @@
               <div class="col-lg-8 mb-3">
                 <div class="card history-card h-100">
                   <div class="card-body">
-                    <h6 class="mb-3">History Dental</h6>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <div>
+                        <div class="section-kicker">Timeline</div>
+                        <h6 class="section-title">Dental Visit History</h6>
+                      </div>
+                    </div>
                     <div class="table-responsive">
                       <table class="table history-table mb-0">
                         <thead>
                           <tr>
-                            <th>ID</th>
+                            <th>Code</th>
                             <th>Treatment</th>
                             <th>Date</th>
                             <th>Status</th>
@@ -435,24 +1122,24 @@
                                 {% endif %}
                               </td>
                               <td>{{ row.date|date:"d M Y" }}</td>
-                              <td>
+                              <td class="status-cell">
                                 {% if row.status == "completed" %}
-                                  <span class="badge badge-success">Completed</span>
+                                  <span class="status-pill status-completed"><i class="ti-check"></i>Completed</span>
                                 {% elif row.status == "confirmed" %}
-                                  <span class="badge badge-primary">Confirmed</span>
+                                  <span class="status-pill status-confirmed"><i class="ti-calendar"></i>Confirmed</span>
                                 {% elif row.status == "pending" %}
-                                  <span class="badge badge-warning text-dark">Pending</span>
+                                  <span class="status-pill status-pending"><i class="ti-time"></i>Pending</span>
                                 {% else %}
-                                  <span class="badge badge-danger">Cancelled</span>
+                                  <span class="status-pill status-cancelled"><i class="ti-close"></i>Cancelled</span>
                                 {% endif %}
                               </td>
-                              <td>
+                              <td class="result-cell">
                                 {% if row.status == "completed" %}
-                                  Well done
+                                  <span class="result-pill result-done"><i class="ti-check"></i>Well done</span>
                                 {% elif row.status == "cancelled" %}
-                                  Not completed
+                                  <span class="result-pill result-not-completed"><i class="ti-close"></i>Not completed</span>
                                 {% else %}
-                                  Ongoing
+                                  <span class="result-pill result-ongoing"><i class="ti-reload"></i>Ongoing</span>
                                 {% endif %}
                               </td>
                             </tr>
@@ -471,20 +1158,74 @@
               <div class="col-lg-4 mb-3">
                 <div class="card docs-card h-100">
                   <div class="card-body">
-                    <h6 class="mb-3">Agreement Documents</h6>
+                    <div class="section-kicker">Records</div>
+                    <h6 class="section-title mb-3">Agreement Documents</h6>
+
+                    <form method="post" enctype="multipart/form-data" class="doc-upload">
+                      {% csrf_token %}
+                      <input type="hidden" name="document_action" value="upload_document">
+                      <input type="hidden" name="patient_id" value="{{ selected_patient.id }}">
+                      <input type="hidden" name="q" value="{{ q }}">
+                      <input type="hidden" name="sort" value="{{ sort }}">
+
+                      <div class="form-group mb-2">
+                        <label class="form-label" for="{{ document_form.title.id_for_label }}">Document Title</label>
+                        {{ document_form.title }}
+                      </div>
+                      <div class="form-group mb-2">
+                        <label class="form-label" for="{{ document_form.document_type.id_for_label }}">Document Type</label>
+                        {{ document_form.document_type }}
+                      </div>
+                      <div class="form-group mb-3">
+                        <label class="form-label" for="{{ document_form.file.id_for_label }}">Upload File</label>
+                        <div class="upload-stack">
+                          <div class="upload-field upload-field-soft upload-field-inline">
+                            <div class="upload-inline">
+                              <input
+                                type="file"
+                                class="upload-input-native js-file-upload"
+                                id="{{ document_form.file.id_for_label }}"
+                                name="{{ document_form.file.html_name }}"
+                                data-target="documentFileName">
+                              <label class="upload-trigger upload-trigger-soft" for="{{ document_form.file.id_for_label }}">
+                                <i class="ti-files"></i>
+                                Choose Document
+                              </label>
+                              <div class="upload-inline-copy">
+                                <div class="upload-filename muted-dark" id="documentFileName">No file chosen yet</div>
+                                <div class="upload-caption dark-copy">Upload agreements, consent forms, IDs, or other supporting files.</div>
+                              </div>
+                              <button class="btn btn-primary btn-sm px-4" type="submit">Upload Document</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </form>
+
                     {% for doc in document_items %}
                       <div class="doc-item">
                         <div class="d-flex justify-content-between align-items-start">
-                          <div class="mr-2">
-                            <h6>{{ doc.title }}</h6>
-                            <p>{{ doc.subtitle }}</p>
-                            <p>{{ doc.meta }}</p>
+                          <div class="d-flex mr-2">
+                            <div class="doc-icon mr-2">
+                              {% if doc.is_image %}
+                                <i class="ti-image"></i>
+                              {% else %}
+                                <i class="ti-files"></i>
+                              {% endif %}
+                            </div>
+                            <div>
+                              <h6>{{ doc.title }}</h6>
+                              <p class="doc-subtitle">{{ doc.get_document_type_display }}</p>
+                              <p class="doc-meta">{{ doc.filename }} · {{ doc.file.size|filesizeformat }} · {{ doc.uploaded_at|date:"d M Y" }}</p>
+                            </div>
                           </div>
-                          <span class="badge badge-light">{{ doc.status }}</span>
+                          <a class="btn btn-outline-primary btn-sm" href="{{ doc.file.url }}" target="_blank">
+                            <i class="ti-download mr-1"></i> Open
+                          </a>
                         </div>
                       </div>
                     {% empty %}
-                      <p class="text-muted mb-0">No uploaded files for this patient.</p>
+                      <p class="text-muted mb-0">No uploaded agreement or supporting files yet.</p>
                     {% endfor %}
                   </div>
                 </div>
@@ -502,4 +1243,29 @@
       </div>
     </div>
   </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    (function() {
+      var uploadInputs = document.querySelectorAll('.js-file-upload');
+
+      uploadInputs.forEach(function(input) {
+        var targetId = input.getAttribute('data-target');
+        var label = targetId ? document.getElementById(targetId) : null;
+        if (!label) {
+          return;
+        }
+
+        var defaultText = label.textContent;
+        input.addEventListener('change', function() {
+          if (input.files && input.files.length) {
+            label.textContent = input.files[0].name;
+          } else {
+            label.textContent = defaultText;
+          }
+        });
+      });
+    })();
+  </script>
 {% endblock %}
