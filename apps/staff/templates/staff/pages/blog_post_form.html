@@ -1,0 +1,498 @@
+{% extends "staff/base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block extra_head %}
+  <style>
+    .form-shell {
+      display: grid;
+      gap: 1.25rem;
+    }
+
+    .form-hero,
+    .form-card {
+      background: #fff;
+      border: 1px solid #dfe6fb;
+      border-radius: 22px;
+      box-shadow: 0 12px 30px rgba(85, 95, 140, 0.08);
+    }
+
+    .form-hero,
+    .form-card {
+      padding: 1.4rem 1.5rem;
+    }
+
+    .form-kicker {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8d99bd;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .form-meta {
+      color: #6d7896;
+      margin-bottom: 0;
+    }
+
+    .form-card label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #7c89ad;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+
+    .form-card .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-card .form-control {
+      border-radius: 14px;
+      border: 1px solid #d8e1fb;
+      min-height: 48px;
+      box-shadow: none;
+    }
+
+    .form-card textarea.form-control {
+      min-height: auto;
+      resize: vertical;
+    }
+
+    .form-errors {
+      border: 1px solid #ffd6d6;
+      background: #fff7f7;
+      color: #8b2d2d;
+      border-radius: 18px;
+      padding: 1rem 1.1rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .form-errors ul {
+      margin: 0.45rem 0 0;
+      padding-left: 1.2rem;
+    }
+
+    .field-error {
+      color: #b33a3a;
+      font-size: 0.82rem;
+      margin-top: 0.35rem;
+    }
+
+    .form-hint {
+      color: #7a84a1;
+      font-size: 0.84rem;
+      margin-top: 0.45rem;
+      margin-bottom: 0;
+    }
+
+    .form-preview {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 1rem;
+      align-items: center;
+      padding: 0.9rem;
+      border-radius: 18px;
+      background: #f7f9ff;
+      border: 1px solid #d9e2ff;
+      margin-top: 0.85rem;
+    }
+
+    .form-preview img {
+      width: 150px;
+      height: 110px;
+      object-fit: cover;
+      border-radius: 16px;
+      border: 1px solid #d9e2ff;
+      display: block;
+      background: #fff;
+    }
+
+    .form-preview.is-empty img {
+      display: none;
+    }
+
+    .form-preview-label {
+      display: block;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #7c89ad;
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+    }
+
+    .form-preview-note {
+      margin: 0;
+      color: #53617f;
+      line-height: 1.5;
+    }
+
+    .richtext-shell {
+      border: 1px solid #d8e1fb;
+      border-radius: 18px;
+      background: #fff;
+      padding: 0.9rem;
+    }
+
+    .richtext-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .richtext-toolbar button {
+      border: 1px solid #d8e1fb;
+      background: #f7f9ff;
+      color: #445170;
+      border-radius: 999px;
+      padding: 0.38rem 0.7rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .richtext-editor {
+      min-height: 280px;
+      border: 1px solid #dfe6fb;
+      border-radius: 16px;
+      padding: 0.95rem 1rem;
+      background: #fbfcff;
+      color: #27314e;
+      line-height: 1.7;
+    }
+
+    .richtext-editor:focus {
+      outline: none;
+      border-color: #8a84ec;
+      box-shadow: 0 0 0 4px rgba(90, 84, 209, 0.08);
+      background: #fff;
+    }
+
+    .richtext-editor h2,
+    .richtext-editor h3 {
+      color: #27314e;
+      font-weight: 700;
+    }
+
+    .richtext-editor p:last-child,
+    .richtext-editor ul:last-child,
+    .richtext-editor ol:last-child,
+    .richtext-editor blockquote:last-child {
+      margin-bottom: 0;
+    }
+
+    .richtext-editor blockquote {
+      margin: 0 0 1rem;
+      padding-left: 1rem;
+      border-left: 3px solid #ccd6f7;
+      color: #556381;
+      font-style: italic;
+    }
+
+    .richtext-source.is-hidden {
+      display: none;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="form-shell">
+    <section class="form-hero">
+      <div class="form-kicker">Website Content</div>
+      <h3 class="font-weight-bold mb-2">{{ page_title }}</h3>
+      <p class="form-meta">{{ page_subtitle }}</p>
+    </section>
+
+    <section class="form-card">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="form-errors">
+            <strong>Please check the form.</strong>
+            <ul>
+              {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+
+        <div class="form-group">
+          <label for="{{ form.title.id_for_label }}">Title</label>
+          {{ form.title }}
+          {% for error in form.title.errors %}
+            <div class="field-error">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.slug.id_for_label }}">Slug</label>
+          {{ form.slug }}
+          <p class="form-hint">Leave this blank to auto-generate the blog URL from the title, or set a custom slug if you want a stable link.</p>
+          {% for error in form.slug.errors %}
+            <div class="field-error">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.category.id_for_label }}">Category</label>
+          {{ form.category }}
+          {% for error in form.category.errors %}
+            <div class="field-error">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.excerpt.id_for_label }}">Excerpt</label>
+          {{ form.excerpt }}
+          {% for error in form.excerpt.errors %}
+            <div class="field-error">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.body.id_for_label }}">Body</label>
+          <div class="richtext-shell" data-richtext-root>
+            <div class="richtext-toolbar">
+              <button type="button" data-richtext-block="p">Paragraph</button>
+              <button type="button" data-richtext-block="h2">Heading</button>
+              <button type="button" data-richtext-command="bold">Bold</button>
+              <button type="button" data-richtext-command="italic">Italic</button>
+              <button type="button" data-richtext-command="insertUnorderedList">Bullets</button>
+              <button type="button" data-richtext-block="blockquote">Quote</button>
+              <button type="button" data-richtext-link>Link</button>
+            </div>
+            <div class="richtext-editor" contenteditable="true" data-richtext-editor aria-label="Blog body editor"></div>
+          </div>
+          <div class="richtext-source mt-2" data-richtext-source-wrap>
+            {{ form.body }}
+          </div>
+          <p class="form-hint">Use the formatted editor above for headings, lists, emphasis, and links. The saved article body keeps only simple, safe formatting.</p>
+          {% for error in form.body.errors %}
+            <div class="field-error">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.image.id_for_label }}">Cover Image</label>
+          {{ form.image }}
+          {% for error in form.image.errors %}
+            <div class="field-error">{{ error }}</div>
+          {% endfor %}
+          <p class="form-hint">A wide image works best because it also appears on the public blog cards.</p>
+          <div class="form-preview {% if not form.instance.image %}is-empty{% endif %}" data-upload-preview="blog-image">
+            <img
+              data-preview-image
+              {% if form.instance.image %}
+                src="{{ form.instance.image.url }}"
+              {% endif %}
+              alt="Selected blog cover preview"
+            >
+            <div>
+              <span class="form-preview-label" data-preview-label>
+                {% if form.instance.image %}Current cover image{% else %}Awaiting upload{% endif %}
+              </span>
+              <p class="form-preview-note" data-preview-note>
+                {% if form.instance.image %}
+                  Choose a new image to replace the current cover before you save.
+                {% else %}
+                  Once you choose an image, the preview will appear here before saving.
+                {% endif %}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.author_name.id_for_label }}">Author Name</label>
+          {{ form.author_name }}
+          {% for error in form.author_name.errors %}
+            <div class="field-error">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.published_at.id_for_label }}">Publish Date</label>
+          {{ form.published_at }}
+          {% for error in form.published_at.errors %}
+            <div class="field-error">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
+          <div class="form-check">
+            {{ form.is_published }}
+            <label class="form-check-label" for="{{ form.is_published.id_for_label }}">Published on the public site</label>
+          </div>
+          {% for error in form.is_published.errors %}
+            <div class="field-error">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="form-actions">
+          <a href="{% url 'dashboard:blog' %}" class="btn btn-light border">Back to Blog Posts</a>
+          <button type="submit" class="btn btn-primary">Save Blog Post</button>
+        </div>
+      </form>
+    </section>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const input = document.getElementById("{{ form.image.id_for_label }}");
+      const preview = document.querySelector('[data-upload-preview="blog-image"]');
+      if (!input || !preview) {
+        return;
+      }
+
+      const image = preview.querySelector("[data-preview-image]");
+      const label = preview.querySelector("[data-preview-label]");
+      const note = preview.querySelector("[data-preview-note]");
+      const initialSrc = image.getAttribute("src");
+      const hasInitial = Boolean(initialSrc);
+
+      function setPreview(src, labelText, noteText) {
+        if (src) {
+          image.src = src;
+          image.hidden = false;
+          preview.classList.remove("is-empty");
+        } else {
+          image.removeAttribute("src");
+          image.hidden = true;
+          preview.classList.add("is-empty");
+        }
+
+        label.textContent = labelText;
+        note.textContent = noteText;
+      }
+
+      input.addEventListener("change", function () {
+        const file = input.files && input.files[0];
+
+        if (!file) {
+          if (hasInitial) {
+            setPreview(
+              initialSrc,
+              "Current cover image",
+              "Choose a new image to replace the current cover before you save."
+            );
+          } else {
+            setPreview(
+              "",
+              "Awaiting upload",
+              "Once you choose an image, the preview will appear here before saving."
+            );
+          }
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          setPreview(
+            event.target.result,
+            "Selected image",
+            "This is the cover image that will be saved when you submit the form."
+          );
+        };
+        reader.readAsDataURL(file);
+      });
+
+      const richTextRoot = document.querySelector("[data-richtext-root]");
+      const bodySource = document.getElementById("{{ form.body.id_for_label }}");
+      const sourceWrap = document.querySelector("[data-richtext-source-wrap]");
+      if (!richTextRoot || !bodySource) {
+        return;
+      }
+
+      const editor = richTextRoot.querySelector("[data-richtext-editor]");
+      const form = bodySource.form;
+
+      function escapeHtml(value) {
+        return value
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+
+      function asEditorHtml(value) {
+        const trimmed = value.trim();
+        if (!trimmed) {
+          return "<p></p>";
+        }
+
+        if (/<[a-z][\s\S]*>/i.test(trimmed)) {
+          return trimmed;
+        }
+
+        return trimmed
+          .split(/\n\s*\n/)
+          .filter(Boolean)
+          .map(function (paragraph) {
+            return "<p>" + escapeHtml(paragraph).replace(/\n/g, "<br>") + "</p>";
+          })
+          .join("");
+      }
+
+      function syncBodySource() {
+        const content = editor.innerHTML.trim();
+        bodySource.value = content === "<p><br></p>" ? "" : content;
+      }
+
+      editor.innerHTML = asEditorHtml(bodySource.value);
+      if (sourceWrap) {
+        sourceWrap.classList.add("is-hidden");
+      }
+
+      richTextRoot.querySelectorAll("[data-richtext-command]").forEach(function (button) {
+        button.addEventListener("click", function () {
+          editor.focus();
+          document.execCommand(button.dataset.richtextCommand, false);
+          syncBodySource();
+        });
+      });
+
+      richTextRoot.querySelectorAll("[data-richtext-block]").forEach(function (button) {
+        button.addEventListener("click", function () {
+          editor.focus();
+          document.execCommand("formatBlock", false, button.dataset.richtextBlock);
+          syncBodySource();
+        });
+      });
+
+      const linkButton = richTextRoot.querySelector("[data-richtext-link]");
+      if (linkButton) {
+        linkButton.addEventListener("click", function () {
+          editor.focus();
+          const url = window.prompt("Enter a link URL", "https://");
+          if (!url) {
+            return;
+          }
+          document.execCommand("createLink", false, url);
+          syncBodySource();
+        });
+      }
+
+      editor.addEventListener("input", syncBodySource);
+      editor.addEventListener("blur", syncBodySource);
+
+      if (form) {
+        form.addEventListener("submit", syncBodySource);
+      }
+    });
+  </script>
+{% endblock %}

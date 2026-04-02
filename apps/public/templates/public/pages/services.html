@@ -2,94 +2,183 @@
 {% load static %}
 {% block title %} Services | Dental Clinic {% endblock %}
 {% block content %}
+
+    <style>
+      .services-page-shell {
+        background:
+          radial-gradient(circle at top right, rgba(90, 84, 209, 0.07), transparent 30%),
+          linear-gradient(180deg, #fbfcff 0%, #f4f7fd 100%);
+      }
+
+      .services-page-intro {
+        max-width: 720px;
+        margin: 0 auto;
+      }
+
+      .services-page-intro p {
+        color: #62708d;
+        line-height: 1.8;
+        margin-bottom: 0;
+      }
+
+      .service-showcase-card {
+        height: 100%;
+        padding: 1rem;
+        border-radius: 26px;
+        border: 1px solid rgba(222, 228, 245, 0.95);
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: 0 18px 38px rgba(45, 57, 92, 0.07);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      }
+
+      .service-showcase-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(90, 84, 209, 0.24);
+        box-shadow: 0 24px 48px rgba(45, 57, 92, 0.1);
+      }
+
+      .service-showcase-image {
+        width: 100%;
+        height: 220px;
+        border-radius: 20px;
+        background-size: cover;
+        background-position: center;
+        border: 1px solid rgba(218, 226, 247, 0.95);
+      }
+
+      .service-showcase-body {
+        padding: 1rem 0.25rem 0.2rem;
+      }
+
+      .service-showcase-index {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.32rem 0.68rem;
+        border-radius: 999px;
+        background: rgba(90, 84, 209, 0.08);
+        color: #4f4ab6;
+        font-size: 0.76rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        margin-bottom: 0.85rem;
+      }
+
+      .service-showcase-body h3 {
+        color: #27314e;
+        font-weight: 700;
+        margin-bottom: 0.65rem;
+      }
+
+      .service-showcase-body p {
+        color: #63708d;
+        line-height: 1.75;
+        margin-bottom: 0;
+      }
+    </style>
     
     <section class="hero-wrap hero-wrap-2" style="background-image: url('{% if site_content.page_banner_background %}{{ site_content.page_banner_background.url }}{% else %}{% static 'website/images/bg_1.jpg' %}{% endif %}');" data-stellar-background-ratio="0.5">
       <div class="overlay"></div>
       <div class="container">
         <div class="row no-gutters slider-text align-items-center justify-content-center">
           <div class="col-md-9 ftco-animate text-center">
-            <h1 class="mb-2 bread">Our Treatments &amp; Services</h1>
+            <h1 class="mb-2 bread">{{ site_content.services_page_title }}</h1>
             <p class="breadcrumbs"><span class="mr-2"><a href=" {% url 'home' %} ">Home <i class="ion-ios-arrow-forward"></i></a></span> <span>Services <i class="ion-ios-arrow-forward"></i></span></p>
           </div>
         </div>
       </div>
     </section>
 		
-		<section class="ftco-section ftco-services">
+		<section class="ftco-section services-page-shell">
     	<div class="container">
+        <div class="row justify-content-center mb-5 pb-2">
+          <div class="col-md-9 text-center heading-section services-page-intro">
+            <span class="subheading">Treatment Menu</span>
+            <h2 class="mb-4">{{ site_content.services_page_title }}</h2>
+            <p>Browse the treatments patients most often ask about, from preventive care and child-friendly visits to restorative and cosmetic options.</p>
+          </div>
+        </div>
         <div class="row">
-        	<div class="col-md-4 d-flex services align-self-stretch p-4 ftco-animate">
-            <div class="media block-6 d-block">
-              <div class="img w-100" style="background-image: url('{% if site_content.service_1_image %}{{ site_content.service_1_image.url }}{% else %}{% static 'website/images/dept-1.jpg' %}{% endif %}');"></div>
-              <div class="media-body p-2 mt-3">
+        	<div class="col-md-4 d-flex align-self-stretch p-4 ftco-animate">
+            <div class="service-showcase-card w-100">
+              <div class="service-showcase-image" style="background-image: url('{% if site_content.service_1_image %}{{ site_content.service_1_image.url }}{% else %}{% static 'website/images/dept-1.jpg' %}{% endif %}');"></div>
+              <div class="service-showcase-body">
+                <span class="service-showcase-index">Service 1</span>
                 <h3 class="heading">{{ site_content.service_1_title }}</h3>
                 <p>{{ site_content.service_1_summary }}</p>
               </div>
             </div>
           </div>
-          <div class="col-md-4 d-flex services align-self-stretch p-4 ftco-animate">
-            <div class="media block-6 d-block">
-              <div class="img w-100" style="background-image: url('{% if site_content.service_2_image %}{{ site_content.service_2_image.url }}{% else %}{% static 'website/images/dept-2.jpg' %}{% endif %}');"></div>
-              <div class="media-body p-2 mt-3">
+          <div class="col-md-4 d-flex align-self-stretch p-4 ftco-animate">
+            <div class="service-showcase-card w-100">
+              <div class="service-showcase-image" style="background-image: url('{% if site_content.service_2_image %}{{ site_content.service_2_image.url }}{% else %}{% static 'website/images/dept-2.jpg' %}{% endif %}');"></div>
+              <div class="service-showcase-body">
+                <span class="service-showcase-index">Service 2</span>
                 <h3 class="heading">{{ site_content.service_2_title }}</h3>
                 <p>{{ site_content.service_2_summary }}</p>
-              </div>
-            </div>      
+              </div>    
+            </div>
           </div>
-          <div class="col-md-4 d-flex services align-self-stretch p-4 ftco-animate">
-            <div class="media block-6 d-block">
-              <div class="img w-100" style="background-image: url('{% if site_content.service_3_image %}{{ site_content.service_3_image.url }}{% else %}{% static 'website/images/dept-3.jpg' %}{% endif %}');"></div>
-              <div class="media-body p-2 mt-3">
+          <div class="col-md-4 d-flex align-self-stretch p-4 ftco-animate">
+            <div class="service-showcase-card w-100">
+              <div class="service-showcase-image" style="background-image: url('{% if site_content.service_3_image %}{{ site_content.service_3_image.url }}{% else %}{% static 'website/images/dept-3.jpg' %}{% endif %}');"></div>
+              <div class="service-showcase-body">
+                <span class="service-showcase-index">Service 3</span>
                 <h3 class="heading">{{ site_content.service_3_title }}</h3>
                 <p>{{ site_content.service_3_summary }}</p>
               </div>
-            </div>      
+            </div>
           </div>
 					
-					<div class="col-md-4 d-flex services align-self-stretch p-4 ftco-animate">
-            <div class="media block-6 d-block">
-              <div class="img w-100" style="background-image: url('{% if site_content.service_4_image %}{{ site_content.service_4_image.url }}{% else %}{% static 'website/images/dept-4.jpg' %}{% endif %}');"></div>
-              <div class="media-body p-2 mt-3">
+					<div class="col-md-4 d-flex align-self-stretch p-4 ftco-animate">
+            <div class="service-showcase-card w-100">
+              <div class="service-showcase-image" style="background-image: url('{% if site_content.service_4_image %}{{ site_content.service_4_image.url }}{% else %}{% static 'website/images/dept-4.jpg' %}{% endif %}');"></div>
+              <div class="service-showcase-body">
+                <span class="service-showcase-index">Service 4</span>
                 <h3 class="heading">{{ site_content.service_4_title }}</h3>
                 <p>{{ site_content.service_4_summary }}</p>
               </div>
             </div>
           </div>
-          <div class="col-md-4 d-flex services align-self-stretch p-4 ftco-animate">
-            <div class="media block-6 d-block">
-              <div class="img w-100" style="background-image: url('{% if site_content.service_5_image %}{{ site_content.service_5_image.url }}{% else %}{% static 'website/images/dept-5.jpg' %}{% endif %}');"></div>
-              <div class="media-body p-2 mt-3">
+          <div class="col-md-4 d-flex align-self-stretch p-4 ftco-animate">
+            <div class="service-showcase-card w-100">
+              <div class="service-showcase-image" style="background-image: url('{% if site_content.service_5_image %}{{ site_content.service_5_image.url }}{% else %}{% static 'website/images/dept-5.jpg' %}{% endif %}');"></div>
+              <div class="service-showcase-body">
+                <span class="service-showcase-index">Service 5</span>
                 <h3 class="heading">{{ site_content.service_5_title }}</h3>
                 <p>{{ site_content.service_5_summary }}</p>
               </div>
-            </div>      
+            </div>
           </div>
-          <div class="col-md-4 d-flex services align-self-stretch p-4 ftco-animate">
-            <div class="media block-6 d-block">
-              <div class="img w-100" style="background-image: url('{% if site_content.service_6_image %}{{ site_content.service_6_image.url }}{% else %}{% static 'website/images/dept-6.jpg' %}{% endif %}');"></div>
-              <div class="media-body p-2 mt-3">
+          <div class="col-md-4 d-flex align-self-stretch p-4 ftco-animate">
+            <div class="service-showcase-card w-100">
+              <div class="service-showcase-image" style="background-image: url('{% if site_content.service_6_image %}{{ site_content.service_6_image.url }}{% else %}{% static 'website/images/dept-6.jpg' %}{% endif %}');"></div>
+              <div class="service-showcase-body">
+                <span class="service-showcase-index">Service 6</span>
                 <h3 class="heading">{{ site_content.service_6_title }}</h3>
                 <p>{{ site_content.service_6_summary }}</p>
               </div>
-            </div>      
+            </div>
           </div>
-          <div class="col-md-4 d-flex services align-self-stretch p-4 ftco-animate">
-            <div class="media block-6 d-block">
-              <div class="img w-100" style="background-image: url('{% if site_content.service_7_image %}{{ site_content.service_7_image.url }}{% else %}{% static 'website/images/dept-7.jpg' %}{% endif %}');"></div>
-              <div class="media-body p-2 mt-3">
+          <div class="col-md-4 d-flex align-self-stretch p-4 ftco-animate">
+            <div class="service-showcase-card w-100">
+              <div class="service-showcase-image" style="background-image: url('{% if site_content.service_7_image %}{{ site_content.service_7_image.url }}{% else %}{% static 'website/images/dept-7.jpg' %}{% endif %}');"></div>
+              <div class="service-showcase-body">
+                <span class="service-showcase-index">Service 7</span>
                 <h3 class="heading">{{ site_content.service_7_title }}</h3>
                 <p>{{ site_content.service_7_summary }}</p>
               </div>
-            </div>      
+            </div>
           </div>
-          <div class="col-md-4 d-flex services align-self-stretch p-4 ftco-animate">
-            <div class="media block-6 d-block">
-              <div class="img w-100" style="background-image: url('{% if site_content.service_8_image %}{{ site_content.service_8_image.url }}{% else %}{% static 'website/images/dept-8.jpg' %}{% endif %}');"></div>
-              <div class="media-body p-2 mt-3">
+          <div class="col-md-4 d-flex align-self-stretch p-4 ftco-animate">
+            <div class="service-showcase-card w-100">
+              <div class="service-showcase-image" style="background-image: url('{% if site_content.service_8_image %}{{ site_content.service_8_image.url }}{% else %}{% static 'website/images/dept-8.jpg' %}{% endif %}');"></div>
+              <div class="service-showcase-body">
+                <span class="service-showcase-index">Service 8</span>
                 <h3 class="heading">{{ site_content.service_8_title }}</h3>
                 <p>{{ site_content.service_8_summary }}</p>
               </div>
-            </div>      
+            </div>
           </div>
         </div>
     	</div>

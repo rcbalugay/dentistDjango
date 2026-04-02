@@ -132,6 +132,14 @@
       background: #fff;
     }
 
+    .website-form .form-control:disabled {
+      background: #f3f5fb;
+      color: #7a84a1;
+      border-color: #dce2f0;
+      cursor: not-allowed;
+      opacity: 1;
+    }
+
     .website-form .form-control:focus {
       border-color: #8a84ec;
       box-shadow: 0 0 0 4px rgba(90, 84, 209, 0.08);
@@ -405,6 +413,80 @@
       display: block;
     }
 
+    .website-lock-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.9rem;
+    }
+
+    .website-lock-card {
+      padding: 1rem;
+      border-radius: 18px;
+      border: 1px dashed #d9e2ff;
+      background: linear-gradient(180deg, #fbfcff 0%, #f5f7ff 100%);
+    }
+
+    .website-lock-card strong {
+      display: block;
+      color: #27314e;
+      margin-bottom: 0.3rem;
+      font-size: 0.96rem;
+    }
+
+    .website-lock-card span {
+      display: block;
+      color: #6d7896;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      margin-bottom: 0.8rem;
+    }
+
+    .website-lock-fields,
+    .website-lock-entry-list {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .website-lock-entry {
+      padding: 0.85rem;
+      border-radius: 14px;
+      border: 1px solid #e7ebf7;
+      background: #fff;
+    }
+
+    .website-lock-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.9rem;
+    }
+
+    .website-lock-stat {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.3rem 0.65rem;
+      border-radius: 999px;
+      background: #edf2ff;
+      color: #50628f;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .website-lock-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .website-lock-button[disabled] {
+      opacity: 1;
+      cursor: not-allowed;
+      color: #7a84a1;
+      background: #edf1f8;
+      border-color: #d9dfed;
+      box-shadow: none;
+    }
+
     @media (max-width: 991.98px) {
       .website-hero {
         grid-template-columns: 1fr;
@@ -426,7 +508,8 @@
       }
 
       .website-services-grid,
-      .website-guidance-grid {
+      .website-guidance-grid,
+      .website-lock-grid {
         grid-template-columns: 1fr;
       }
 
@@ -479,7 +562,7 @@
 
       <div class="website-tab-summary" aria-live="polite">
         <strong data-website-tab-summary-label>Homepage</strong>
-        <span data-website-tab-summary-copy>Edit hero slides, homepage section intros, the banner block, and the featured doctor highlight.</span>
+        <span data-website-tab-summary-copy>Edit hero slides, homepage section intros, the banner block, and the featured doctor. Testimonials and blog entries are managed from their own pages.</span>
       </div>
 
       <div class="row">
@@ -622,6 +705,24 @@
 
           <section class="website-card mb-4 website-section" data-website-section="about">
             <div class="website-kicker">About</div>
+            <h5>About Page Side Image</h5>
+            <p class="website-meta">This large visual sits beside the About page intro.</p>
+
+            <div class="form-group">
+              <label for="{{ form.about_side_image.id_for_label }}">About Side Image</label>
+              {{ form.about_side_image }}
+            </div>
+
+            {% if content_object.about_side_image %}
+              <div class="website-media-preview">
+                <span class="website-preview-label">Current image</span>
+                <img src="{{ content_object.about_side_image.url }}" alt="About side image">
+              </div>
+            {% endif %}
+          </section>
+
+          <section class="website-card mb-4 website-section" data-website-section="about">
+            <div class="website-kicker">About</div>
             <h5>Founder Profile</h5>
             <p class="website-meta">This block powers the doctor or founder profile shown on the About page.</p>
 
@@ -664,6 +765,17 @@
                 <img src="{{ content_object.page_banner_background.url }}" alt="Shared page banner background">
               </div>
             {% endif %}
+          </section>
+
+          <section class="website-card website-card--compact mb-4 website-section" data-website-section="services">
+            <div class="website-kicker">Services</div>
+            <h5>Services Page Title</h5>
+            <p class="website-meta">This is the main heading shown at the top of the public Services page.</p>
+
+            <div class="form-group mb-0">
+              <label for="{{ form.services_page_title.id_for_label }}">Services Page Title</label>
+              {{ form.services_page_title }}
+            </div>
           </section>
 
           <section class="website-card website-card--compact mb-4 website-section" data-website-section="services">
@@ -922,9 +1034,67 @@
               {{ form.doctor_bio }}
             </div>
           </section>
+
+          <section class="website-card mt-4 website-section" data-website-section="homepage">
+            <div class="website-kicker">Homepage</div>
+            <h5>Testimonials and Blog</h5>
+            <p class="website-meta">
+              These repeatable sections now use dedicated content managers. Use the links below to add, edit, publish, and
+              remove entries without bloating this page.
+            </p>
+
+            <div class="website-lock-grid">
+              <article class="website-lock-card">
+                <strong>Testimonials</strong>
+                <span>The homepage carousel now reads from real testimonial records with ordering, publish controls, and optional photos.</span>
+                <div class="website-lock-stats">
+                  <span class="website-lock-stat">{{ testimonial_count }} total</span>
+                  <span class="website-lock-stat">{{ published_testimonial_count }} published</span>
+                </div>
+                <div class="website-lock-actions">
+                  <a href="{% url 'dashboard:testimonials' %}" class="btn btn-outline-primary btn-sm">Manage testimonials</a>
+                  <a href="{% url 'dashboard:testimonial_create' %}" class="btn btn-primary btn-sm">Add testimonial</a>
+                </div>
+              </article>
+
+              <article class="website-lock-card">
+                <strong>Blog posts</strong>
+                <span>The public blog page and the homepage preview cards now use real posts with publish dates, detail pages, and optional cover images.</span>
+                <div class="website-lock-stats">
+                  <span class="website-lock-stat">{{ blog_post_count }} total</span>
+                  <span class="website-lock-stat">{{ published_blog_post_count }} published</span>
+                </div>
+                <div class="website-lock-actions">
+                  <a href="{% url 'dashboard:blog' %}" class="btn btn-outline-primary btn-sm">Manage blog posts</a>
+                  <a href="{% url 'dashboard:blog_create' %}" class="btn btn-primary btn-sm">Add blog post</a>
+                </div>
+              </article>
+            </div>
+          </section>
         </div>
 
         <div class="col-lg-4 mb-4 website-column" data-website-column="secondary">
+          <section class="website-card website-card--compact mb-4 website-section" data-website-section="clinic">
+            <div class="website-kicker">Contact</div>
+            <h5>Contact Page Basics</h5>
+            <p class="website-meta">Control the public Contact page title, the message form heading, and the website link card.</p>
+
+            <div class="form-group">
+              <label for="{{ form.contact_page_title.id_for_label }}">Contact Page Title</label>
+              {{ form.contact_page_title }}
+            </div>
+
+            <div class="form-group">
+              <label for="{{ form.contact_form_heading.id_for_label }}">Contact Form Heading</label>
+              {{ form.contact_form_heading }}
+            </div>
+
+            <div class="form-group mb-0">
+              <label for="{{ form.clinic_website_url.id_for_label }}">Website URL</label>
+              {{ form.clinic_website_url }}
+            </div>
+          </section>
+
           <section class="website-card website-card--compact mb-4 website-section" data-website-section="clinic">
             <div class="website-kicker">Clinic Info</div>
             <h5>Public Touchpoints</h5>
@@ -937,7 +1107,11 @@
               </div>
               <div class="website-guidance-card">
                 <strong>Contact page</strong>
-                <span>These same values also fill the contact cards, so keep them final and consistent.</span>
+                <span>The same details fill the contact cards, while the section above controls the title and website link.</span>
+              </div>
+              <div class="website-guidance-card">
+                <strong>Footer landmarks</strong>
+                <span>Use a short landmark list to help first-time visitors orient themselves near the clinic.</span>
               </div>
             </div>
           </section>
@@ -957,9 +1131,14 @@
               {{ form.contact_email }}
             </div>
 
-            <div class="form-group mb-0">
+            <div class="form-group">
               <label for="{{ form.clinic_address.id_for_label }}">Clinic Address</label>
               {{ form.clinic_address }}
+            </div>
+
+            <div class="form-group mb-0">
+              <label for="{{ form.clinic_landmarks.id_for_label }}">Nearby Landmarks</label>
+              {{ form.clinic_landmarks }}
             </div>
           </section>
 
@@ -1021,10 +1200,10 @@
       const storageKey = "websiteManagementActiveTab";
       const fallbackTab = "homepage";
       const tabSummaries = {
-        homepage: "Edit hero slides, homepage section intros, the banner block, and the featured doctor highlight.",
-        about: "Manage the About page intro, founder profile, and the shared banner used by public inner pages.",
-        services: "Update all service titles, summaries, and images for both the homepage preview and the full services page.",
-        clinic: "Keep public contact details and opening hours consistent across the header, footer, and contact page.",
+        homepage: "Edit hero slides, homepage section intros, the banner block, and the featured doctor. Testimonials and blog entries are managed from their own pages.",
+        about: "Manage the About page intro, side image, founder profile, and the shared banner used by public inner pages.",
+        services: "Update the services page title along with the service titles, summaries, and images used across the site.",
+        clinic: "Shape the Contact page title, message heading, website link, footer landmarks, and the clinic details reused across public pages.",
       };
 
       if (!form) {
@@ -1049,8 +1228,12 @@
       ).filter(function (input) {
         return !["hidden", "submit", "button"].includes(input.type);
       });
+      const fileInputs = trackedInputs.filter(function (input) {
+        return input.type === "file";
+      });
 
       const initialValues = new Map();
+      const filePreviewState = new Map();
 
       function getInputState(input) {
         if (input.type === "file") {
@@ -1066,6 +1249,54 @@
 
       trackedInputs.forEach(function (input) {
         initialValues.set(input, getInputState(input));
+      });
+
+      function getFilePreviewForInput(input) {
+        const group = input.closest(".form-group");
+        if (!group) {
+          return null;
+        }
+
+        const existingPreview = group.nextElementSibling;
+        if (existingPreview && existingPreview.classList.contains("website-media-preview")) {
+          return existingPreview;
+        }
+
+        return null;
+      }
+
+      function buildFilePreview(input) {
+        const group = input.closest(".form-group");
+        if (!group) {
+          return null;
+        }
+
+        const preview = document.createElement("div");
+        preview.className = "website-media-preview";
+
+        const label = document.createElement("span");
+        label.className = "website-preview-label";
+        label.textContent = "Selected image";
+
+        const image = document.createElement("img");
+        image.alt = "Selected image preview";
+
+        preview.appendChild(label);
+        preview.appendChild(image);
+        group.insertAdjacentElement("afterend", preview);
+        return preview;
+      }
+
+      fileInputs.forEach(function (input) {
+        const preview = getFilePreviewForInput(input);
+        const previewLabel = preview ? preview.querySelector(".website-preview-label") : null;
+        const previewImage = preview ? preview.querySelector("img") : null;
+
+        filePreviewState.set(input, {
+          preview: preview,
+          initialLabel: previewLabel ? previewLabel.textContent : "",
+          initialSrc: previewImage ? previewImage.getAttribute("src") : "",
+        });
       });
 
       function formatTabName(name) {
@@ -1211,6 +1442,59 @@
         }
       }
 
+      function updateFilePreview(input) {
+        const state = filePreviewState.get(input);
+        if (!state) {
+          return;
+        }
+
+        const selectedFile = input.files && input.files[0];
+        let preview = state.preview;
+
+        if (!selectedFile) {
+          if (preview && state.initialSrc) {
+            const label = preview.querySelector(".website-preview-label");
+            const image = preview.querySelector("img");
+
+            if (label) {
+              label.textContent = state.initialLabel || "Current image";
+            }
+
+            if (image) {
+              image.src = state.initialSrc;
+            }
+
+            preview.classList.remove("is-dirty");
+            return;
+          }
+
+          if (preview && !state.initialSrc) {
+            preview.remove();
+            state.preview = null;
+          }
+          return;
+        }
+
+        if (!preview) {
+          preview = buildFilePreview(input);
+          state.preview = preview;
+        }
+
+        const label = preview ? preview.querySelector(".website-preview-label") : null;
+        const image = preview ? preview.querySelector("img") : null;
+        if (!preview || !label || !image) {
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          label.textContent = "Selected image (not saved yet)";
+          image.src = event.target.result;
+          preview.classList.add("is-dirty");
+        };
+        reader.readAsDataURL(selectedFile);
+      }
+
       function activateTab(name) {
         const validTabs = buttons.map(function (button) {
           return button.dataset.websiteTab;
@@ -1257,6 +1541,9 @@
         });
         input.addEventListener("change", function () {
           justSaved = false;
+          if (input.type === "file") {
+            updateFilePreview(input);
+          }
           syncDirtyState();
         });
       });

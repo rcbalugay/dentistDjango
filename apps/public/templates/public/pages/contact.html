@@ -3,57 +3,213 @@
 {% block title %} Contact Us | Dental Clinic {% endblock %}
 {% block content %}
 
-    <section class="hero-wrap hero-wrap-2" style="background-image: url(' {% static 'website/images/bg_1.jpg' %} ');" data-stellar-background-ratio="0.5">
+    <style>
+      .contact-shell {
+        background:
+          radial-gradient(circle at top right, rgba(90, 84, 209, 0.08), transparent 28%),
+          linear-gradient(180deg, #f8fbff 0%, #f3f6fb 100%);
+      }
+
+      .contact-panel,
+      .contact-info-card,
+      .contact-map-card {
+        background: rgba(255, 255, 255, 0.95);
+        border: 1px solid rgba(217, 226, 244, 0.95);
+        border-radius: 28px;
+        box-shadow: 0 24px 50px rgba(33, 48, 82, 0.08);
+      }
+
+      .contact-panel,
+      .contact-map-card {
+        padding: 2rem;
+        height: 100%;
+      }
+
+      .contact-kicker {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.42rem 0.82rem;
+        border-radius: 999px;
+        background: rgba(90, 84, 209, 0.1);
+        color: #4f4ab6;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+      }
+
+      .contact-panel h2,
+      .contact-map-card h3,
+      .contact-section-heading {
+        color: #27314e;
+      }
+
+      .contact-panel p,
+      .contact-map-card p {
+        color: #5a6887;
+        line-height: 1.8;
+      }
+
+      .contact-form-grid .form-group {
+        margin-bottom: 1rem;
+      }
+
+      .contact-form-grid input,
+      .contact-form-grid textarea {
+        width: 100%;
+        border-radius: 16px;
+        border: 1px solid #d9e1f3;
+        background: #f8faff;
+        padding: 0.95rem 1rem;
+        color: #2b3550;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+      }
+
+      .contact-form-grid input:focus,
+      .contact-form-grid textarea:focus {
+        outline: none;
+        border-color: rgba(90, 84, 209, 0.55);
+        box-shadow: 0 0 0 4px rgba(90, 84, 209, 0.1);
+        background: #fff;
+      }
+
+      .contact-form-grid ul.errorlist {
+        list-style: none;
+        padding-left: 0;
+        margin: 0.45rem 0 0;
+        color: #c43f4d;
+        font-size: 0.92rem;
+      }
+
+      .contact-form-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.9rem;
+        align-items: center;
+        margin-top: 1rem;
+      }
+
+      .contact-form-note {
+        color: #6e7a96;
+        font-size: 0.95rem;
+      }
+
+      .contact-map-frame {
+        overflow: hidden;
+        border-radius: 20px;
+        border: 1px solid rgba(217, 226, 244, 0.95);
+        background: #eef3fb;
+        min-height: 360px;
+      }
+
+      .contact-map-frame #map {
+        width: 100%;
+        min-height: 360px;
+      }
+
+      .contact-info-grid {
+        row-gap: 1.5rem;
+      }
+
+      .contact-info-card {
+        padding: 1.4rem 1.35rem;
+        height: 100%;
+      }
+
+      .contact-info-label {
+        display: inline-block;
+        color: #4f4ab6;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        margin-bottom: 0.75rem;
+      }
+
+      .contact-info-card p,
+      .contact-info-card a {
+        color: #2f3a58;
+        line-height: 1.75;
+        margin: 0;
+        word-break: break-word;
+      }
+
+      .contact-info-card a:hover {
+        color: #4f4ab6;
+      }
+
+      @media (max-width: 991.98px) {
+        .contact-panel,
+        .contact-map-card {
+          padding: 1.5rem;
+        }
+      }
+    </style>
+
+    <section class="hero-wrap hero-wrap-2" style="background-image: url('{% if site_content.page_banner_background %}{{ site_content.page_banner_background.url }}{% else %}{% static 'website/images/bg_1.jpg' %}{% endif %}');" data-stellar-background-ratio="0.5">
       <div class="overlay"></div>
       <div class="container">
         <div class="row no-gutters slider-text align-items-center justify-content-center">
           <div class="col-md-9 ftco-animate text-center">
-            <h1 class="mb-2 bread">Contact Us</h1>
+            <h1 class="mb-2 bread">{{ site_content.contact_page_title }}</h1>
             <p class="breadcrumbs"><span class="mr-2"><a href=" {% url 'home' %} ">Home <i class="ion-ios-arrow-forward"></i></a></span> <span>Contact <i class="ion-ios-arrow-forward"></i></span></p>
           </div>
         </div>
       </div>
     </section>
 
-		<!-- Message Form -->
-		<section class="ftco-section ftco-no-pt ftco-no-pb contact-section">
+		<section class="ftco-section ftco-no-pt contact-shell">
 			<div class="container">
-				<div class="row d-flex align-items-stretch no-gutters">
-					<div class="col-md-6 p-4 p-md-5 order-md-last bg-light">
-						<form action="{% url 'contact' %}" method="post">
-              {% csrf_token %}
+				<div class="row align-items-stretch">
+					<div class="col-lg-6 mb-4 mb-lg-0">
+            <div class="contact-panel">
+              <span class="contact-kicker">Message the Clinic</span>
+              <h2 class="mb-3">{{ site_content.contact_form_heading }}</h2>
+              <p class="mb-4">Whether you are planning a first visit, checking on availability, or asking a quick question, we will make it easy to know what to do next.</p>
 
-              {% if messages %}
-                {% for message in messages %}
-                  <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-                {% endfor %}
-              {% endif %}
+						<form action="{% url 'contact' %}" method="post" class="contact-form-grid">
+                {% csrf_token %}
 
-              <div class="form-group">
-                {{ form.name }}
-                {{ form.name.errors }}
-              </div>
-              <div class="form-group">
-                {{ form.email }}
-                {{ form.email.errors }}
-              </div>
-              <div class="form-group">
-                {{ form.subject }}
-                {{ form.subject.errors }}
-              </div>
-              <div class="form-group">
-                {{ form.message }}
-                {{ form.message.errors }}
-              </div>
-              <div class="form-group">
-                <input type="submit" value="Send Message" class="btn btn-primary py-3 px-5">
-              </div>
-            </form>
+                {% if messages %}
+                  {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                  {% endfor %}
+                {% endif %}
+
+                <div class="form-group">
+                  {{ form.name }}
+                  {{ form.name.errors }}
+                </div>
+                <div class="form-group">
+                  {{ form.email }}
+                  {{ form.email.errors }}
+                </div>
+                <div class="form-group">
+                  {{ form.subject }}
+                  {{ form.subject.errors }}
+                </div>
+                <div class="form-group">
+                  {{ form.message }}
+                  {{ form.message.errors }}
+                </div>
+                <div class="contact-form-actions">
+                  <input type="submit" value="Send Message" class="btn btn-primary py-3 px-5">
+                  <span class="contact-form-note">Prefer to call instead? Reach us directly at {{ site_content.contact_phone }}.</span>
+                </div>
+              </form>
+            </div>
 					</div>
-					<div class="col-md-6 d-flex align-items-stretch">
-            <!-- End of Form -->
-            
-						<div id="map"></div>
+
+					<div class="col-lg-6 d-flex align-items-stretch">
+            <div class="contact-map-card w-100">
+              <span class="contact-kicker">Find Us</span>
+              <h3 class="mb-3">Visit the clinic with less guesswork.</h3>
+              <p class="mb-4">Use the map to get your bearings, then check the contact cards below for address details, direct lines, and website information.</p>
+              <div class="contact-map-frame">
+                <div id="map"></div>
+              </div>
+            </div>
 					</div>
 				</div>
 			</div>
@@ -130,31 +286,44 @@
     </section>
  End of Appointment section -->
 
-		<section class="ftco-section contact-section">
+		<section class="ftco-section contact-section pt-0">
       <div class="container">
-        <div class="row d-flex mb-5 contact-info">
-          <div class="col-md-12 mb-4">
-            <h2 class="h4">Contact Information</h2>
+        <div class="row justify-content-center mb-5">
+          <div class="col-md-8 text-center">
+            <span class="contact-kicker">Contact Details</span>
+            <h2 class="contact-section-heading mb-3">Everything you need before your visit.</h2>
+            <p class="mb-0" style="color: #5e6b89; line-height: 1.8;">Keep the essentials in one place: address, phone, email, and website. If you are sharing the clinic details with someone else, this is the easiest section to screenshot or send along.</p>
           </div>
-          <div class="w-100"></div>
-          <div class="col-md-3 d-flex">
-          	<div class="bg-light d-flex align-self-stretch box p-4">
-	            <p><span>Address:</span> {{ site_content.clinic_address }}</p>
+        </div>
+        <div class="row contact-info-grid">
+          <div class="col-md-6 col-xl-3 d-flex">
+          	<div class="contact-info-card">
+              <span class="contact-info-label">Address</span>
+	            <p>{{ site_content.clinic_address }}</p>
 	          </div>
           </div>
-          <div class="col-md-3 d-flex">
-          	<div class="bg-light d-flex align-self-stretch box p-4">
-	            <p><span>Phone:</span> <a href="tel:{{ site_content.contact_phone }}">{{ site_content.contact_phone }}</a></p>
+          <div class="col-md-6 col-xl-3 d-flex">
+          	<div class="contact-info-card">
+              <span class="contact-info-label">Phone</span>
+	            <p><a href="tel:{{ site_content.contact_phone }}">{{ site_content.contact_phone }}</a></p>
 	          </div>
           </div>
-          <div class="col-md-3 d-flex">
-          	<div class="bg-light d-flex align-self-stretch box p-4">
-	            <p><span>Email:</span> <a href="mailto:{{ site_content.contact_email }}">{{ site_content.contact_email }}</a></p>
+          <div class="col-md-6 col-xl-3 d-flex">
+          	<div class="contact-info-card">
+              <span class="contact-info-label">Email</span>
+	            <p><a href="mailto:{{ site_content.contact_email }}">{{ site_content.contact_email }}</a></p>
 	          </div>
           </div>
-          <div class="col-md-3 d-flex">
-            <div class="bg-light d-flex align-self-stretch box p-4">
-	            <p><span>Website</span> <a href="#">yoursite.com</a></p>
+          <div class="col-md-6 col-xl-3 d-flex">
+            <div class="contact-info-card">
+              <span class="contact-info-label">Website</span>
+	            <p>
+                {% if site_content.clinic_website_url %}
+                  <a href="{{ site_content.clinic_website_url }}" target="_blank" rel="noopener">{{ site_content.clinic_website_url }}</a>
+                {% else %}
+                  <a href="{% url 'home' %}">Visit homepage</a>
+                {% endif %}
+              </p>
 	          </div>
           </div>
         </div>

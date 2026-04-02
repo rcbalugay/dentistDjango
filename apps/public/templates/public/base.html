@@ -81,7 +81,7 @@
             <li class="nav-item {% if request.path == '/' %}active{% endif %}"><a href=" {% url 'home' %} " class="nav-link pl-0">Home</a></li>
             <li class="nav-item {% if request.path == '/about/' %}active{% endif %}"><a href=" {% url 'about' %} " class="nav-link">About</a></li>
             <li class="nav-item {% if request.path == '/services/' %}active{% endif %}"><a href=" {% url 'services' %} " class="nav-link">Treatments</a></li>
-            <!--<li class="nav-item {% if request.path == '/blog/' %}active{% endif %}"><a href=" {% url 'blog' %} " class="nav-link">Blog</a></li> -->
+            <li class="nav-item {% if request.path|slice:':6' == '/blog/' or request.path == '/blog/' %}active{% endif %}"><a href="{% url 'blog' %}" class="nav-link">Blog</a></li>
             <li class="nav-item {% if request.path == '/contact/' %}active{% endif %}"><a href=" {% url 'contact' %} " class="nav-link">Contact</a></li></li>
 	        </ul>
 
@@ -236,7 +236,7 @@ End of Footer Area -->
       <div class="col-md-12">
         <div class="ftco-footer-widget">
           <h2 class="ftco-heading-2" style="font-size: 24px; text-transform: uppercase; letter-spacing: 2px;">CONTACT US</h2>
-          <p>Location: <a href="#" style="color: #fff; text-decoration: underline;">{{ site_content.clinic_address }}<br></a>Nearest Landmarks: <a style="color: #fff; text-decoration: none;">Nathaniel’s Water Station, Planas Tricycle Terminal Station, Gasoline Station</a></p>
+          <p>Location: <a href="#" style="color: #fff; text-decoration: underline;">{{ site_content.clinic_address }}<br></a>Nearest Landmarks: <a style="color: #fff; text-decoration: none;">{{ site_content.clinic_landmarks }}</a></p>
           <p style="color: #fff;">{{ site_content.contact_phone }}</p>
           <p><a href="mailto:{{ site_content.contact_email }}" style="color: #fff; text-decoration: underline;">{{ site_content.contact_email }}</a></p>
         </div>

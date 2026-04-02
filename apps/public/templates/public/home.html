@@ -2,317 +2,623 @@
 {% load static %}
 
 {% block content %}
+  <style>
+    .home-surface-soft {
+      background:
+        radial-gradient(circle at top left, rgba(90, 84, 209, 0.07), transparent 30%),
+        linear-gradient(180deg, #fbfcff 0%, #f4f7fd 100%);
+    }
 
-<!-- Start of Welcome Area -->
-    <section class="home-slider owl-carousel">
-      <div class="slider-item" style="background-image:url('{% if site_content.hero_slide_1_background %}{{ site_content.hero_slide_1_background.url }}{% else %}{% static 'website/images/bg_1.jpg' %}{% endif %}');" data-stellar-background-ratio="0.5">
-      	<div class="overlay"></div>
-        <div class="container">
-          <div class="row no-gutters slider-text align-items-center justify-content-end" data-scrollax-parent="true">
-          <div class="col-md-6 text ftco-animate">
-            <h1 class="mb-4">{{ site_content.hero_title }}</h1>
-            <h3 class="subheading">{{ site_content.hero_subtitle }}</h3>
-            <p><a href="{% url 'appointment_form' %}" class="btn btn-secondary px-4 py-3 mt-3">{{ site_content.hero_cta_text }}</a></p>
-          </div>
-        </div>
-        </div>
-      </div>
+    .hero-content-panel {
+      max-width: 560px;
+      padding: 2rem 2.1rem;
+      border-radius: 28px;
+      background: rgba(19, 27, 46, 0.62);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 24px 60px rgba(17, 24, 39, 0.22);
+      backdrop-filter: blur(10px);
+    }
 
-      <div class="slider-item" style="background-image:url('{% if site_content.hero_slide_2_background %}{{ site_content.hero_slide_2_background.url }}{% else %}{% static 'website/images/bg_2.jpg' %}{% endif %}');">
-      	<div class="overlay"></div>
-        <div class="container">
-          <div class="row no-gutters slider-text align-items-center justify-content-end" data-scrollax-parent="true">
-          <div class="col-md-6 text ftco-animate">
-            <h1 class="mb-4">{{ site_content.hero_slide_2_title|default:"Your Confident Smile Starts Here" }}</h1>
-            <h3 class="subheading">{{ site_content.hero_slide_2_subtitle|default:"Unlock your true potential with comprehensive, cutting-edge cosmetic dental care. Schedule your consultation today to design the lasting impression you deserve." }}</h3>
-            <p><a href="{% url 'appointment_form' %}" class="btn btn-secondary px-4 py-3 mt-3">{{ site_content.hero_slide_2_cta_text|default:"Make an Appointment" }}</a></p>
-          </div>
-        </div>
-        </div>
-      </div>
-    </section>
-<!-- End of Welcome Area -->
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.42rem 0.85rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.14);
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
 
-<!-- Services -->
-    <section class="ftco-section ftco-services">
-    	<div class="container">
-    		<div class="row justify-content-center mb-5 pb-2">
-          <div class="col-md-8 text-center heading-section">
-            <span class="subheading">{{ site_content.home_services_kicker }}</span>
-            <h2 class="mb-4">{{ site_content.home_services_heading }}</h2>
-            <p>{{ site_content.home_services_intro }}</p>
-          </div>
-        </div>
+    .hero-content-panel h1,
+    .hero-content-panel .subheading {
+      color: #fff;
+    }
 
-        <div class="row justify-content-center">
-          <div class="col-md-4 text-center d-flex align-items-stretch">
-            <div class="services">
-              <div class="d-flex justify-content-center align-items-center"><a href="{% url 'services' %}">
-              <img src="{% if site_content.service_1_image %}{{ site_content.service_1_image.url }}{% else %}{% static 'website/images/dept-2.jpg' %}{% endif %}"
-                   alt="General Dentistry" class="service-img" width="96" height="96" loading="lazy">
-              </a></div>
-              <div class="text mt-3">
-                <h3>{{ site_content.service_1_title }}</h3>
-                <p>{{ site_content.service_1_summary }}</p>
-              </div>
-            </div>
-        </div>
+    .hero-content-panel h1 {
+      font-size: clamp(2.4rem, 5vw, 4.4rem);
+      line-height: 1.06;
+      margin-bottom: 1rem;
+    }
 
-        <div class="col-md-4 text-center d-flex align-items-stretch">
-            <div class="services">
-              <div class="d-flex justify-content-center align-items-center"><a href="{% url 'services' %}">
-              <img src="{% if site_content.service_2_image %}{{ site_content.service_2_image.url }}{% else %}{% static 'website/images/dept-4.jpg' %}{% endif %}"
-                   alt="Pediatric Dentistry" class="service-img" width="96" height="96" loading="lazy">
-              </a></div>
-              <div class="text mt-3">
-                <h3>{{ site_content.service_2_title }}</h3>
-                <p>{{ site_content.service_2_summary }}</p>
-              </div>
-            </div>
-        </div>
+    .hero-content-panel .subheading {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      font-weight: 400;
+      margin-bottom: 1.5rem;
+      display: block;
+    }
 
-        <div class="col-md-4 text-center d-flex align-items-stretch">
-            <div class="services">
-              <div class="d-flex justify-content-center align-items-center"><a href="{% url 'services' %}">
-              <img src="{% if site_content.service_3_image %}{{ site_content.service_3_image.url }}{% else %}{% static 'website/images/dept-9.jpg' %}{% endif %}"
-                   alt="Orthodontics" class="service-img" width="96" height="96" loading="lazy">
-              </a></div>
-              <div class="text mt-3">
-                <h3>{{ site_content.service_3_title }}</h3>
-                <p>{{ site_content.service_3_summary }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-    	</div>
-    </section>
-<!-- End of Services -->
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+      margin-bottom: 1.2rem;
+    }
 
-    <section class="ftco-section intro" style="background-image: url('{% if site_content.home_intro_background %}{{ site_content.home_intro_background.url }}{% else %}{% static 'website/images/bg_3.jpg' %}{% endif %}');" data-stellar-background-ratio="0.5">
-    	<div class="container">
-    		<div class="row">
-    			<div class="col-md-6">
-    				<h3 class="mb-4">{{ site_content.home_intro_heading }}</h3>
-    				<p>{{ site_content.home_intro_text }}</p>
-    			</div>
-    		</div>
-    	</div>
-    </section>
-		
-<!-- Doctor's introduction -->
-		<section class="ftco-section">
-			<div class="container">
-				<div class="row justify-content-center mb-5 pb-2">
-          <div class="col-md-8 text-center heading-section ftco-animate">
-          	<span class="subheading">{{ site_content.home_doctor_kicker }}</span>
-            <h2 class="mb-4">{{ site_content.home_doctor_heading }}</h2>
-            <p>{{ site_content.home_doctor_intro }}</p>
-          </div>
-        </div>	
-				<div class="row justify-content-center">
-          <div class="col-12 col-md-8 col-lg-6">
-            <div class="card doctor-card text-center p-4">
-              <img src="{% if site_content.about_founder_photo %}{{ site_content.about_founder_photo.url }}{% else %}{% static 'website/images/doc-4.jpg' %}{% endif %}" class="img-fluid rounded mb-3"
-                   alt="{{ site_content.doctor_name|default:'Doctor' }}">
-              <h3 class="mb-1">{{ site_content.doctor_name }}</h3>
-              <div class="text-muted mb-2">{{ site_content.doctor_title }}</div>
+    .hero-trust-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
 
-              <p class="mb-3">
-                {{ site_content.doctor_bio }}
-              </p>
+    .hero-trust-list span {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.4rem 0.75rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      font-size: 0.84rem;
+      font-weight: 600;
+    }
 
-              <div class="d-flex gap-2 justify-content-center">
-                <a href="{% url 'about' %}" class="btn btn-dark btn-pill">Learn More</a>
-              </div>
-            </div>
-          </div>
-        </div>
-			</div>
-		</section>
-<!-- End of Doctor's introduction -->
+    .section-intro {
+      max-width: 660px;
+      margin: 0 auto;
+    }
 
-<!-- Testimonial, Free Consultation Part and Blog for future use
-    <section class="ftco-section testimony-section bg-light">
+    .section-intro p {
+      color: #63708d;
+      line-height: 1.8;
+    }
+
+    .home-service-card {
+      display: block;
+      height: 100%;
+      padding: 1.55rem 1.45rem;
+      border-radius: 24px;
+      border: 1px solid rgba(222, 228, 245, 0.95);
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 18px 38px rgba(45, 57, 92, 0.07);
+      text-decoration: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .home-service-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(90, 84, 209, 0.26);
+      box-shadow: 0 24px 48px rgba(45, 57, 92, 0.12);
+      text-decoration: none;
+    }
+
+    .home-service-media {
+      width: 96px;
+      height: 96px;
+      margin: 0 auto 1rem;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid rgba(218, 226, 247, 0.95);
+      background: #f4f6fd;
+    }
+
+    .home-service-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .home-service-label {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(90, 84, 209, 0.08);
+      color: #4f4ab6;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 0.85rem;
+    }
+
+    .home-service-card h3 {
+      color: #27314e;
+      font-weight: 700;
+      margin-bottom: 0.65rem;
+    }
+
+    .home-service-card p {
+      color: #657390;
+      line-height: 1.75;
+      margin-bottom: 0;
+    }
+
+    .home-highlight {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .home-highlight::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(12, 22, 39, 0.56);
+    }
+
+    .home-highlight .container {
+      position: relative;
+      z-index: 1;
+    }
+
+    .home-highlight-card {
+      padding: 2rem;
+      border-radius: 30px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: 0 28px 60px rgba(17, 24, 39, 0.18);
+      backdrop-filter: blur(10px);
+    }
+
+    .home-highlight-copy h3,
+    .home-highlight-copy p,
+    .home-highlight-copy .hero-eyebrow {
+      color: #fff;
+    }
+
+    .home-highlight-copy h3 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.12;
+      margin-bottom: 1rem;
+    }
+
+    .home-highlight-copy p {
+      line-height: 1.8;
+      margin-bottom: 0;
+    }
+
+    .highlight-grid {
+      display: grid;
+      gap: 0.9rem;
+    }
+
+    .highlight-item {
+      padding: 1rem 1.05rem;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: #fff;
+    }
+
+    .highlight-item strong {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-size: 0.98rem;
+    }
+
+    .highlight-item span {
+      display: block;
+      font-size: 0.94rem;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.86);
+    }
+
+    .doctor-feature-card {
+      padding: 1.3rem;
+      border-radius: 30px;
+      border: 1px solid rgba(222, 228, 245, 0.95);
+      background: rgba(255, 255, 255, 0.98);
+      box-shadow: 0 20px 46px rgba(45, 57, 92, 0.08);
+    }
+
+    .doctor-feature-card img {
+      width: 100%;
+      border-radius: 24px;
+      display: block;
+      border: 1px solid rgba(218, 226, 247, 0.95);
+    }
+
+    .doctor-feature-copy {
+      padding: 0.8rem 0.7rem 0.8rem 1.1rem;
+    }
+
+    .doctor-feature-copy h3 {
+      color: #27314e;
+      font-size: clamp(1.8rem, 3vw, 2.35rem);
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+    }
+
+    .doctor-feature-title {
+      color: #5d6b8b;
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .doctor-feature-copy p {
+      color: #485774;
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+
+    .doctor-point-list {
+      display: grid;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .doctor-point {
+      padding: 0.9rem 1rem;
+      border-radius: 18px;
+      background: #f7f9ff;
+      border: 1px solid #e1e8fb;
+    }
+
+    .doctor-point strong {
+      display: block;
+      color: #27314e;
+      margin-bottom: 0.2rem;
+      font-size: 0.96rem;
+    }
+
+    .doctor-point span {
+      display: block;
+      color: #657390;
+      line-height: 1.6;
+      font-size: 0.92rem;
+    }
+
+    .doctor-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+
+    .testimonial-shell .testimony-wrap {
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 18px 38px rgba(45, 57, 92, 0.08);
+    }
+
+    .testimonial-shell .testimony-wrap .text {
+      padding-top: 2rem;
+      padding-bottom: 2rem;
+    }
+
+    .blog-preview-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .blog-preview-head p {
+      margin-bottom: 0;
+      color: #63708d;
+      line-height: 1.75;
+      max-width: 640px;
+    }
+
+    .blog-entry {
+      height: 100%;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 18px 38px rgba(45, 57, 92, 0.08);
+    }
+
+    .blog-entry .text {
+      min-height: 250px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .blog-entry .text .heading {
+      min-height: 72px;
+    }
+
+    .blog-entry .text .d-flex {
+      margin-top: auto;
+    }
+
+    @media (max-width: 991.98px) {
+      .hero-content-panel,
+      .home-highlight-card {
+        padding: 1.4rem;
+      }
+
+      .doctor-feature-copy {
+        padding: 1.2rem 0.1rem 0.2rem;
+      }
+
+      .blog-preview-head {
+        align-items: start;
+      }
+    }
+  </style>
+
+  <section class="home-slider owl-carousel">
+    <div class="slider-item" style="background-image:url('{% if site_content.hero_slide_1_background %}{{ site_content.hero_slide_1_background.url }}{% else %}{% static 'website/images/bg_1.jpg' %}{% endif %}');" data-stellar-background-ratio="0.5">
+      <div class="overlay"></div>
       <div class="container">
-        <div class="row justify-content-center mb-5 pb-2">
-          <div class="col-md-8 text-center heading-section ftco-animate">
-          	<span class="subheading">Testimonials</span>
-            <h2 class="mb-4">Our Patients Says About Us</h2>
+        <div class="row no-gutters slider-text align-items-center justify-content-end" data-scrollax-parent="true">
+          <div class="col-md-7 col-lg-6 text ftco-animate">
+            <div class="hero-content-panel">
+              <span class="hero-eyebrow">Comfort-first dental care</span>
+              <h1>{{ site_content.hero_title }}</h1>
+              <span class="subheading">{{ site_content.hero_subtitle }}</span>
+              <div class="hero-actions">
+                <a href="{% url 'appointment_form' %}" class="btn btn-secondary px-4 py-3">{{ site_content.hero_cta_text }}</a>
+                <a href="{% url 'services' %}" class="btn btn-outline-light px-4 py-3">See Treatments</a>
+              </div>
+              <div class="hero-trust-list">
+                <span>Gentle visits</span>
+                <span>Clear treatment plans</span>
+                <span>Family-friendly care</span>
+              </div>
+            </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div class="slider-item" style="background-image:url('{% if site_content.hero_slide_2_background %}{{ site_content.hero_slide_2_background.url }}{% else %}{% static 'website/images/bg_2.jpg' %}{% endif %}');">
+      <div class="overlay"></div>
+      <div class="container">
+        <div class="row no-gutters slider-text align-items-center justify-content-end" data-scrollax-parent="true">
+          <div class="col-md-7 col-lg-6 text ftco-animate">
+            <div class="hero-content-panel">
+              <span class="hero-eyebrow">Smile with confidence</span>
+              <h1>{{ site_content.hero_slide_2_title|default:"Your Confident Smile Starts Here" }}</h1>
+              <span class="subheading">{{ site_content.hero_slide_2_subtitle|default:"Unlock your true potential with comprehensive, cutting-edge cosmetic dental care. Schedule your consultation today to design the lasting impression you deserve." }}</span>
+              <div class="hero-actions">
+                <a href="{% url 'appointment_form' %}" class="btn btn-secondary px-4 py-3">{{ site_content.hero_slide_2_cta_text|default:"Make an Appointment" }}</a>
+                <a href="{% url 'contact' %}" class="btn btn-outline-light px-4 py-3">Ask a Question</a>
+              </div>
+              <div class="hero-trust-list">
+                <span>Thoughtful consultations</span>
+                <span>Preventive guidance</span>
+                <span>Practical follow-up care</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ftco-section home-surface-soft">
+    <div class="container">
+      <div class="row justify-content-center mb-5 pb-2">
+        <div class="col-md-8 text-center heading-section section-intro">
+          <span class="subheading">{{ site_content.home_services_kicker }}</span>
+          <h2 class="mb-4">{{ site_content.home_services_heading }}</h2>
+          <p>{{ site_content.home_services_intro }}</p>
+        </div>
+      </div>
+
+      <div class="row justify-content-center">
+        <div class="col-md-4 mb-4 text-center d-flex align-items-stretch ftco-animate">
+          <a href="{% url 'services' %}" class="home-service-card text-center">
+            <div class="home-service-media">
+              <img src="{% if site_content.service_1_image %}{{ site_content.service_1_image.url }}{% else %}{% static 'website/images/dept-2.jpg' %}{% endif %}" alt="{{ site_content.service_1_title }}" loading="lazy">
+            </div>
+            <span class="home-service-label">Foundational Care</span>
+            <h3>{{ site_content.service_1_title }}</h3>
+            <p>{{ site_content.service_1_summary }}</p>
+          </a>
+        </div>
+
+        <div class="col-md-4 mb-4 text-center d-flex align-items-stretch ftco-animate">
+          <a href="{% url 'services' %}" class="home-service-card text-center">
+            <div class="home-service-media">
+              <img src="{% if site_content.service_2_image %}{{ site_content.service_2_image.url }}{% else %}{% static 'website/images/dept-4.jpg' %}{% endif %}" alt="{{ site_content.service_2_title }}" loading="lazy">
+            </div>
+            <span class="home-service-label">Family Visits</span>
+            <h3>{{ site_content.service_2_title }}</h3>
+            <p>{{ site_content.service_2_summary }}</p>
+          </a>
+        </div>
+
+        <div class="col-md-4 mb-4 text-center d-flex align-items-stretch ftco-animate">
+          <a href="{% url 'services' %}" class="home-service-card text-center">
+            <div class="home-service-media">
+              <img src="{% if site_content.service_3_image %}{{ site_content.service_3_image.url }}{% else %}{% static 'website/images/dept-9.jpg' %}{% endif %}" alt="{{ site_content.service_3_title }}" loading="lazy">
+            </div>
+            <span class="home-service-label">Smile Alignment</span>
+            <h3>{{ site_content.service_3_title }}</h3>
+            <p>{{ site_content.service_3_summary }}</p>
+          </a>
+        </div>
+      </div>
+
+      <div class="text-center mt-2">
+        <a href="{% url 'services' %}" class="btn btn-outline-dark py-3 px-4">Browse All Treatments</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="ftco-section home-highlight" style="background-image: url('{% if site_content.home_intro_background %}{{ site_content.home_intro_background.url }}{% else %}{% static 'website/images/bg_3.jpg' %}{% endif %}');" data-stellar-background-ratio="0.5">
+    <div class="container">
+      <div class="home-highlight-card">
+        <div class="row align-items-center">
+          <div class="col-lg-7 mb-4 mb-lg-0 home-highlight-copy">
+            <span class="hero-eyebrow">Why patients stay with us</span>
+            <h3>{{ site_content.home_intro_heading }}</h3>
+            <p>{{ site_content.home_intro_text }}</p>
+            <div class="hero-actions mt-4 mb-0">
+              <a href="{% url 'appointment_form' %}" class="btn btn-secondary px-4 py-3">Book a Visit</a>
+              <a href="{% url 'contact' %}" class="btn btn-outline-light px-4 py-3">Talk to the Clinic</a>
+            </div>
+          </div>
+          <div class="col-lg-5">
+            <div class="highlight-grid">
+              <div class="highlight-item">
+                <strong>Clear next steps</strong>
+                <span>Patients should know what is happening, what matters now, and what to expect after the visit.</span>
+              </div>
+              <div class="highlight-item">
+                <strong>Less overwhelm, more support</strong>
+                <span>We keep the experience calm, practical, and easy to follow for both adults and children.</span>
+              </div>
+              <div class="highlight-item">
+                <strong>Prevention that feels realistic</strong>
+                <span>Advice works best when it fits everyday routines, not just ideal scenarios.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ftco-section">
+    <div class="container">
+      <div class="row justify-content-center mb-5 pb-2">
+        <div class="col-md-8 text-center heading-section ftco-animate section-intro">
+          <span class="subheading">{{ site_content.home_doctor_kicker }}</span>
+          <h2 class="mb-4">{{ site_content.home_doctor_heading }}</h2>
+          <p>{{ site_content.home_doctor_intro }}</p>
+        </div>
+      </div>
+
+      <div class="doctor-feature-card ftco-animate">
+        <div class="row align-items-center">
+          <div class="col-lg-5 mb-4 mb-lg-0">
+            <img src="{% if site_content.about_founder_photo %}{{ site_content.about_founder_photo.url }}{% else %}{% static 'website/images/doc-4.jpg' %}{% endif %}" alt="{{ site_content.doctor_name|default:'Doctor' }}">
+          </div>
+          <div class="col-lg-7">
+            <div class="doctor-feature-copy">
+              <h3>{{ site_content.doctor_name }}</h3>
+              <div class="doctor-feature-title">{{ site_content.doctor_title }}</div>
+              <p>{{ site_content.doctor_bio }}</p>
+
+              <div class="doctor-point-list">
+                <div class="doctor-point">
+                  <strong>Communication-first care</strong>
+                  <span>Treatment plans are explained clearly so patients understand their options before deciding.</span>
+                </div>
+                <div class="doctor-point">
+                  <strong>Built for long-term comfort</strong>
+                  <span>Every visit is designed to feel calmer, steadier, and easier to return to over time.</span>
+                </div>
+              </div>
+
+              <div class="doctor-actions">
+                <a href="{% url 'about' %}" class="btn btn-dark btn-pill">Learn More</a>
+                <a href="{% url 'appointment_form' %}" class="btn btn-primary btn-pill">Book a Visit</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ftco-section testimony-section bg-light testimonial-shell">
+    <div class="container">
+      <div class="row justify-content-center mb-5 pb-2">
+        <div class="col-md-8 text-center heading-section ftco-animate section-intro">
+          <span class="subheading">Patient Stories</span>
+          <h2 class="mb-4">What Patients Appreciate Most</h2>
+          <p>Comfort, clarity, and consistent follow-through are the themes that matter most in every visit.</p>
+        </div>
+      </div>
+      {% if testimonials %}
         <div class="row ftco-animate justify-content-center">
           <div class="col-md-12">
             <div class="carousel-testimony owl-carousel">
-              <div class="item">
-                <div class="testimony-wrap d-flex">
-                  <div class="user-img" style="background-image: url({% static 'website/images/person_1.jpg' %})">
-                  </div>
-                  <div class="text pl-4 bg-light">
-                  	<span class="quote d-flex align-items-center justify-content-center">
-                      <i class="icon-quote-left"></i>
-                    </span>
-                    <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
-                    <p class="name">Racky Henderson</p>
-                    <span class="position">Farmer</span>
-                  </div>
-                </div>
-              </div>
-              <div class="item">
-                <div class="testimony-wrap d-flex">
-                  <div class="user-img" style="background-image: url( {% static 'website/images/person_2.jpg' %} )">
-                  </div>
-                  <div class="text pl-4 bg-light">
-                  	<span class="quote d-flex align-items-center justify-content-center">
-                      <i class="icon-quote-left"></i>
-                    </span>
-                    <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
-                    <p class="name">Henry Dee</p>
-                    <span class="position">Businessman</span>
+              {% for testimonial in testimonials %}
+                {% cycle 'website/images/person_1.jpg' 'website/images/person_2.jpg' 'website/images/person_3.jpg' 'website/images/person_4.jpg' as testimonial_fallback silent %}
+                <div class="item">
+                  <div class="testimony-wrap d-flex">
+                    <div class="user-img" style="background-image: url('{% if testimonial.photo %}{{ testimonial.photo.url }}{% else %}{% static testimonial_fallback %}{% endif %}')"></div>
+                    <div class="text pl-4 bg-light">
+                      <span class="quote d-flex align-items-center justify-content-center">
+                        <i class="icon-quote-left"></i>
+                      </span>
+                      <p>{{ testimonial.quote }}</p>
+                      <p class="name">{{ testimonial.patient_name }}</p>
+                      <span class="position">{{ testimonial.visit_label|default:"Patient feedback" }}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div class="item">
-                <div class="testimony-wrap d-flex">
-                  <div class="user-img" style="background-image: url( {% static 'website/images/person_3.jpg' %} )">
-                  </div>
-                  <div class="text pl-4 bg-light">
-                  	<span class="quote d-flex align-items-center justify-content-center">
-                      <i class="icon-quote-left"></i>
-                    </span>
-                    <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
-                    <p class="name">Mark Huff</p>
-                    <span class="position">Students</span>
-                  </div>
-                </div>
-              </div>
-              <div class="item">
-                <div class="testimony-wrap d-flex">
-                  <div class="user-img" style="background-image: url( {% static 'website/images/person_4.jpg' %} )">
-                  </div>
-                  <div class="text pl-4 bg-light">
-                  	<span class="quote d-flex align-items-center justify-content-center">
-                      <i class="icon-quote-left"></i>
-                    </span>
-                    <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
-                    <p class="name">Rodel Golez</p>
-                    <span class="position">Striper</span>
-                  </div>
-                </div>
-              </div>
-              <div class="item">
-                <div class="testimony-wrap d-flex">
-                  <div class="user-img" style="background-image: url( {% static 'website/images/person_1.jpg' %} )">
-                  </div>
-                  <div class="text pl-4 bg-light">
-                  	<span class="quote d-flex align-items-center justify-content-center">
-                      <i class="icon-quote-left"></i>
-                    </span>
-                    <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
-                    <p class="name">Ken Bosh</p>
-                    <span class="position">Manager</span>
-                  </div>
-                </div>
-              </div>
+              {% endfor %}
             </div>
           </div>
         </div>
+      {% else %}
+        <div class="row justify-content-center">
+          <div class="col-md-8 text-center">
+            <p class="mb-0">Patient testimonials will appear here once they are published.</p>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="ftco-section home-surface-soft">
+    <div class="container">
+      <div class="blog-preview-head">
+        <div class="heading-section ftco-animate mb-0">
+          <span class="subheading">Oral Health Notes</span>
+          <h2 class="mb-3">Helpful Reading Between Visits</h2>
+          <p>A few quick reads for patients who want practical guidance on cleanings, braces, and everyday oral care.</p>
+        </div>
+        <a href="{% url 'blog' %}" class="btn btn-outline-dark py-3 px-4">Visit the Blog</a>
       </div>
-    </section>
 
-    <section class="ftco-intro" style="background-image: url( {% static 'website/images/bg_3.jpg' %} );" data-stellar-background-ratio="0.5">
-			<div class="overlay"></div>
-			<div class="container">
-				<div class="row">
-					<div class="col-md-9">
-						<h2>We Provide Free Dental Care Consultation</h2>
-						<p class="mb-0">Your Health is Our Top Priority with Comprehensive, Affordable medical.</p>
-						<p></p>
-					</div>
-					<div class="col-md-3 d-flex align-items-center">
-						<p class="mb-0"><a href="#" class="btn btn-secondary px-4 py-3">Free Consutation</a></p>
-					</div>
-				</div>
-			</div>
-		</section>
-
-		<section class="ftco-section bg-light">
-			<div class="container">
-				<div class="row justify-content-center mb-5 pb-2">
-          <div class="col-md-8 text-center heading-section ftco-animate">
-          	<span class="subheading">Blog</span>
-            <h2 class="mb-4">Recent Blog</h2>
-            <p>Separated they live in. A small river named Duden flows by their place and supplies it with the necessary regelialia. It is a paradisematic country</p>
+      {% if featured_posts %}
+        <div class="row">
+          {% for post in featured_posts %}
+            {% cycle 'website/images/image_1.jpg' 'website/images/image_2.jpg' 'website/images/image_3.jpg' as post_fallback silent %}
+            <div class="col-md-4 mb-4 ftco-animate">
+              <div class="blog-entry">
+                <a href="{{ post.get_absolute_url }}" class="block-20 d-flex align-items-end justify-content-end" style="background-image: url('{% if post.image %}{{ post.image.url }}{% else %}{% static post_fallback %}{% endif %}');">
+                  <div class="meta-date text-center p-2">
+                    <span class="day">{{ post.published_at|date:"d" }}</span>
+                    <span class="mos">{{ post.published_at|date:"F" }}</span>
+                    <span class="yr">{{ post.published_at|date:"Y" }}</span>
+                  </div>
+                </a>
+                <div class="text bg-white p-4">
+                  <p class="mb-2">
+                    <span class="badge badge-light">{{ post.get_category_display }}</span>
+                  </p>
+                  <h3 class="heading"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3>
+                  <p>{{ post.excerpt }}</p>
+                  <div class="d-flex align-items-center mt-4">
+                    <p class="mb-0"><a href="{{ post.get_absolute_url }}" class="btn btn-primary">Read More <span class="ion-ios-arrow-round-forward"></span></a></p>
+                    <p class="ml-auto mb-0"><span class="mr-2">{{ post.author_name|default:"Clinic Team" }}</span></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="row justify-content-center">
+          <div class="col-md-8 text-center">
+            <p class="mb-0">Published articles will appear here once the clinic blog goes live.</p>
           </div>
         </div>
-				<div class="row">
-          <div class="col-md-4 ftco-animate">
-            <div class="blog-entry">
-              <a href=" {% static 'website/blog-single.html' %} " class="block-20 d-flex align-items-end justify-content-end" style="background-image: url(' {% static 'website/images/image_1.jpg' %} ');">
-								<div class="meta-date text-center p-2">
-                  <span class="day">18</span>
-                  <span class="mos">September</span>
-                  <span class="yr">2019</span>
-                </div>
-              </a>
-              <div class="text bg-white p-4">
-                <h3 class="heading"><a href="#">Scary Thing That You Don’t Get Enough Sleep</a></h3>
-                <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
-                <div class="d-flex align-items-center mt-4">
-	                <p class="mb-0"><a href="#" class="btn btn-primary">Read More <span class="ion-ios-arrow-round-forward"></span></a></p>
-	                <p class="ml-auto mb-0">
-	                	<a href="#" class="mr-2">Admin</a>
-	                	<a href="#" class="meta-chat"><span class="icon-chat"></span> 3</a>
-	                </p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4 ftco-animate">
-            <div class="blog-entry">
-              <a href=" {% static 'website/blog-single.html' %} " class="block-20 d-flex align-items-end justify-content-end" style="background-image: url(' {% static 'website/images/image_2.jpg' %} ');">
-								<div class="meta-date text-center p-2">
-                  <span class="day">18</span>
-                  <span class="mos">September</span>
-                  <span class="yr">2019</span>
-                </div>
-              </a>
-              <div class="text bg-white p-4">
-                <h3 class="heading"><a href="#">Scary Thing That You Don’t Get Enough Sleep</a></h3>
-                <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
-                <div class="d-flex align-items-center mt-4">
-	                <p class="mb-0"><a href="#" class="btn btn-primary">Read More <span class="ion-ios-arrow-round-forward"></span></a></p>
-	                <p class="ml-auto mb-0">
-	                	<a href="#" class="mr-2">Admin</a>
-	                	<a href="#" class="meta-chat"><span class="icon-chat"></span> 3</a>
-	                </p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4 ftco-animate">
-            <div class="blog-entry">
-              <a href=" {% static 'website/blog-single.html' %} " class="block-20 d-flex align-items-end justify-content-end" style="background-image: url(' {% static 'website/images/image_3.jpg' %} ');">
-								<div class="meta-date text-center p-2">
-                  <span class="day">18</span>
-                  <span class="mos">September</span>
-                  <span class="yr">2019</span>
-                </div>
-              </a>
-              <div class="text bg-white p-4">
-                <h3 class="heading"><a href="#">Scary Thing That You Don’t Get Enough Sleep</a></h3>
-                <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
-                <div class="d-flex align-items-center mt-4">
-	                <p class="mb-0"><a href="#" class="btn btn-primary">Read More <span class="ion-ios-arrow-round-forward"></span></a></p>
-	                <p class="ml-auto mb-0">
-	                	<a href="#" class="mr-2">Admin</a>
-	                	<a href="#" class="meta-chat"><span class="icon-chat"></span> 3</a>
-	                </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-			</div>
-		</section>
--->
+      {% endif %}
+    </div>
+  </section>
 {% endblock %}

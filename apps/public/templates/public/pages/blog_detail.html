@@ -1,0 +1,338 @@
+{% extends "public/base.html" %}
+{% load static %}
+{% block title %}{{ post.title }} | Dental Clinic{% endblock %}
+{% block content %}
+
+  <style>
+    .blog-detail-wrap {
+      background:
+        radial-gradient(circle at top left, rgba(90, 84, 209, 0.08), transparent 36%),
+        linear-gradient(180deg, #f7f9ff 0%, #f3f5fb 100%);
+    }
+
+    .blog-detail-grid {
+      align-items: start;
+    }
+
+    .blog-article-card,
+    .blog-sidebar-card {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(218, 226, 247, 0.9);
+      border-radius: 28px;
+      box-shadow: 0 24px 50px rgba(45, 57, 92, 0.08);
+    }
+
+    .blog-article-card {
+      overflow: hidden;
+    }
+
+    .blog-article-hero {
+      padding: 2rem 2rem 1.5rem;
+      background: linear-gradient(145deg, rgba(245, 248, 255, 0.92) 0%, rgba(255, 255, 255, 0.95) 100%);
+      border-bottom: 1px solid rgba(228, 234, 249, 0.95);
+    }
+
+    .blog-back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      color: #51607f;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      text-decoration: none;
+    }
+
+    .blog-back-link:hover {
+      color: #5a54d1;
+      text-decoration: none;
+    }
+
+    .blog-category-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.38rem 0.8rem;
+      border-radius: 999px;
+      background: rgba(90, 84, 209, 0.1);
+      color: #4f4ab6;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 0.9rem;
+    }
+
+    .blog-detail-title {
+      color: #27314e;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.12;
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+
+    .blog-detail-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem 1.1rem;
+      color: #687592;
+      font-size: 0.93rem;
+      margin-bottom: 0;
+    }
+
+    .blog-detail-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .blog-detail-excerpt {
+      padding: 1.35rem 2rem 0;
+      color: #415070;
+      font-size: 1.1rem;
+      line-height: 1.8;
+      margin-bottom: 0;
+    }
+
+    .blog-detail-image {
+      padding: 1.5rem 2rem 0;
+    }
+
+    .blog-detail-image img {
+      width: 100%;
+      border-radius: 24px;
+      border: 1px solid rgba(221, 228, 247, 0.95);
+      box-shadow: 0 16px 32px rgba(45, 57, 92, 0.08);
+      display: block;
+    }
+
+    .blog-article-body {
+      padding: 1.75rem 2rem 2rem;
+      color: #33415f;
+      font-size: 1.02rem;
+      line-height: 1.95;
+    }
+
+    .blog-article-body p {
+      margin-bottom: 1.2rem;
+    }
+
+    .blog-article-body h2,
+    .blog-article-body h3 {
+      color: #24304f;
+      font-weight: 700;
+      line-height: 1.25;
+      margin-top: 2rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .blog-article-body h2 {
+      font-size: 1.8rem;
+    }
+
+    .blog-article-body h3 {
+      font-size: 1.35rem;
+    }
+
+    .blog-article-body ul,
+    .blog-article-body ol {
+      margin: 0 0 1.35rem 1.25rem;
+      padding: 0;
+    }
+
+    .blog-article-body li + li {
+      margin-top: 0.45rem;
+    }
+
+    .blog-article-body a {
+      color: #4b6ed8;
+      font-weight: 600;
+      text-decoration: underline;
+      text-decoration-thickness: 1.5px;
+      text-underline-offset: 0.16em;
+    }
+
+    .blog-article-body strong {
+      color: #24304f;
+      font-weight: 700;
+    }
+
+    .blog-article-body blockquote {
+      margin: 1.75rem 0;
+      padding: 1rem 1.25rem;
+      border-left: 4px solid #9eaef0;
+      background: rgba(242, 245, 255, 0.9);
+      border-radius: 0 18px 18px 0;
+      color: #4f5e7e;
+      font-style: italic;
+    }
+
+    .blog-sidebar-stack {
+      display: grid;
+      gap: 1.1rem;
+      position: sticky;
+      top: 2rem;
+    }
+
+    .blog-sidebar-card {
+      padding: 1.35rem 1.4rem;
+    }
+
+    .blog-sidebar-card h3,
+    .blog-sidebar-card h4 {
+      color: #27314e;
+      font-weight: 700;
+      margin-bottom: 0.8rem;
+    }
+
+    .blog-sidebar-card p {
+      color: #657390;
+      line-height: 1.7;
+      margin-bottom: 0;
+    }
+
+    .blog-sidebar-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 0.85rem;
+    }
+
+    .blog-sidebar-item {
+      padding-bottom: 0.85rem;
+      border-bottom: 1px solid rgba(228, 234, 249, 0.95);
+    }
+
+    .blog-sidebar-item:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .blog-sidebar-item a {
+      display: block;
+      color: #27314e;
+      font-weight: 700;
+      line-height: 1.45;
+      margin-bottom: 0.25rem;
+    }
+
+    .blog-sidebar-item small {
+      color: #8893ae;
+      font-size: 0.84rem;
+    }
+
+    .blog-sidebar-note {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8d99bd;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+    }
+
+    .blog-cta-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 1rem;
+      color: #4b6ed8;
+      font-weight: 700;
+    }
+
+    @media (max-width: 991.98px) {
+      .blog-article-hero,
+      .blog-detail-excerpt,
+      .blog-detail-image,
+      .blog-article-body {
+        padding-left: 1.25rem;
+        padding-right: 1.25rem;
+      }
+
+      .blog-sidebar-stack {
+        position: static;
+      }
+    }
+  </style>
+
+  <section class="hero-wrap hero-wrap-2" style="background-image: url('{% if site_content.page_banner_background %}{{ site_content.page_banner_background.url }}{% else %}{% static 'website/images/bg_1.jpg' %}{% endif %}');" data-stellar-background-ratio="0.5">
+    <div class="overlay"></div>
+    <div class="container">
+      <div class="row no-gutters slider-text align-items-center justify-content-center">
+        <div class="col-md-10 ftco-animate text-center">
+          <h1 class="mb-2 bread">{{ post.title }}</h1>
+          <p class="breadcrumbs">
+            <span class="mr-2"><a href="{% url 'home' %}">Home <i class="ion-ios-arrow-forward"></i></a></span>
+            <span class="mr-2"><a href="{% url 'blog' %}">Blog <i class="ion-ios-arrow-forward"></i></a></span>
+            <span>{{ post.title }} <i class="ion-ios-arrow-forward"></i></span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ftco-section blog-detail-wrap">
+    <div class="container">
+      <div class="row justify-content-center blog-detail-grid">
+        <div class="col-lg-8">
+          <article class="blog-article-card">
+            <div class="blog-article-hero">
+              <a href="{% url 'blog' %}" class="blog-back-link">
+                <span class="ion-ios-arrow-round-back"></span>
+                Back to all posts
+              </a>
+              <div class="blog-category-pill">{{ post.get_category_display }}</div>
+              <h1 class="blog-detail-title">{{ post.title }}</h1>
+              <div class="blog-detail-meta">
+                <span><i class="icon-calendar"></i> {{ post.published_at|date:"F d, Y" }}</span>
+                <span><i class="icon-person"></i> {{ post.author_name|default:"Clinic Team" }}</span>
+              </div>
+            </div>
+
+            <p class="blog-detail-excerpt">{{ post.excerpt }}</p>
+
+            {% if post.image %}
+              <div class="blog-detail-image">
+                <img src="{{ post.image.url }}" alt="{{ post.title }}">
+              </div>
+            {% endif %}
+
+            <div class="blog-article-body">
+              {{ post.rendered_body|safe }}
+            </div>
+          </article>
+        </div>
+
+        <div class="col-lg-4 mt-5 mt-lg-0">
+          <div class="blog-sidebar-stack">
+            <aside class="blog-sidebar-card">
+              <div class="blog-sidebar-note">Need Care?</div>
+              <h3 class="h5">Bring questions from this article to your next visit.</h3>
+              <p>If you want advice that fits your own symptoms, history, or treatment options, the clinic can help you decide on the next step.</p>
+              <a href="{% url 'appointment_form' %}" class="blog-cta-link">
+                Book an appointment
+                <span class="ion-ios-arrow-round-forward"></span>
+              </a>
+            </aside>
+
+            <aside class="blog-sidebar-card">
+              <h4 class="h5">Recent Posts</h4>
+              {% if recent_posts %}
+                <ul class="blog-sidebar-list">
+                  {% for recent in recent_posts %}
+                    <li class="blog-sidebar-item">
+                      <a href="{{ recent.get_absolute_url }}">{{ recent.title }}</a>
+                      <small>{{ recent.published_at|date:"F d, Y" }}</small>
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% else %}
+                <p>More articles will appear here as they are published.</p>
+              {% endif %}
+            </aside>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+{% endblock %}

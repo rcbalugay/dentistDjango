@@ -1,0 +1,415 @@
+{% extends "staff/base.html" %}
+{% block title %}Blog Posts{% endblock %}
+
+{% block extra_head %}
+  <style>
+    .content-shell {
+      display: grid;
+      gap: 1.25rem;
+    }
+
+    .content-hero,
+    .content-card {
+      background: #fff;
+      border: 1px solid #dfe6fb;
+      border-radius: 22px;
+      box-shadow: 0 12px 30px rgba(85, 95, 140, 0.08);
+    }
+
+    .content-hero {
+      padding: 1.5rem 1.7rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .content-kicker {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8d99bd;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .content-meta {
+      color: #6d7896;
+      margin-bottom: 0;
+      max-width: 760px;
+    }
+
+    .content-card {
+      padding: 1.2rem 1.3rem;
+    }
+
+    .content-bulk-bar {
+      display: grid;
+      gap: 0.8rem;
+      padding: 0.95rem 1rem;
+      border-radius: 18px;
+      border: 1px solid #e5eaff;
+      background: #f7f9ff;
+      margin-bottom: 1rem;
+    }
+
+    .content-bulk-tools {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .content-bulk-tools .form-control {
+      min-width: 190px;
+      border-radius: 12px;
+      border: 1px solid #d8e1fb;
+      min-height: 40px;
+    }
+
+    .content-select-all,
+    .post-select {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      margin-bottom: 0;
+      color: #53617f;
+      font-size: 0.84rem;
+      font-weight: 600;
+    }
+
+    .content-select-all input,
+    .post-select input {
+      width: 16px;
+      height: 16px;
+    }
+
+    .content-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .content-stats {
+      display: flex;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .content-stat {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #4b5f92;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .post-list {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .post-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 1rem;
+      align-items: start;
+      border: 1px solid #e5eaff;
+      border-radius: 18px;
+      padding: 1rem;
+      background: #fbfcff;
+    }
+
+    .post-header {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 0.9rem;
+      align-items: start;
+      margin-bottom: 0.85rem;
+    }
+
+    .post-thumb {
+      width: 76px;
+      height: 76px;
+      border-radius: 18px;
+      overflow: hidden;
+      background: linear-gradient(145deg, #f4f7ff 0%, #e9efff 100%);
+      border: 1px solid #d9e2ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #7b88a9;
+      font-weight: 700;
+      font-size: 1rem;
+      text-transform: uppercase;
+    }
+
+    .post-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .post-card h5 {
+      margin-bottom: 0.2rem;
+      color: #27314e;
+      font-weight: 700;
+    }
+
+    .post-state {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.22rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      margin-bottom: 0.55rem;
+    }
+
+    .post-state.is-published {
+      background: #e7f7ef;
+      color: #216347;
+    }
+
+    .post-state.is-hidden {
+      background: #f1f4fb;
+      color: #62708f;
+    }
+
+    .post-slug {
+      color: #6d7896;
+      font-size: 0.84rem;
+      margin-bottom: 0;
+    }
+
+    .post-category {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #4b5f92;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 0.55rem;
+    }
+
+    .post-excerpt {
+      color: #5e6b8b;
+      line-height: 1.6;
+      margin-bottom: 0.85rem;
+    }
+
+    .post-meta {
+      color: #7a84a1;
+      font-size: 0.88rem;
+      margin-bottom: 0;
+    }
+
+    .post-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      min-width: 126px;
+    }
+
+    .post-actions form {
+      margin: 0;
+    }
+
+    .post-actions .btn {
+      min-width: 110px;
+    }
+
+    .entry-empty {
+      border: 1px dashed #d9e2ff;
+      border-radius: 18px;
+      padding: 1.4rem;
+      text-align: center;
+      color: #6d7896;
+      background: #fbfcff;
+    }
+
+    @media (max-width: 991.98px) {
+      .post-card {
+        grid-template-columns: 1fr;
+      }
+
+      .post-actions {
+        flex-direction: row;
+        min-width: 0;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="content-shell">
+    <section class="content-hero">
+      <div>
+        <div class="content-kicker">Website Content</div>
+        <h3 class="font-weight-bold mb-2">Blog Posts</h3>
+        <p class="content-meta">Manage the article feed used by the public blog page and the three latest cards on the homepage.</p>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="{% url 'dashboard:website' %}" class="btn btn-light border">Back to Website</a>
+        <a href="{% url 'dashboard:blog_create' %}" class="btn btn-primary">Add Blog Post</a>
+      </div>
+    </section>
+
+    <section class="content-card">
+      <div class="content-toolbar">
+        <div class="content-stats">
+          <span class="content-stat">{{ blog_post_count }} total</span>
+          <span class="content-stat">{{ published_blog_post_count }} published</span>
+        </div>
+        <p class="content-meta mb-0">Use publish/hide for quick visibility changes, then open Edit when the article copy, schedule, or image needs work.</p>
+      </div>
+
+      {% if blog_posts %}
+        <form method="post" action="{% url 'dashboard:blog_bulk' %}" class="content-bulk-bar" data-bulk-form="blog">
+          {% csrf_token %}
+          <input type="hidden" name="selected_ids" data-bulk-selected>
+          <div class="content-bulk-tools">
+            <label class="content-select-all">
+              <input type="checkbox" data-bulk-toggle="blog">
+              Select all
+            </label>
+            <select name="bulk_action" class="form-control form-control-sm" data-bulk-action>
+              <option value="publish">Publish selected</option>
+              <option value="hide">Hide selected</option>
+              <option value="delete">Delete selected</option>
+            </select>
+            <button type="submit" class="btn btn-sm btn-dark" data-bulk-submit disabled>Apply to selected</button>
+          </div>
+          <p class="content-meta mb-0" data-bulk-summary>Select one or more blog posts to publish, hide, or remove in one pass.</p>
+        </form>
+
+        <div class="post-list">
+          {% for post in blog_posts %}
+            <article class="post-card">
+              <div>
+                <div class="post-header">
+                  <div class="post-thumb">
+                    {% if post.image %}
+                      <img src="{{ post.image.url }}" alt="{{ post.title }}">
+                    {% else %}
+                      {{ post.title|first|default:"?" }}
+                    {% endif %}
+                  </div>
+                  <div>
+                    <div class="post-state {% if post.is_published %}is-published{% else %}is-hidden{% endif %}">
+                      {% if post.is_published %}Published{% else %}Hidden{% endif %}
+                    </div>
+                    <div class="post-category">{{ post.get_category_display }}</div>
+                    <h5>{{ post.title }}</h5>
+                    <p class="post-slug">/{{ post.slug }}/</p>
+                    <label class="post-select mt-2">
+                      <input type="checkbox" value="{{ post.pk }}" data-bulk-checkbox="blog">
+                      Select
+                    </label>
+                  </div>
+                </div>
+                <p class="post-excerpt">{{ post.excerpt|truncatechars:220 }}</p>
+                <p class="post-meta">
+                  {{ post.author_name|default:"Clinic Team" }} |
+                  Publish {{ post.published_at|date:"M d, Y h:i A" }} |
+                  Updated {{ post.updated_at|date:"M d, Y h:i A" }}
+                </p>
+              </div>
+
+              <div class="post-actions">
+                <form method="post" action="{% url 'dashboard:blog_toggle' post.pk %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm {% if post.is_published %}btn-outline-secondary{% else %}btn-outline-success{% endif %}">
+                    {% if post.is_published %}Hide{% else %}Publish{% endif %}
+                  </button>
+                </form>
+                <a href="{% url 'dashboard:blog_edit' post.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                {% if post.is_published %}
+                  <a href="{{ post.get_absolute_url }}" class="btn btn-sm btn-outline-info" target="_blank" rel="noopener">View Live</a>
+                {% endif %}
+                <form method="post" action="{% url 'dashboard:blog_delete' post.pk %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                </form>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="entry-empty">
+          No blog posts yet. Add the first one to populate the blog page and homepage previews.
+        </div>
+      {% endif %}
+    </section>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const bulkForm = document.querySelector('[data-bulk-form="blog"]');
+      if (!bulkForm) {
+        return;
+      }
+
+      const selectAll = bulkForm.querySelector("[data-bulk-toggle='blog']");
+      const selectedInput = bulkForm.querySelector("[data-bulk-selected]");
+      const actionSelect = bulkForm.querySelector("[data-bulk-action]");
+      const submitButton = bulkForm.querySelector("[data-bulk-submit]");
+      const summary = bulkForm.querySelector("[data-bulk-summary]");
+      const checkboxes = Array.from(document.querySelectorAll('[data-bulk-checkbox="blog"]'));
+
+      function syncSelection() {
+        const selected = checkboxes.filter(function (checkbox) {
+          return checkbox.checked;
+        }).map(function (checkbox) {
+          return checkbox.value;
+        });
+
+        selectedInput.value = selected.join(",");
+        submitButton.disabled = selected.length === 0;
+        selectAll.checked = selected.length > 0 && selected.length === checkboxes.length;
+        selectAll.indeterminate = selected.length > 0 && selected.length < checkboxes.length;
+
+        if (!selected.length) {
+          summary.textContent = "Select one or more blog posts to publish, hide, or remove in one pass.";
+          return;
+        }
+
+        const actionLabel = actionSelect.options[actionSelect.selectedIndex].text.toLowerCase();
+        summary.textContent = selected.length + " blog post(s) selected to " + actionLabel + ".";
+      }
+
+      selectAll.addEventListener("change", function () {
+        checkboxes.forEach(function (checkbox) {
+          checkbox.checked = selectAll.checked;
+        });
+        syncSelection();
+      });
+
+      checkboxes.forEach(function (checkbox) {
+        checkbox.addEventListener("change", syncSelection);
+      });
+
+      actionSelect.addEventListener("change", syncSelection);
+
+      bulkForm.addEventListener("submit", function (event) {
+        if (!selectedInput.value) {
+          event.preventDefault();
+        }
+      });
+
+      syncSelection();
+    });
+  </script>
+{% endblock %}

@@ -10,7 +10,7 @@ from django.urls import reverse
 
 from apps.appointments.models import Appointment
 from apps.patients.models import Patient, PatientDocument
-from apps.public.models import SiteContent
+from apps.public.models import BlogPost, SiteContent, Testimonial
 
 # Create your tests here.
 @override_settings(WEATHERAPI_KEY="", SECURE_SSL_REDIRECT=False)
@@ -32,6 +32,8 @@ class DashboardAccessSmokeTests(TestCase):
             reverse("dashboard:patients"),
             reverse("dashboard:inquiries"),
             reverse("dashboard:website"),
+            reverse("dashboard:testimonials"),
+            reverse("dashboard:blog"),
             reverse("dashboard:settings"),
             reverse("dashboard:profile"),
         ]
@@ -55,7 +57,7 @@ class DashboardAccessSmokeTests(TestCase):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
 
-    def test_legacy_message_and_blog_routes_redirect_to_new_pages(self):
+    def test_legacy_message_route_redirects_and_blog_manager_loads(self):
         self.client.login(username="staff", password="pass12345")
 
         response = self.client.get(reverse("dashboard:message"))
@@ -63,8 +65,8 @@ class DashboardAccessSmokeTests(TestCase):
         self.assertEqual(response.url, reverse("dashboard:inquiries"))
 
         response = self.client.get(reverse("dashboard:blog"))
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("dashboard:website"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Blog Posts")
 
     def test_staff_created_appointment_is_confirmed(self):
         self.client.login(username="staff", password="pass12345")
@@ -242,6 +244,9 @@ class WebsiteManagementTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Website Management")
+        self.assertContains(response, "Testimonials and Blog")
+        self.assertContains(response, "Manage testimonials")
+        self.assertContains(response, "Manage blog posts")
         self.assertIn("form", response.context)
 
     def test_staff_can_update_website_content(self):
@@ -254,6 +259,11 @@ class WebsiteManagementTests(TestCase):
                 "hero_subtitle": "Updated subtitle",
                 "hero_cta_text": "Schedule Today",
                 "about_summary": "Updated about summary",
+                "services_page_title": "Updated Services Title",
+                "contact_page_title": "Updated Contact Title",
+                "contact_form_heading": "Updated Form Heading",
+                "clinic_website_url": "https://updated.example.com",
+                "clinic_landmarks": "Updated landmark one, Updated landmark two",
                 "contact_phone": "09171112222",
                 "contact_email": "updated@test.com",
                 "clinic_address": "Updated clinic address",
@@ -276,8 +286,176 @@ class WebsiteManagementTests(TestCase):
         self.content.refresh_from_db()
         self.assertEqual(self.content.hero_title, "Updated Hero")
         self.assertEqual(self.content.contact_email, "updated@test.com")
+        self.assertEqual(self.content.services_page_title, "Updated Services Title")
+        self.assertEqual(self.content.contact_page_title, "Updated Contact Title")
+        self.assertEqual(self.content.contact_form_heading, "Updated Form Heading")
+        self.assertEqual(self.content.clinic_website_url, "https://updated.example.com")
+        self.assertEqual(self.content.clinic_landmarks, "Updated landmark one, Updated landmark two")
         self.assertEqual(self.content.service_3_title, "Updated Service 3")
         self.assertEqual(
             response.redirect_chain,
             [(f"{reverse('dashboard:website')}?saved=1", 302)],
         )
+
+
+@override_settings(WEATHERAPI_KEY="", SECURE_SSL_REDIRECT=False)
+class ContentManagerTests(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.staff = User.objects.create_user("contentstaff", password="pass12345", is_staff=True)
+
+    def test_staff_can_create_testimonial(self):
+        self.client.login(username="contentstaff", password="pass12345")
+
+        response = self.client.post(
+            reverse("dashboard:testimonial_create"),
+            {
+                "patient_name": "Managed Testimonial",
+                "visit_label": "Checkup",
+                "quote": "A managed testimonial.",
+                "sort_order": 15,
+                "is_published": "on",
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(Testimonial.objects.filter(patient_name="Managed Testimonial").exists())
+        self.assertContains(response, "Managed Testimonial")
+
+    def test_staff_can_create_blog_post(self):
+        self.client.login(username="contentstaff", password="pass12345")
+        published_at = timezone.localtime(timezone.now()).strftime("%Y-%m-%dT%H:%M")
+
+        response = self.client.post(
+            reverse("dashboard:blog_create"),
+            {
+                "title": "Managed Blog Post",
+                "slug": "managed-blog-post",
+                "category": BlogPost.Category.CLINIC_UPDATES,
+                "excerpt": "Managed excerpt.",
+                "body": "<p>Managed <strong>body</strong> copy.</p>",
+                "author_name": "Clinic Team",
+                "published_at": published_at,
+                "is_published": "on",
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        post = BlogPost.objects.get(title="Managed Blog Post")
+        self.assertContains(response, "Managed Blog Post")
+        self.assertEqual(post.slug, "managed-blog-post")
+        self.assertEqual(post.category, BlogPost.Category.CLINIC_UPDATES)
+        self.assertIn("<strong>body</strong>", post.body)
+
+    def test_staff_can_toggle_testimonial_publish_state(self):
+        self.client.login(username="contentstaff", password="pass12345")
+        testimonial = Testimonial.objects.create(
+            patient_name="Toggle Testimonial",
+            visit_label="Consultation",
+            quote="Helpful team and smooth visit.",
+            sort_order=5,
+            is_published=False,
+        )
+
+        response = self.client.post(
+            reverse("dashboard:testimonial_toggle", args=[testimonial.pk]),
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        testimonial.refresh_from_db()
+        self.assertTrue(testimonial.is_published)
+        self.assertContains(response, "Toggle Testimonial")
+
+    def test_staff_can_toggle_blog_post_publish_state(self):
+        self.client.login(username="contentstaff", password="pass12345")
+        post = BlogPost.objects.create(
+            title="Toggle Blog Post",
+            excerpt="Short excerpt",
+            body="Longer blog body copy.",
+            author_name="Clinic Team",
+            published_at=timezone.now(),
+            is_published=False,
+        )
+
+        response = self.client.post(
+            reverse("dashboard:blog_toggle", args=[post.pk]),
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        post.refresh_from_db()
+        self.assertTrue(post.is_published)
+        self.assertContains(response, "Toggle Blog Post")
+
+    def test_staff_can_bulk_publish_testimonials(self):
+        self.client.login(username="contentstaff", password="pass12345")
+        first = Testimonial.objects.create(
+            patient_name="Bulk Testimonial One",
+            visit_label="Consultation",
+            quote="Quote one.",
+            sort_order=1,
+            is_published=False,
+        )
+        second = Testimonial.objects.create(
+            patient_name="Bulk Testimonial Two",
+            visit_label="Consultation",
+            quote="Quote two.",
+            sort_order=2,
+            is_published=False,
+        )
+
+        response = self.client.post(
+            reverse("dashboard:testimonial_bulk"),
+            {
+                "selected_ids": f"{first.pk},{second.pk}",
+                "bulk_action": "publish",
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        first.refresh_from_db()
+        second.refresh_from_db()
+        self.assertTrue(first.is_published)
+        self.assertTrue(second.is_published)
+        self.assertContains(response, "2 testimonial(s)")
+
+    def test_staff_can_bulk_hide_blog_posts(self):
+        self.client.login(username="contentstaff", password="pass12345")
+        first = BlogPost.objects.create(
+            title="Bulk Blog One",
+            category=BlogPost.Category.CLINIC_UPDATES,
+            excerpt="Excerpt one",
+            body="<p>Body one</p>",
+            author_name="Clinic Team",
+            published_at=timezone.now(),
+            is_published=True,
+        )
+        second = BlogPost.objects.create(
+            title="Bulk Blog Two",
+            category=BlogPost.Category.PREVENTIVE_CARE,
+            excerpt="Excerpt two",
+            body="<p>Body two</p>",
+            author_name="Clinic Team",
+            published_at=timezone.now(),
+            is_published=True,
+        )
+
+        response = self.client.post(
+            reverse("dashboard:blog_bulk"),
+            {
+                "selected_ids": f"{first.pk},{second.pk}",
+                "bulk_action": "hide",
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        first.refresh_from_db()
+        second.refresh_from_db()
+        self.assertFalse(first.is_published)
+        self.assertFalse(second.is_published)
+        self.assertContains(response, "2 blog post(s)")

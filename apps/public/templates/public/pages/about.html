@@ -2,6 +2,79 @@
 {% load static %}
 {% block title %} About Us | Dental Clinic {% endblock %}
 {% block content %}
+
+    <style>
+      .about-doctor-shell {
+        background:
+          radial-gradient(circle at top right, rgba(90, 84, 209, 0.08), transparent 34%),
+          linear-gradient(180deg, #f7f9ff 0%, #f2f5fb 100%);
+      }
+
+      .about-doctor-card,
+      .about-doctor-copy {
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid rgba(218, 226, 247, 0.9);
+        border-radius: 28px;
+        box-shadow: 0 24px 50px rgba(45, 57, 92, 0.08);
+      }
+
+      .about-doctor-card {
+        padding: 1.1rem;
+      }
+
+      .about-doctor-card img {
+        width: 100%;
+        border-radius: 22px;
+        border: 1px solid rgba(218, 226, 247, 0.95);
+        display: block;
+      }
+
+      .about-doctor-copy {
+        padding: 2rem 2rem 2.1rem;
+        height: 100%;
+      }
+
+      .about-doctor-kicker {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.38rem 0.8rem;
+        border-radius: 999px;
+        background: rgba(90, 84, 209, 0.1);
+        color: #4f4ab6;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+      }
+
+      .about-doctor-copy h3 {
+        color: #27314e;
+        font-size: clamp(1.7rem, 3vw, 2.3rem);
+        font-weight: 700;
+        margin-bottom: 0.35rem;
+      }
+
+      .about-doctor-title {
+        color: #5d6b8b;
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+      }
+
+      .about-doctor-copy p {
+        color: #445270;
+        line-height: 1.85;
+        margin-bottom: 0;
+      }
+
+      .about-doctor-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+      }
+    </style>
     
     <section class="hero-wrap hero-wrap-2" style="background-image: url('{% if site_content.page_banner_background %}{{ site_content.page_banner_background.url }}{% else %}{% static 'website/images/bg_1.jpg' %}{% endif %}');" data-stellar-background-ratio="0.5">
       <div class="overlay"></div>
@@ -18,7 +91,7 @@
 		<section class="ftco-section ftco-no-pt ftco-no-pb">
 			<div class="container">
 				<div class="row no-gutters">
-					<div class="col-md-5 p-md-5 img img-2 mt-5 mt-md-0" style="background-image: url( {% static 'website/images/about.jpg' %} );">
+					<div class="col-md-5 p-md-5 img img-2 mt-5 mt-md-0" style="background-image: url('{% if site_content.about_side_image %}{{ site_content.about_side_image.url }}{% else %}{% static 'website/images/about.jpg' %}{% endif %}');">
 					</div>
 					<div class="col-md-7 wrap-about py-4 py-md-5 ftco-animate">
 	          <div class="heading-section mb-5">
@@ -41,5 +114,41 @@
 				</div>
 			</div>
 		</section>
+
+    <section class="ftco-section about-doctor-shell">
+      <div class="container">
+        <div class="row justify-content-center mb-5 pb-2">
+          <div class="col-md-8 text-center heading-section ftco-animate">
+            <span class="subheading">Meet the Dentist</span>
+            <h2 class="mb-4">The same care philosophy, explained more personally.</h2>
+            <p>The homepage doctor highlight now leads here, so visitors can get a clearer sense of who is caring for them before they book.</p>
+          </div>
+        </div>
+
+        <div class="row align-items-center">
+          <div class="col-lg-5 mb-4 mb-lg-0 ftco-animate">
+            <div class="about-doctor-card">
+              <img
+                src="{% if site_content.about_founder_photo %}{{ site_content.about_founder_photo.url }}{% else %}{% static 'website/images/doc-4.jpg' %}{% endif %}"
+                alt="{{ site_content.doctor_name|default:'Doctor' }}"
+              >
+            </div>
+          </div>
+
+          <div class="col-lg-7 ftco-animate">
+            <div class="about-doctor-copy">
+              <div class="about-doctor-kicker">Care Approach</div>
+              <h3>{{ site_content.doctor_name }}</h3>
+              <div class="about-doctor-title">{{ site_content.doctor_title }}</div>
+              <p>{{ site_content.doctor_bio|linebreaksbr }}</p>
+              <div class="about-doctor-actions">
+                <a href="{% url 'appointment_form' %}" class="btn btn-primary py-3 px-4">Book an Appointment</a>
+                <a href="{% url 'contact' %}" class="btn btn-outline-dark py-3 px-4">Send a Question</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
 {% endblock %}

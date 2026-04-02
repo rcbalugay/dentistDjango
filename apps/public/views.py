@@ -3,10 +3,11 @@ import logging
 from django.conf import settings
 from django.contrib import messages
 from django.core.mail import EmailMessage
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 
 from .forms import ContactForm
-from .models import SiteContent
+from .models import BlogPost, SiteContent, Testimonial
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +47,11 @@ def get_site_content():
             ),
             "about_kicker": "Welcome to Dentista",
             "about_heading": "Medical specialty concerned with the care of acutely ill hospitalized patients",
+            "services_page_title": "Our Treatments & Services",
+            "contact_page_title": "Contact Us",
+            "contact_form_heading": "Send Us a Message",
+            "clinic_website_url": "",
+            "clinic_landmarks": "Nathaniel's Water Station, Planas Tricycle Terminal Station, Gasoline Station",
             "about_founder_name": "Dr. Paul Foster",
             "about_founder_title": "CEO, Founder",
             "contact_phone": "(+63) 967 406 4184",
@@ -90,14 +96,42 @@ def get_site_content():
         content.hero_subtitle = content.hero_subtitle.replace("Ã¢â‚¬â€", "-")
         updated = True
 
+    fallback_defaults = {
+        "services_page_title": "Our Treatments & Services",
+        "contact_page_title": "Contact Us",
+        "contact_form_heading": "Send Us a Message",
+        "clinic_landmarks": "Nathaniel's Water Station, Planas Tricycle Terminal Station, Gasoline Station",
+    }
+
+    for field_name, value in fallback_defaults.items():
+        if not getattr(content, field_name):
+            setattr(content, field_name, value)
+            updated = True
+
     if updated:
         content.save()
 
     return content
 
 
+def get_published_testimonials():
+    return Testimonial.objects.filter(is_published=True)
+
+
+def get_published_blog_posts():
+    return BlogPost.objects.filter(is_published=True, published_at__lte=timezone.now())
+
+
 def home(request):
-    return render(request, "public/home.html", {"site_content": get_site_content()})
+    return render(
+        request,
+        "public/home.html",
+        {
+            "site_content": get_site_content(),
+            "testimonials": get_published_testimonials()[:4],
+            "featured_posts": get_published_blog_posts()[:3],
+        },
+    )
 
 
 def about(request):
@@ -105,15 +139,47 @@ def about(request):
 
 
 def blog(request):
-    return render(request, "public/pages/blog.html", {"site_content": get_site_content()})
+    blog_posts = get_published_blog_posts()
+    active_category = request.GET.get("category", "").strip()
+    valid_categories = {value for value, _ in BlogPost.Category.choices}
+
+    if active_category in valid_categories:
+        blog_posts = blog_posts.filter(category=active_category)
+    else:
+        active_category = ""
+
+    return render(
+        request,
+        "public/pages/blog.html",
+        {
+            "site_content": get_site_content(),
+            "blog_posts": blog_posts,
+            "blog_categories": BlogPost.Category.choices,
+            "active_blog_category": active_category,
+        },
+    )
+
+
+def blog_detail(request, slug):
+    post = get_object_or_404(
+        BlogPost,
+        slug=slug,
+        is_published=True,
+        published_at__lte=timezone.now(),
+    )
+    return render(
+        request,
+        "public/pages/blog_detail.html",
+        {
+            "site_content": get_site_content(),
+            "post": post,
+            "recent_posts": get_published_blog_posts().exclude(pk=post.pk)[:3],
+        },
+    )
 
 
 def services(request):
     return render(request, "public/pages/services.html", {"site_content": get_site_content()})
-
-
-def doctor(request):
-    return render(request, "public/pages/doctor.html", {"site_content": get_site_content()})
 
 
 def contact(request):

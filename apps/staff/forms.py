@@ -1,6 +1,9 @@
 from django import forms
+from django.utils import timezone
+from django.utils.text import slugify
 
-from apps.public.models import SiteContent
+from apps.public.models import BlogPost, SiteContent, Testimonial
+from apps.public.richtext import normalize_rich_text
 
 
 class SiteContentForm(forms.ModelForm):
@@ -27,10 +30,16 @@ class SiteContentForm(forms.ModelForm):
             "about_kicker",
             "about_heading",
             "about_summary",
+            "about_side_image",
             "about_founder_name",
             "about_founder_title",
             "about_founder_photo",
             "page_banner_background",
+            "services_page_title",
+            "contact_page_title",
+            "contact_form_heading",
+            "clinic_website_url",
+            "clinic_landmarks",
             "contact_phone",
             "contact_email",
             "clinic_address",
@@ -88,10 +97,16 @@ class SiteContentForm(forms.ModelForm):
             "about_kicker": forms.TextInput(attrs={"class": "form-control"}),
             "about_heading": forms.TextInput(attrs={"class": "form-control"}),
             "about_summary": forms.Textarea(attrs={"class": "form-control", "rows": 5}),
+            "about_side_image": forms.ClearableFileInput(attrs={"class": "form-control"}),
             "about_founder_name": forms.TextInput(attrs={"class": "form-control"}),
             "about_founder_title": forms.TextInput(attrs={"class": "form-control"}),
             "about_founder_photo": forms.ClearableFileInput(attrs={"class": "form-control"}),
             "page_banner_background": forms.ClearableFileInput(attrs={"class": "form-control"}),
+            "services_page_title": forms.TextInput(attrs={"class": "form-control"}),
+            "contact_page_title": forms.TextInput(attrs={"class": "form-control"}),
+            "contact_form_heading": forms.TextInput(attrs={"class": "form-control"}),
+            "clinic_website_url": forms.URLInput(attrs={"class": "form-control", "placeholder": "https://yourclinic.com"}),
+            "clinic_landmarks": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
             "contact_phone": forms.TextInput(attrs={"class": "form-control"}),
             "contact_email": forms.EmailInput(attrs={"class": "form-control"}),
             "clinic_address": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
@@ -127,3 +142,75 @@ class SiteContentForm(forms.ModelForm):
             "doctor_title": forms.TextInput(attrs={"class": "form-control"}),
             "doctor_bio": forms.Textarea(attrs={"class": "form-control", "rows": 4}),
         }
+
+
+class TestimonialForm(forms.ModelForm):
+    class Meta:
+        model = Testimonial
+        fields = [
+            "patient_name",
+            "visit_label",
+            "quote",
+            "photo",
+            "sort_order",
+            "is_published",
+        ]
+        widgets = {
+            "patient_name": forms.TextInput(attrs={"class": "form-control"}),
+            "visit_label": forms.TextInput(attrs={"class": "form-control"}),
+            "quote": forms.Textarea(attrs={"class": "form-control", "rows": 5}),
+            "photo": forms.ClearableFileInput(attrs={"class": "form-control"}),
+            "sort_order": forms.NumberInput(attrs={"class": "form-control", "min": 0}),
+            "is_published": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }
+
+
+class BlogPostForm(forms.ModelForm):
+    slug = forms.SlugField(
+        required=False,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
+    published_at = forms.DateTimeField(
+        input_formats=["%Y-%m-%dT%H:%M"],
+        widget=forms.DateTimeInput(
+            format="%Y-%m-%dT%H:%M",
+            attrs={"class": "form-control", "type": "datetime-local"},
+        ),
+    )
+
+    class Meta:
+        model = BlogPost
+        fields = [
+            "title",
+            "slug",
+            "category",
+            "excerpt",
+            "body",
+            "image",
+            "author_name",
+            "published_at",
+            "is_published",
+        ]
+        widgets = {
+            "title": forms.TextInput(attrs={"class": "form-control"}),
+            "category": forms.Select(attrs={"class": "form-control"}),
+            "excerpt": forms.Textarea(attrs={"class": "form-control", "rows": 4}),
+            "body": forms.Textarea(attrs={"class": "form-control", "rows": 12}),
+            "image": forms.ClearableFileInput(attrs={"class": "form-control"}),
+            "author_name": forms.TextInput(attrs={"class": "form-control"}),
+            "is_published": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk and self.instance.published_at:
+            self.initial["published_at"] = timezone.localtime(self.instance.published_at).strftime("%Y-%m-%dT%H:%M")
+        elif not self.initial.get("published_at"):
+            self.initial["published_at"] = timezone.localtime(timezone.now()).strftime("%Y-%m-%dT%H:%M")
+
+    def clean_slug(self):
+        slug = slugify(self.cleaned_data.get("slug", ""))
+        return slug
+
+    def clean_body(self):
+        return normalize_rich_text(self.cleaned_data.get("body", ""))

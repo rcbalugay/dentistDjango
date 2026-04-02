@@ -1,0 +1,387 @@
+{% extends "staff/base.html" %}
+{% block title %}Testimonials{% endblock %}
+
+{% block extra_head %}
+  <style>
+    .content-shell {
+      display: grid;
+      gap: 1.25rem;
+    }
+
+    .content-hero,
+    .content-card {
+      background: #fff;
+      border: 1px solid #dfe6fb;
+      border-radius: 22px;
+      box-shadow: 0 12px 30px rgba(85, 95, 140, 0.08);
+    }
+
+    .content-hero {
+      padding: 1.5rem 1.7rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .content-kicker {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8d99bd;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .content-meta {
+      color: #6d7896;
+      margin-bottom: 0;
+      max-width: 760px;
+    }
+
+    .content-card {
+      padding: 1.2rem 1.3rem;
+    }
+
+    .content-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .content-bulk-bar {
+      display: grid;
+      gap: 0.8rem;
+      padding: 0.95rem 1rem;
+      border-radius: 18px;
+      border: 1px solid #e5eaff;
+      background: #f7f9ff;
+      margin-bottom: 1rem;
+    }
+
+    .content-bulk-tools {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .content-bulk-tools .form-control {
+      min-width: 190px;
+      border-radius: 12px;
+      border: 1px solid #d8e1fb;
+      min-height: 40px;
+    }
+
+    .content-select-all,
+    .entry-select {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      margin-bottom: 0;
+      color: #53617f;
+      font-size: 0.84rem;
+      font-weight: 600;
+    }
+
+    .content-select-all input,
+    .entry-select input {
+      width: 16px;
+      height: 16px;
+    }
+
+    .content-stats {
+      display: flex;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .content-stat {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #4b5f92;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .entry-card {
+      border: 1px solid #e5eaff;
+      border-radius: 18px;
+      padding: 1rem;
+      background: #fbfcff;
+    }
+
+    .entry-header {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 0.85rem;
+      align-items: start;
+      margin-bottom: 0.85rem;
+    }
+
+    .entry-photo {
+      width: 62px;
+      height: 62px;
+      border-radius: 18px;
+      overflow: hidden;
+      background: linear-gradient(145deg, #f4f7ff 0%, #e9efff 100%);
+      border: 1px solid #d9e2ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #7b88a9;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .entry-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .entry-card h5 {
+      margin-bottom: 0.2rem;
+      color: #27314e;
+      font-weight: 700;
+    }
+
+    .entry-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #4b5f92;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+
+    .entry-copy {
+      color: #5e6b8b;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .entry-meta {
+      color: #7a84a1;
+      font-size: 0.88rem;
+      margin-bottom: 1rem;
+    }
+
+    .entry-state {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.22rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+    }
+
+    .entry-state.is-published {
+      background: #e7f7ef;
+      color: #216347;
+    }
+
+    .entry-state.is-hidden {
+      background: #f1f4fb;
+      color: #62708f;
+    }
+
+    .entry-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .entry-actions form {
+      margin: 0;
+    }
+
+    .entry-empty {
+      border: 1px dashed #d9e2ff;
+      border-radius: 18px;
+      padding: 1.4rem;
+      text-align: center;
+      color: #6d7896;
+      background: #fbfcff;
+    }
+
+    @media (max-width: 991.98px) {
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="content-shell">
+    <section class="content-hero">
+      <div>
+        <div class="content-kicker">Website Content</div>
+        <h3 class="font-weight-bold mb-2">Testimonials</h3>
+        <p class="content-meta">Manage the published patient stories that feed the homepage testimonial carousel.</p>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="{% url 'dashboard:website' %}" class="btn btn-light border">Back to Website</a>
+        <a href="{% url 'dashboard:testimonial_create' %}" class="btn btn-primary">Add Testimonial</a>
+      </div>
+    </section>
+
+    <section class="content-card">
+      <div class="content-toolbar">
+        <div class="content-stats">
+          <span class="content-stat">{{ testimonial_count }} total</span>
+          <span class="content-stat">{{ published_testimonial_count }} published</span>
+        </div>
+        <p class="content-meta mb-0">Use publish/hide for quick homepage control, then open Edit when the copy or image itself needs work.</p>
+      </div>
+
+      {% if testimonials %}
+        <form method="post" action="{% url 'dashboard:testimonial_bulk' %}" class="content-bulk-bar" data-bulk-form="testimonial">
+          {% csrf_token %}
+          <input type="hidden" name="selected_ids" data-bulk-selected>
+          <div class="content-bulk-tools">
+            <label class="content-select-all">
+              <input type="checkbox" data-bulk-toggle="testimonial">
+              Select all
+            </label>
+            <select name="bulk_action" class="form-control form-control-sm" data-bulk-action>
+              <option value="publish">Publish selected</option>
+              <option value="hide">Hide selected</option>
+              <option value="delete">Delete selected</option>
+            </select>
+            <button type="submit" class="btn btn-sm btn-dark" data-bulk-submit disabled>Apply to selected</button>
+          </div>
+          <p class="content-meta mb-0" data-bulk-summary>Select one or more testimonials to publish, hide, or remove in one pass.</p>
+        </form>
+
+        <div class="content-grid">
+          {% for testimonial in testimonials %}
+            <article class="entry-card">
+              <div class="entry-header">
+                <div class="entry-photo">
+                  {% if testimonial.photo %}
+                    <img src="{{ testimonial.photo.url }}" alt="{{ testimonial.patient_name }}">
+                  {% else %}
+                    {{ testimonial.patient_name|first|default:"?" }}
+                  {% endif %}
+                </div>
+                <div>
+                  <div class="entry-state {% if testimonial.is_published %}is-published{% else %}is-hidden{% endif %}">
+                    {% if testimonial.is_published %}Published{% else %}Hidden{% endif %}
+                  </div>
+                  <h5>{{ testimonial.patient_name }}</h5>
+                  <div class="entry-pill">{{ testimonial.visit_label|default:"Patient feedback" }}</div>
+                  <label class="entry-select">
+                    <input type="checkbox" value="{{ testimonial.pk }}" data-bulk-checkbox="testimonial">
+                    Select
+                  </label>
+                </div>
+              </div>
+              <p class="entry-copy">{{ testimonial.quote|truncatechars:170 }}</p>
+              <p class="entry-meta">
+                Order: {{ testimonial.sort_order }} |
+                Updated {{ testimonial.updated_at|date:"M d, Y h:i A" }}
+              </p>
+              <div class="entry-actions">
+                <form method="post" action="{% url 'dashboard:testimonial_toggle' testimonial.pk %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm {% if testimonial.is_published %}btn-outline-secondary{% else %}btn-outline-success{% endif %}">
+                    {% if testimonial.is_published %}Hide{% else %}Publish{% endif %}
+                  </button>
+                </form>
+                <a href="{% url 'dashboard:testimonial_edit' testimonial.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                <form method="post" action="{% url 'dashboard:testimonial_delete' testimonial.pk %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                </form>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="entry-empty">
+          No testimonials yet. Add the first one to populate the homepage carousel.
+        </div>
+      {% endif %}
+    </section>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const bulkForm = document.querySelector('[data-bulk-form="testimonial"]');
+      if (!bulkForm) {
+        return;
+      }
+
+      const selectAll = bulkForm.querySelector("[data-bulk-toggle='testimonial']");
+      const selectedInput = bulkForm.querySelector("[data-bulk-selected]");
+      const actionSelect = bulkForm.querySelector("[data-bulk-action]");
+      const submitButton = bulkForm.querySelector("[data-bulk-submit]");
+      const summary = bulkForm.querySelector("[data-bulk-summary]");
+      const checkboxes = Array.from(document.querySelectorAll('[data-bulk-checkbox="testimonial"]'));
+
+      function syncSelection() {
+        const selected = checkboxes.filter(function (checkbox) {
+          return checkbox.checked;
+        }).map(function (checkbox) {
+          return checkbox.value;
+        });
+
+        selectedInput.value = selected.join(",");
+        submitButton.disabled = selected.length === 0;
+        selectAll.checked = selected.length > 0 && selected.length === checkboxes.length;
+        selectAll.indeterminate = selected.length > 0 && selected.length < checkboxes.length;
+
+        if (!selected.length) {
+          summary.textContent = "Select one or more testimonials to publish, hide, or remove in one pass.";
+          return;
+        }
+
+        const actionLabel = actionSelect.options[actionSelect.selectedIndex].text.toLowerCase();
+        summary.textContent = selected.length + " testimonial(s) selected to " + actionLabel + ".";
+      }
+
+      selectAll.addEventListener("change", function () {
+        checkboxes.forEach(function (checkbox) {
+          checkbox.checked = selectAll.checked;
+        });
+        syncSelection();
+      });
+
+      checkboxes.forEach(function (checkbox) {
+        checkbox.addEventListener("change", syncSelection);
+      });
+
+      actionSelect.addEventListener("change", syncSelection);
+
+      bulkForm.addEventListener("submit", function (event) {
+        if (!selectedInput.value) {
+          event.preventDefault();
+        }
+      });
+
+      syncSelection();
+    });
+  </script>
+{% endblock %}
