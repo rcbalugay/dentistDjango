@@ -1,0 +1,30 @@
+warning: in the working copy of 'apps/public/templates/public/base.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/public/templates/public/home.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/public/templates/public/pages/about.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/public/templates/public/pages/contact.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/public/templates/public/pages/services.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/public/tests/test_views.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/public/views.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/staff/templates/staff/base.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/staff/templates/staff/pages/patients.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/staff/templates/staff/pages/profile.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/staff/tests/test_views.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/staff/urls.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/staff/views/__init__.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/staff/views/pages.py', LF will be replaced by CRLF the next time Git touches it
+ apps/public/templates/public/base.html           |  31 [32m+++[m[31m---[m
+ apps/public/templates/public/home.html           |  65 [32m+++++++[m[31m------[m
+ apps/public/templates/public/pages/about.html    |  17 [32m++[m[31m--[m
+ apps/public/templates/public/pages/contact.html  |  10 [32m+[m[31m-[m
+ apps/public/templates/public/pages/services.html |  52 [32m+++++[m[31m------[m
+ apps/public/tests/test_views.py                  |  35 [32m+++++++[m
+ apps/public/views.py                             | 111 [32m++++++++++++++++++++[m[31m--[m
+ apps/staff/templates/staff/base.html             |  34 [32m+++[m[31m----[m
+ apps/staff/templates/staff/pages/patients.html   |   2 [32m+[m[31m-[m
+ apps/staff/templates/staff/pages/profile.html    | 114 [32m++++++++++++++++++++++[m[31m-[m
+ apps/staff/tests/test_views.py                   |  91 [32m++++++++++++++++++[m
+ apps/staff/urls.py                               |   6 [32m++[m
+ apps/staff/views/__init__.py                     |   2 [32m+[m[31m-[m
+ apps/staff/views/pages.py                        |  73 [32m+++++++++++++[m[31m--[m
+ requirements.txt                                 |   1 [32m+[m
+ 15 files changed, 520 insertions(+), 124 deletions(-)

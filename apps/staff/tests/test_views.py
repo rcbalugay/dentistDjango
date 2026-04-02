@@ -10,6 +10,7 @@ from django.urls import reverse
 
 from apps.appointments.models import Appointment
 from apps.patients.models import Patient, PatientDocument
+from apps.public.models import SiteContent
 
 # Create your tests here.
 @override_settings(WEATHERAPI_KEY="", SECURE_SSL_REDIRECT=False)
@@ -29,6 +30,10 @@ class DashboardAccessSmokeTests(TestCase):
             reverse("dashboard:home"),
             reverse("dashboard:appointments"),
             reverse("dashboard:patients"),
+            reverse("dashboard:inquiries"),
+            reverse("dashboard:website"),
+            reverse("dashboard:settings"),
+            reverse("dashboard:profile"),
         ]
 
     def test_protected_pages_require_login(self):
@@ -49,6 +54,17 @@ class DashboardAccessSmokeTests(TestCase):
         for url in self.protected_urls:
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
+
+    def test_legacy_message_and_blog_routes_redirect_to_new_pages(self):
+        self.client.login(username="staff", password="pass12345")
+
+        response = self.client.get(reverse("dashboard:message"))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("dashboard:inquiries"))
+
+        response = self.client.get(reverse("dashboard:blog"))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("dashboard:website"))
 
     def test_staff_created_appointment_is_confirmed(self):
         self.client.login(username="staff", password="pass12345")
@@ -189,4 +205,79 @@ class PatientWorkspaceDocumentTests(TestCase):
                 title="Signed agreement",
                 document_type=PatientDocument.TYPE_AGREEMENT,
             ).exists()
+        )
+
+@override_settings(WEATHERAPI_KEY="", SECURE_SSL_REDIRECT=False)
+class WebsiteManagementTests(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.staff = User.objects.create_user(
+            "webstaff",
+            password="pass12345",
+            is_staff=True,
+        )
+        self.content = SiteContent.objects.create(
+            hero_title="Original Hero",
+            hero_subtitle="Original subtitle",
+            hero_cta_text="Book Now",
+            about_summary="Original about summary",
+            contact_phone="09170000000",
+            contact_email="original@test.com",
+            clinic_address="Original address",
+            hours_line_1_label="Mon-Fri",
+            hours_line_1_value="9:00am - 5:00pm",
+            hours_line_2_label="Sat",
+            hours_line_2_value="Closed",
+            service_1_title="Service One",
+            service_1_summary="Service one summary",
+            service_2_title="Service Two",
+            service_2_summary="Service two summary",
+            service_3_title="Service Three",
+            service_3_summary="Service three summary",
+        )
+
+    def test_staff_can_open_website_management_page(self):
+        self.client.login(username="webstaff", password="pass12345")
+        response = self.client.get(reverse("dashboard:website"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Website Management")
+        self.assertIn("form", response.context)
+
+    def test_staff_can_update_website_content(self):
+        self.client.login(username="webstaff", password="pass12345")
+
+        response = self.client.post(
+            reverse("dashboard:website"),
+            {
+                "hero_title": "Updated Hero",
+                "hero_subtitle": "Updated subtitle",
+                "hero_cta_text": "Schedule Today",
+                "about_summary": "Updated about summary",
+                "contact_phone": "09171112222",
+                "contact_email": "updated@test.com",
+                "clinic_address": "Updated clinic address",
+                "hours_line_1_label": "Mon-Wed",
+                "hours_line_1_value": "8:00am - 4:00pm",
+                "hours_line_2_label": "Thu-Sat",
+                "hours_line_2_value": "10:00am - 6:00pm",
+                "service_1_title": "Updated Service 1",
+                "service_1_summary": "Updated service 1 summary",
+                "service_2_title": "Updated Service 2",
+                "service_2_summary": "Updated service 2 summary",
+                "service_3_title": "Updated Service 3",
+                "service_3_summary": "Updated service 3 summary",
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.content.refresh_from_db()
+        self.assertEqual(self.content.hero_title, "Updated Hero")
+        self.assertEqual(self.content.contact_email, "updated@test.com")
+        self.assertEqual(self.content.service_3_title, "Updated Service 3")
+        self.assertEqual(
+            response.redirect_chain,
+            [(f"{reverse('dashboard:website')}?saved=1", 302)],
         )

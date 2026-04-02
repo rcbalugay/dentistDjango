@@ -139,21 +139,21 @@
           <div class="w-100"></div>
           <div class="col-md-3 d-flex">
           	<div class="bg-light d-flex align-self-stretch box p-4">
-	            <p><span>Address:</span> Purok 1 Planas Bridge, Porac, Pampanga 2008</p>
+	            <p><span>Address:</span> {{ site_content.clinic_address }}</p>
 	          </div>
           </div>
           <div class="col-md-3 d-flex">
           	<div class="bg-light d-flex align-self-stretch box p-4">
-	            <p><span>Phone:</span> <a href="tel:(+63)967 406 4184">(+63) 967 406 4184</a></p>
+	            <p><span>Phone:</span> <a href="tel:{{ site_content.contact_phone }}">{{ site_content.contact_phone }}</a></p>
 	          </div>
           </div>
           <div class="col-md-3 d-flex">
           	<div class="bg-light d-flex align-self-stretch box p-4">
-	            <p><span>Email:</span> <a href="mailto:test@gmail.com">test@gmail.com</a></p>
+	            <p><span>Email:</span> <a href="mailto:{{ site_content.contact_email }}">{{ site_content.contact_email }}</a></p>
 	          </div>
           </div>
           <div class="col-md-3 d-flex">
-          	<div class="bg-light d-flex align-self-stretch box p-4">
+            <div class="bg-light d-flex align-self-stretch box p-4">
 	            <p><span>Website</span> <a href="#">yoursite.com</a></p>
 	          </div>
           </div>

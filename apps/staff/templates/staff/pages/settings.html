@@ -1,0 +1,134 @@
+{% extends "staff/base.html" %}
+{% block title %}Settings{% endblock %}
+
+{% block extra_head %}
+  <style>
+    .draft-shell {
+      display: grid;
+      gap: 1.25rem;
+    }
+    .draft-hero,
+    .draft-card {
+      background: #fff;
+      border: 1px solid #dfe6fb;
+      border-radius: 22px;
+      box-shadow: 0 12px 30px rgba(85, 95, 140, 0.08);
+    }
+    .draft-hero {
+      padding: 1.5rem 1.7rem;
+    }
+    .draft-kicker {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8d99bd;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+    .draft-subcopy {
+      color: #6d7896;
+      max-width: 760px;
+      margin-bottom: 0;
+    }
+    .draft-card {
+      padding: 1.25rem 1.35rem;
+      height: 100%;
+    }
+    .draft-card h5 {
+      font-weight: 700;
+      color: #27314e;
+      margin-bottom: 0.45rem;
+    }
+    .draft-list {
+      margin: 0;
+      padding-left: 1rem;
+      color: #53607f;
+    }
+    .draft-list li + li {
+      margin-top: 0.45rem;
+    }
+    .draft-priority {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.28rem 0.72rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      background: #fff5df;
+      color: #b97800;
+      margin-bottom: 0.55rem;
+    }
+    .draft-meta {
+      color: #6c7898;
+      margin-bottom: 0;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="draft-shell">
+    <section class="draft-hero">
+      <div class="draft-kicker">Operations</div>
+      <h3 class="font-weight-bold mb-2">Settings</h3>
+      <p class="draft-subcopy">
+        This page should hold clinic-wide configuration, not personal profile details. It is best for owner/admin controls that affect how appointments and the website operate.
+      </p>
+    </section>
+
+    <div class="row">
+      <div class="col-lg-6 mb-4">
+        <section class="draft-card">
+          <div class="draft-priority">High Priority</div>
+          <h5>Clinic Information</h5>
+          <ul class="draft-list">
+            <li>Clinic name, phone, email, and address</li>
+            <li>Business hours and holiday closures</li>
+            <li>Maps link and social links</li>
+          </ul>
+        </section>
+      </div>
+      <div class="col-lg-6 mb-4">
+        <section class="draft-card">
+          <div class="draft-priority">High Priority</div>
+          <h5>Appointment Rules</h5>
+          <ul class="draft-list">
+            <li>Cutoff windows and available booking days</li>
+            <li>Default appointment durations or time slots</li>
+            <li>Staff confirmation requirements</li>
+          </ul>
+        </section>
+      </div>
+      <div class="col-lg-6 mb-4">
+        <section class="draft-card">
+          <div class="draft-kicker">Admin</div>
+          <h5>Notifications & Email</h5>
+          <ul class="draft-list">
+            <li>Contact form destination email</li>
+            <li>Appointment notification preferences</li>
+            <li>Future reminder templates</li>
+          </ul>
+        </section>
+      </div>
+      <div class="col-lg-6 mb-4">
+        <section class="draft-card">
+          <div class="draft-kicker">Later</div>
+          <h5>Access & Roles</h5>
+          <ul class="draft-list">
+            <li>Owner vs staff permissions</li>
+            <li>Who can edit website content</li>
+            <li>Who can access patient uploads and settings</li>
+          </ul>
+        </section>
+      </div>
+      <div class="col-lg-12">
+        <section class="draft-card">
+          <div class="draft-kicker">Scope Guard</div>
+          <h5>Keep Settings Focused</h5>
+          <p class="draft-meta mb-0">
+            Use this page only for clinic-wide configuration. Personal account edits belong in Profile, and public-facing text/images belong in the Website workspace.
+          </p>
+        </section>
+      </div>
+    </div>
+  </div>
+{% endblock %}

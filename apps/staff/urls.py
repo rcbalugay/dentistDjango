@@ -7,10 +7,13 @@ from .views import (
     appointments_chart,
     appointments_form,
     blog,
+    inquiries,
     index,
     message,
     patients,
     profile,
+    settings_page,
+    website,
 )
 
 app_name = "dashboard"
@@ -20,9 +23,12 @@ urlpatterns = [
     path("appointments/", appointments, name="appointments"),
     path("appointments/new/", appointments_form, name="appointments_form"),
     path("patients/", patients, name="patients"),
+    path("inquiries/", inquiries, name="inquiries"),
     path("message/", message, name="message"),
+    path("website/", website, name="website"),
     path("profile/", profile, name="profile"),
     path("blog/", blog, name="blog"),
+    path("settings/", settings_page, name="settings"),
     path("login/", RememberMeLoginView.as_view(), name="login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("chart-date/", appointments_chart, name="appointments_chart"),

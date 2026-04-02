@@ -1,0 +1,154 @@
+{% extends "staff/base.html" %}
+{% block title %}Inquiries{% endblock %}
+
+{% block extra_head %}
+  <style>
+    .draft-shell {
+      display: grid;
+      gap: 1.25rem;
+    }
+    .draft-hero,
+    .draft-card {
+      background: #fff;
+      border: 1px solid #dfe6fb;
+      border-radius: 22px;
+      box-shadow: 0 12px 30px rgba(85, 95, 140, 0.08);
+    }
+    .draft-hero {
+      padding: 1.5rem 1.7rem;
+    }
+    .draft-kicker {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8d99bd;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+    .draft-subcopy {
+      color: #6d7896;
+      max-width: 760px;
+      margin-bottom: 0;
+    }
+    .draft-card {
+      padding: 1.25rem 1.35rem;
+      height: 100%;
+    }
+    .draft-card h5 {
+      font-weight: 700;
+      color: #27314e;
+      margin-bottom: 0.45rem;
+    }
+    .draft-note {
+      padding: 0.95rem 1rem;
+      border-radius: 16px;
+      background: #f5f7ff;
+      border: 1px solid #dce4ff;
+      color: #5d6988;
+      font-size: 0.94rem;
+      margin-bottom: 1rem;
+    }
+    .draft-stat {
+      border-radius: 18px;
+      background: linear-gradient(135deg, #f8faff 0%, #eef2ff 100%);
+      border: 1px solid #dfe6fb;
+      padding: 1rem 1.1rem;
+      height: 100%;
+    }
+    .draft-stat-label {
+      color: #8b97b7;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+    .draft-stat-value {
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: #2d3a5d;
+      line-height: 1.1;
+      margin-top: 0.45rem;
+    }
+    .draft-list {
+      margin: 0;
+      padding-left: 1rem;
+      color: #53607f;
+    }
+    .draft-list li + li {
+      margin-top: 0.45rem;
+    }
+    .draft-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.28rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      background: #ecf3ff;
+      color: #5566d9;
+      margin-right: 0.4rem;
+      margin-bottom: 0.4rem;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="draft-shell">
+    <section class="draft-hero">
+      <div class="draft-kicker">Inbox</div>
+      <h3 class="font-weight-bold mb-2">Inquiries</h3>
+      <p class="draft-subcopy">
+        This will replace the old Message page with a real inquiry inbox for contact submissions, appointment questions, and follow-up requests.
+      </p>
+    </section>
+
+    <div class="draft-note">
+      Current state: the public contact form sends email directly to <code>CONTACT_EMAIL</code>. To make this workspace real, we should store each submission in the database and let staff mark it as new, read, or resolved.
+    </div>
+
+    <div class="row">
+      <div class="col-md-4 mb-4">
+        <div class="draft-stat">
+          <div class="draft-stat-label">New Inbox Items</div>
+          <div class="draft-stat-value">Planned</div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-4">
+        <div class="draft-stat">
+          <div class="draft-stat-label">Needs Response</div>
+          <div class="draft-stat-value">Planned</div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-4">
+        <div class="draft-stat">
+          <div class="draft-stat-label">Resolved Today</div>
+          <div class="draft-stat-value">Planned</div>
+        </div>
+      </div>
+      <div class="col-lg-7 mb-4">
+        <section class="draft-card">
+          <div class="draft-kicker">Workflow</div>
+          <h5>Recommended First Version</h5>
+          <ul class="draft-list">
+            <li>Left-side inquiry queue with status filters: New, Read, Resolved</li>
+            <li>Right-side inquiry detail with sender, subject, message, and submitted time</li>
+            <li>Quick actions to mark read, resolve, or archive</li>
+            <li>Optional reply action that opens the staff email client later</li>
+          </ul>
+        </section>
+      </div>
+      <div class="col-lg-5 mb-4">
+        <section class="draft-card">
+          <div class="draft-kicker">Sources</div>
+          <h5>What Should Land Here</h5>
+          <div>
+            <span class="draft-pill">Website Contact Form</span>
+            <span class="draft-pill">Appointment Questions</span>
+            <span class="draft-pill">Follow-up Requests</span>
+            <span class="draft-pill">Manual Staff Notes Later</span>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+{% endblock %}

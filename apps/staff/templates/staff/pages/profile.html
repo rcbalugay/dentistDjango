@@ -1,6 +1,116 @@
 {% extends "staff/base.html" %}
 {% block title %}Profile{% endblock %}
+
+{% block extra_head %}
+  <style>
+    .draft-shell {
+      display: grid;
+      gap: 1.25rem;
+    }
+    .draft-hero,
+    .draft-card {
+      background: #fff;
+      border: 1px solid #dfe6fb;
+      border-radius: 22px;
+      box-shadow: 0 12px 30px rgba(85, 95, 140, 0.08);
+    }
+    .draft-hero {
+      padding: 1.5rem 1.7rem;
+    }
+    .draft-kicker {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8d99bd;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+    .draft-subcopy {
+      color: #6d7896;
+      max-width: 720px;
+      margin-bottom: 0;
+    }
+    .draft-card {
+      padding: 1.25rem 1.35rem;
+      height: 100%;
+    }
+    .draft-card h5 {
+      font-weight: 700;
+      color: #27314e;
+      margin-bottom: 0.35rem;
+    }
+    .draft-meta {
+      color: #7e89ac;
+      font-size: 0.95rem;
+    }
+    .draft-list {
+      margin: 0;
+      padding-left: 1rem;
+      color: #53607f;
+    }
+    .draft-list li + li {
+      margin-top: 0.45rem;
+    }
+    .draft-stat {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.3rem 0.8rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      background: #eef3ff;
+      color: #5566d9;
+    }
+  </style>
+{% endblock %}
+
 {% block content %}
-  <h3 class="font-weight-bold mb-4">Profile</h3>
-  <p>Coming soon…</p>
+  <div class="draft-shell">
+    <section class="draft-hero">
+      <div class="draft-kicker">Account</div>
+      <h3 class="font-weight-bold mb-2">Profile</h3>
+      <p class="draft-subcopy">
+        This page is the personal workspace for the signed-in staff account. It belongs in the account menu, not in the main clinic workflow.
+      </p>
+    </section>
+
+    <div class="row">
+      <div class="col-lg-6 mb-4">
+        <section class="draft-card">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <div class="draft-kicker">Identity</div>
+              <h5>Account Basics</h5>
+            </div>
+            <span class="draft-stat">Draft</span>
+          </div>
+          <ul class="draft-list">
+            <li>Display name and preferred role label</li>
+            <li>Email address and contact number</li>
+            <li>Profile image and quick account summary</li>
+          </ul>
+        </section>
+      </div>
+      <div class="col-lg-6 mb-4">
+        <section class="draft-card">
+          <div class="draft-kicker">Security</div>
+          <h5>Sign-In & Access</h5>
+          <ul class="draft-list">
+            <li>Password change</li>
+            <li>Recent sign-in activity</li>
+            <li>Optional device/session visibility later</li>
+          </ul>
+        </section>
+      </div>
+      <div class="col-lg-12">
+        <section class="draft-card">
+          <div class="draft-kicker">Recommendation</div>
+          <h5>How This Should Be Used</h5>
+          <p class="draft-meta mb-0">
+            Keep profile changes personal and lightweight here. Clinic-wide controls belong in Settings, and patient-facing website changes belong in the Website workspace.
+          </p>
+        </section>
+      </div>
+    </div>
+  </div>
 {% endblock %}

@@ -5,27 +5,27 @@
 
 <!-- Start of Welcome Area -->
     <section class="home-slider owl-carousel">
-      <div class="slider-item" style="background-image:url({% static 'website/images/bg_1.jpg' %});" data-stellar-background-ratio="0.5">
+      <div class="slider-item" style="background-image:url('{% if site_content.hero_slide_1_background %}{{ site_content.hero_slide_1_background.url }}{% else %}{% static 'website/images/bg_1.jpg' %}{% endif %}');" data-stellar-background-ratio="0.5">
       	<div class="overlay"></div>
         <div class="container">
           <div class="row no-gutters slider-text align-items-center justify-content-end" data-scrollax-parent="true">
           <div class="col-md-6 text ftco-animate">
-            <h1 class="mb-4">We're Here for You. <span>Dentistry That Understands.</span></h1>
-            <h3 class="subheading">Say goodbye to anxiety. We focus on gentle, compassionate care tailored to your comfort level, making every step—from cleaning to advanced procedure—as easy as possible.</h3>
-            <p><a href="#" class="btn btn-secondary px-4 py-3 mt-3">Make an Appointment</a></p>
+            <h1 class="mb-4">{{ site_content.hero_title }}</h1>
+            <h3 class="subheading">{{ site_content.hero_subtitle }}</h3>
+            <p><a href="{% url 'appointment_form' %}" class="btn btn-secondary px-4 py-3 mt-3">{{ site_content.hero_cta_text }}</a></p>
           </div>
         </div>
         </div>
       </div>
 
-      <div class="slider-item" style="background-image:url({% static 'website/images/bg_2.jpg' %});">
+      <div class="slider-item" style="background-image:url('{% if site_content.hero_slide_2_background %}{{ site_content.hero_slide_2_background.url }}{% else %}{% static 'website/images/bg_2.jpg' %}{% endif %}');">
       	<div class="overlay"></div>
         <div class="container">
           <div class="row no-gutters slider-text align-items-center justify-content-end" data-scrollax-parent="true">
           <div class="col-md-6 text ftco-animate">
-            <h1 class="mb-4">Your Confident Smile <br>Starts Here</h1>
-            <h3 class="subheading">Unlock your true potential with comprehensive, cutting-edge cosmetic dental care. <strong>Schedule</strong> your consultation today to design the lasting impression you deserve.</h3>
-            <p><a href="#" class="btn btn-secondary px-4 py-3 mt-3">Make an Appointment</a></p>
+            <h1 class="mb-4">{{ site_content.hero_slide_2_title|default:"Your Confident Smile Starts Here" }}</h1>
+            <h3 class="subheading">{{ site_content.hero_slide_2_subtitle|default:"Unlock your true potential with comprehensive, cutting-edge cosmetic dental care. Schedule your consultation today to design the lasting impression you deserve." }}</h3>
+            <p><a href="{% url 'appointment_form' %}" class="btn btn-secondary px-4 py-3 mt-3">{{ site_content.hero_slide_2_cta_text|default:"Make an Appointment" }}</a></p>
           </div>
         </div>
         </div>
@@ -38,9 +38,9 @@
     	<div class="container">
     		<div class="row justify-content-center mb-5 pb-2">
           <div class="col-md-8 text-center heading-section">
-            <span class="subheading">Services</span>
-            <h2 class="mb-4">Our Clinic Services</h2>
-            <p>We offer a range of dental services to help you achieve your best smile.</p>
+            <span class="subheading">{{ site_content.home_services_kicker }}</span>
+            <h2 class="mb-4">{{ site_content.home_services_heading }}</h2>
+            <p>{{ site_content.home_services_intro }}</p>
           </div>
         </div>
 
@@ -48,12 +48,12 @@
           <div class="col-md-4 text-center d-flex align-items-stretch">
             <div class="services">
               <div class="d-flex justify-content-center align-items-center"><a href="{% url 'services' %}">
-              <img src="{% static 'website/images/dept-2.jpg' %}"
+              <img src="{% if site_content.service_1_image %}{{ site_content.service_1_image.url }}{% else %}{% static 'website/images/dept-2.jpg' %}{% endif %}"
                    alt="General Dentistry" class="service-img" width="96" height="96" loading="lazy">
               </a></div>
               <div class="text mt-3">
-                <h3>General Dentistry</h3>
-                <p>Comprehensive oral exams, cleaning, and preventive dental care for all ages.</p>
+                <h3>{{ site_content.service_1_title }}</h3>
+                <p>{{ site_content.service_1_summary }}</p>
               </div>
             </div>
         </div>
@@ -61,12 +61,12 @@
         <div class="col-md-4 text-center d-flex align-items-stretch">
             <div class="services">
               <div class="d-flex justify-content-center align-items-center"><a href="{% url 'services' %}">
-              <img src="{% static 'website/images/dept-4.jpg' %}"
+              <img src="{% if site_content.service_2_image %}{{ site_content.service_2_image.url }}{% else %}{% static 'website/images/dept-4.jpg' %}{% endif %}"
                    alt="Pediatric Dentistry" class="service-img" width="96" height="96" loading="lazy">
               </a></div>
               <div class="text mt-3">
-                <h3>Pediatric Dentistry</h3>
-                <p>Gentle and fun dental care tailored for children to build lifelong oral habits.</p>
+                <h3>{{ site_content.service_2_title }}</h3>
+                <p>{{ site_content.service_2_summary }}</p>
               </div>
             </div>
         </div>
@@ -74,12 +74,12 @@
         <div class="col-md-4 text-center d-flex align-items-stretch">
             <div class="services">
               <div class="d-flex justify-content-center align-items-center"><a href="{% url 'services' %}">
-              <img src="{% static 'website/images/dept-9.jpg' %}"
+              <img src="{% if site_content.service_3_image %}{{ site_content.service_3_image.url }}{% else %}{% static 'website/images/dept-9.jpg' %}{% endif %}"
                    alt="Orthodontics" class="service-img" width="96" height="96" loading="lazy">
               </a></div>
               <div class="text mt-3">
-                <h3>Orthodontics</h3>
-                <p>Braces and aligner treatments to correct teeth alignment and improve smiles.</p>
+                <h3>{{ site_content.service_3_title }}</h3>
+                <p>{{ site_content.service_3_summary }}</p>
               </div>
             </div>
           </div>
@@ -88,12 +88,12 @@
     </section>
 <!-- End of Services -->
 
-    <section class="ftco-section intro" style="background-image: url( {% static 'website/images/bg_3.jpg' %} );" data-stellar-background-ratio="0.5">
+    <section class="ftco-section intro" style="background-image: url('{% if site_content.home_intro_background %}{{ site_content.home_intro_background.url }}{% else %}{% static 'website/images/bg_3.jpg' %}{% endif %}');" data-stellar-background-ratio="0.5">
     	<div class="container">
     		<div class="row">
     			<div class="col-md-6">
-    				<h3 class="mb-4">We promised to take care our patients and we delivered.</h3>
-    				<p>A small river named Duden flows by their place and supplies it with the necessary regelialia. It is a paradisematic country</p>
+    				<h3 class="mb-4">{{ site_content.home_intro_heading }}</h3>
+    				<p>{{ site_content.home_intro_text }}</p>
     			</div>
     		</div>
     	</div>
@@ -104,22 +104,21 @@
 			<div class="container">
 				<div class="row justify-content-center mb-5 pb-2">
           <div class="col-md-8 text-center heading-section ftco-animate">
-          	<span class="subheading">Our Staff Team</span>
-            <h2 class="mb-4">Meet the Person Behind Your Smile</h2>
-            <p>Discover the dedicated clinician who will personally oversee your care at every visit..</p>
+          	<span class="subheading">{{ site_content.home_doctor_kicker }}</span>
+            <h2 class="mb-4">{{ site_content.home_doctor_heading }}</h2>
+            <p>{{ site_content.home_doctor_intro }}</p>
           </div>
         </div>	
 				<div class="row justify-content-center">
           <div class="col-12 col-md-8 col-lg-6">
             <div class="card doctor-card text-center p-4">
-              <img src="{% static 'website/images/doc-4.jpg' %}" class="img-fluid rounded mb-3"
-                   alt="Dr. Gennie Lyn Perez, Dentist">
-              <h3 class="mb-1">Dr. Gennie Lyn Perez, DMD</h3>
-              <div class="text-muted mb-2">General & Pediatric Dentistry</div>
+              <img src="{% if site_content.about_founder_photo %}{{ site_content.about_founder_photo.url }}{% else %}{% static 'website/images/doc-4.jpg' %}{% endif %}" class="img-fluid rounded mb-3"
+                   alt="{{ site_content.doctor_name|default:'Doctor' }}">
+              <h3 class="mb-1">{{ site_content.doctor_name }}</h3>
+              <div class="text-muted mb-2">{{ site_content.doctor_title }}</div>
 
               <p class="mb-3">
-                Gentle, prevention-focused care with special interest in minimally invasive dentistry.
-                Member, Philippine Dental Association.
+                {{ site_content.doctor_bio }}
               </p>
 
               <div class="d-flex gap-2 justify-content-center">

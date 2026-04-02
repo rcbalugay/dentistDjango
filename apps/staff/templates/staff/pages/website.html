@@ -1,0 +1,1280 @@
+{% extends "staff/base.html" %}
+{% block title %}Website{% endblock %}
+
+{% block extra_head %}
+  <style>
+    .website-shell {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .website-hero,
+    .website-card {
+      background: #fff;
+      border: 1px solid #dfe6fb;
+      border-radius: 22px;
+      box-shadow: 0 12px 30px rgba(85, 95, 140, 0.08);
+    }
+
+    .website-hero {
+      padding: 1.7rem 1.8rem;
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.95fr);
+      gap: 1.25rem;
+      background: linear-gradient(145deg, #ffffff 0%, #f6f8ff 58%, #eef2ff 100%);
+    }
+
+    .website-kicker {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8d99bd;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .website-subcopy {
+      color: #6d7896;
+      max-width: 760px;
+      margin-bottom: 0;
+      line-height: 1.7;
+    }
+
+    .website-card {
+      padding: 1.35rem 1.45rem;
+    }
+
+    .website-card--compact {
+      padding: 1.05rem 1.25rem;
+    }
+
+    .website-form .row > [class*="col-"] {
+      align-self: start;
+    }
+
+    .website-hero-main h3 {
+      font-size: 2rem;
+      line-height: 1.15;
+      color: #27314e;
+    }
+
+    .website-hero-points {
+      display: grid;
+      gap: 0.8rem;
+      align-content: start;
+    }
+
+    .website-hero-point {
+      padding: 1rem 1.05rem;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(129, 148, 214, 0.2);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    }
+
+    .website-hero-point strong {
+      display: block;
+      color: #27314e;
+      margin-bottom: 0.2rem;
+      font-size: 0.97rem;
+    }
+
+    .website-hero-point span {
+      color: #667392;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      display: block;
+    }
+
+    .website-card h5 {
+      font-weight: 700;
+      color: #27314e;
+      margin-bottom: 0.35rem;
+    }
+
+    .website-meta {
+      color: #6c7898;
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+
+    .website-form label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #7c89ad;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+
+    .website-form .form-group {
+      margin-bottom: 1rem;
+      transition: transform 0.18s ease;
+    }
+
+    .website-form .form-control {
+      border-radius: 14px;
+      border: 1px solid #d8e1fb;
+      min-height: 48px;
+      box-shadow: none;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+      background: #fbfcff;
+    }
+
+    .website-form textarea.form-control {
+      min-height: auto;
+      resize: vertical;
+    }
+
+    .website-form .form-control[type="file"] {
+      min-height: auto;
+      padding: 0.7rem 0.85rem;
+      background: #fff;
+    }
+
+    .website-form .form-control:focus {
+      border-color: #8a84ec;
+      box-shadow: 0 0 0 4px rgba(90, 84, 209, 0.08);
+      background: #fff;
+    }
+
+    .website-form .form-group.is-dirty {
+      transform: translateY(-1px);
+    }
+
+    .website-form .form-group.is-dirty label {
+      color: #5a54d1;
+    }
+
+    .website-form .form-group.is-dirty .form-control {
+      border-color: #8a84ec;
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(90, 84, 209, 0.08);
+    }
+
+    .website-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+      padding: 0.55rem;
+      border-radius: 20px;
+      border: 1px solid #dfe6fb;
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 12px 30px rgba(85, 95, 140, 0.08);
+      position: sticky;
+      top: 1rem;
+      z-index: 5;
+    }
+
+    .website-tab-summary {
+      display: flex;
+      gap: 0.75rem;
+      align-items: baseline;
+      padding: 0.9rem 1rem;
+      border-radius: 18px;
+      border: 1px solid #e5eaff;
+      background: rgba(255, 255, 255, 0.88);
+      color: #5f6d8f;
+      margin-bottom: 1rem;
+    }
+
+    .website-tab-summary strong {
+      color: #27314e;
+      font-size: 0.92rem;
+      white-space: nowrap;
+    }
+
+    .website-tab-summary span {
+      font-size: 0.94rem;
+      line-height: 1.55;
+    }
+
+    .website-tab-btn {
+      position: relative;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #51607f;
+      border-radius: 999px;
+      padding: 0.78rem 1.05rem;
+      font-weight: 700;
+      font-size: 0.92rem;
+      line-height: 1;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .website-tab-btn:hover,
+    .website-tab-btn:focus-visible {
+      background: rgba(90, 84, 209, 0.08);
+      color: #5a54d1;
+      outline: none;
+    }
+
+    .website-tab-btn.is-active {
+      background: linear-gradient(135deg, #5a54d1 0%, #4c77df 100%);
+      color: #fff;
+      border-color: #5a54d1;
+      box-shadow: 0 12px 24px rgba(90, 84, 209, 0.18);
+    }
+
+    .website-tab-btn.has-changes::after {
+      content: "";
+      position: absolute;
+      top: 0.5rem;
+      right: 0.55rem;
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 999px;
+      background: #5a54d1;
+      box-shadow: 0 0 0 3px rgba(90, 84, 209, 0.12);
+    }
+
+    .website-tab-btn.is-active.has-changes::after {
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.18);
+    }
+
+    .website-section.is-hidden,
+    .website-column.is-hidden {
+      display: none;
+    }
+
+    .website-column--expanded {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+
+    .website-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1rem;
+      padding: 0.9rem 1rem;
+      border-radius: 20px;
+      border: 1px solid #dfe6fb;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 12px 30px rgba(85, 95, 140, 0.08);
+      position: sticky;
+      bottom: 1rem;
+      z-index: 4;
+    }
+
+    .website-actions-meta {
+      display: grid;
+      gap: 0.22rem;
+    }
+
+    .website-note {
+      color: #6d7896;
+      font-size: 0.95rem;
+      margin-bottom: 0;
+      max-width: 700px;
+    }
+
+    .website-note.is-dirty {
+      color: #3f4f79;
+      font-weight: 600;
+    }
+
+    .website-note.is-saved {
+      color: #216347;
+      font-weight: 600;
+    }
+
+    .website-last-updated {
+      color: #8a95b7;
+      font-size: 0.84rem;
+      margin-bottom: 0;
+    }
+
+    .website-save-button.is-dirty {
+      box-shadow: 0 12px 24px rgba(90, 84, 209, 0.18);
+    }
+
+    .website-save-button.is-saved {
+      background: linear-gradient(135deg, #2f9d68 0%, #35b477 100%);
+      border-color: #2f9d68;
+      box-shadow: 0 12px 24px rgba(47, 157, 104, 0.18);
+    }
+
+    .website-preview-label {
+      display: block;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #8a95b7;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .website-preview-value {
+      color: #27314e;
+      font-weight: 600;
+      word-break: break-word;
+    }
+
+    .website-divider {
+      border: 0;
+      border-top: 1px solid #e8edff;
+      margin: 1.35rem 0;
+    }
+
+    .website-services-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .website-service-card {
+      padding: 0.95rem 1rem;
+      border-radius: 18px;
+      border: 1px solid #ebefff;
+      background: #fff;
+    }
+
+    .website-service-card h6 {
+      margin: 0 0 0.15rem;
+      color: #27314e;
+      font-weight: 700;
+      font-size: 0.98rem;
+    }
+
+    .website-service-card p {
+      color: #7a84a1;
+      font-size: 0.88rem;
+      line-height: 1.45;
+      margin-bottom: 0.8rem;
+      max-width: 30ch;
+    }
+
+    .website-media-preview {
+      padding: 0.85rem;
+      border-radius: 16px;
+      border: 1px dashed #d7dff9;
+      background: #fff;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+    }
+
+    .website-media-preview.is-dirty {
+      border-color: #8a84ec;
+      box-shadow: 0 0 0 4px rgba(90, 84, 209, 0.08);
+      transform: translateY(-1px);
+    }
+
+    .website-media-preview img {
+      width: 110px;
+      height: 88px;
+      object-fit: cover;
+      border-radius: 14px;
+      border: 1px solid #d8e1fb;
+      display: block;
+    }
+
+    .website-guidance-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+
+    .website-guidance-grid--single {
+      grid-template-columns: 1fr;
+    }
+
+    .website-guidance-card {
+      padding: 0.95rem 1rem;
+      border-radius: 16px;
+      border: 1px dashed #d9e2ff;
+      background: #fbfcff;
+    }
+
+    .website-guidance-card strong {
+      display: block;
+      color: #27314e;
+      margin-bottom: 0.3rem;
+      font-size: 0.96rem;
+    }
+
+    .website-guidance-card span {
+      color: #6d7896;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      display: block;
+    }
+
+    @media (max-width: 991.98px) {
+      .website-hero {
+        grid-template-columns: 1fr;
+      }
+
+      .website-tabs {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding-bottom: 0.25rem;
+      }
+
+      .website-tab-summary {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .website-tab-btn {
+        white-space: nowrap;
+      }
+
+      .website-services-grid,
+      .website-guidance-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .website-actions {
+        align-items: stretch;
+        flex-direction: column;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="website-shell">
+    <section class="website-hero">
+      <div class="website-hero-main">
+        <div class="website-kicker">Public Site</div>
+        <h3 class="font-weight-bold mb-2">Website Management</h3>
+        <p class="website-subcopy">
+          Update the core public-facing clinic content here. The editor is grouped by surface so you can
+          adjust homepage copy, public imagery, clinic details, and service content without hunting through
+          one long page.
+        </p>
+      </div>
+
+      <div class="website-hero-points">
+        <div class="website-hero-point">
+          <strong>Homepage-first workflow</strong>
+          <span>Hero slides, intro banners, section headings, and doctor highlights all live in one tab.</span>
+        </div>
+        <div class="website-hero-point">
+          <strong>Media with safe fallbacks</strong>
+          <span>Uploads replace the public visuals only when you save them. Existing site images stay as fallbacks.</span>
+        </div>
+        <div class="website-hero-point">
+          <strong>Organized by outcome</strong>
+          <span>Use the tabs above to move between Homepage, About, Services, and Clinic Info without losing context.</span>
+        </div>
+      </div>
+    </section>
+
+    <form method="post" enctype="multipart/form-data" class="website-form">
+      {% csrf_token %}
+
+      <div class="website-tabs" role="tablist" aria-label="Website editor sections">
+        <button type="button" class="website-tab-btn is-active" data-website-tab="homepage">Homepage</button>
+        <button type="button" class="website-tab-btn" data-website-tab="about">About</button>
+        <button type="button" class="website-tab-btn" data-website-tab="services">Services</button>
+        <button type="button" class="website-tab-btn" data-website-tab="clinic">Clinic Info</button>
+      </div>
+
+      <div class="website-tab-summary" aria-live="polite">
+        <strong data-website-tab-summary-label>Homepage</strong>
+        <span data-website-tab-summary-copy>Edit hero slides, homepage section intros, the banner block, and the featured doctor highlight.</span>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-8 mb-4 website-column" data-website-column="primary">
+          <section class="website-card mb-4 website-section" data-website-section="homepage">
+            <div class="website-kicker">Homepage</div>
+            <h5>Hero Slide 1</h5>
+            <p class="website-meta">This is the main homepage carousel frame: the first thing visitors see.</p>
+
+            <div class="form-group">
+              <label for="{{ form.hero_title.id_for_label }}">Hero Title</label>
+              {{ form.hero_title }}
+            </div>
+
+            <div class="form-group">
+              <label for="{{ form.hero_subtitle.id_for_label }}">Hero Subtitle</label>
+              {{ form.hero_subtitle }}
+            </div>
+
+            <div class="form-group">
+              <label for="{{ form.hero_cta_text.id_for_label }}">Hero CTA Text</label>
+              {{ form.hero_cta_text }}
+            </div>
+
+            <div class="form-group">
+              <label for="{{ form.hero_slide_1_background.id_for_label }}">Hero Slide 1 Background</label>
+              {{ form.hero_slide_1_background }}
+            </div>
+
+            {% if content_object.hero_slide_1_background %}
+              <div class="website-media-preview">
+                <span class="website-preview-label">Current background</span>
+                <img src="{{ content_object.hero_slide_1_background.url }}" alt="Hero slide 1 background">
+              </div>
+            {% endif %}
+          </section>
+
+          <section class="website-card mb-4 website-section" data-website-section="homepage">
+            <div class="website-kicker">Homepage</div>
+            <h5>Hero Slide 2</h5>
+            <p class="website-meta">Use this second frame for a complementary message or another key call to action.</p>
+
+            <div class="form-group">
+              <label for="{{ form.hero_slide_2_title.id_for_label }}">Slide 2 Title</label>
+              {{ form.hero_slide_2_title }}
+            </div>
+
+            <div class="form-group">
+              <label for="{{ form.hero_slide_2_subtitle.id_for_label }}">Slide 2 Subtitle</label>
+              {{ form.hero_slide_2_subtitle }}
+            </div>
+
+            <div class="form-group mb-0">
+              <label for="{{ form.hero_slide_2_cta_text.id_for_label }}">Slide 2 CTA Text</label>
+              {{ form.hero_slide_2_cta_text }}
+            </div>
+
+            <div class="form-group">
+              <label for="{{ form.hero_slide_2_background.id_for_label }}">Hero Slide 2 Background</label>
+              {{ form.hero_slide_2_background }}
+            </div>
+
+            {% if content_object.hero_slide_2_background %}
+              <div class="website-media-preview">
+                <span class="website-preview-label">Current background</span>
+                <img src="{{ content_object.hero_slide_2_background.url }}" alt="Hero slide 2 background">
+              </div>
+            {% endif %}
+          </section>
+
+          <section class="website-card mb-4 website-section" data-website-section="homepage">
+            <div class="website-kicker">Homepage</div>
+            <h5>Services Section Intro</h5>
+            <p class="website-meta">These fields frame the services block before the service cards begin.</p>
+
+            <div class="form-group">
+              <label for="{{ form.home_services_kicker.id_for_label }}">Services Kicker</label>
+              {{ form.home_services_kicker }}
+            </div>
+
+            <div class="form-group">
+              <label for="{{ form.home_services_heading.id_for_label }}">Services Heading</label>
+              {{ form.home_services_heading }}
+            </div>
+
+            <div class="form-group mb-0">
+              <label for="{{ form.home_services_intro.id_for_label }}">Services Intro</label>
+              {{ form.home_services_intro }}
+            </div>
+          </section>
+
+          <section class="website-card mb-4 website-section" data-website-section="homepage">
+            <div class="website-kicker">Homepage Banner</div>
+            <h5>Intro Banner</h5>
+            <p class="website-meta">This controls the short highlighted banner below the homepage services area.</p>
+
+            <div class="form-group">
+              <label for="{{ form.home_intro_heading.id_for_label }}">Intro Heading</label>
+              {{ form.home_intro_heading }}
+            </div>
+
+            <div class="form-group mb-0">
+              <label for="{{ form.home_intro_text.id_for_label }}">Intro Text</label>
+              {{ form.home_intro_text }}
+            </div>
+
+            <div class="form-group">
+              <label for="{{ form.home_intro_background.id_for_label }}">Intro Background</label>
+              {{ form.home_intro_background }}
+            </div>
+
+            {% if content_object.home_intro_background %}
+              <div class="website-media-preview">
+                <span class="website-preview-label">Current background</span>
+                <img src="{{ content_object.home_intro_background.url }}" alt="Homepage intro background">
+              </div>
+            {% endif %}
+          </section>
+
+          <section class="website-card mb-4 website-section" data-website-section="about">
+            <div class="website-kicker">About</div>
+            <h5>About Page Intro</h5>
+            <p class="website-meta">Use this for the About page intro, heading, and public clinic description.</p>
+
+            <div class="form-group">
+              <label for="{{ form.about_kicker.id_for_label }}">About Kicker</label>
+              {{ form.about_kicker }}
+            </div>
+
+            <div class="form-group">
+              <label for="{{ form.about_heading.id_for_label }}">About Heading</label>
+              {{ form.about_heading }}
+            </div>
+
+            <div class="form-group">
+              <label for="{{ form.about_summary.id_for_label }}">About Summary</label>
+              {{ form.about_summary }}
+            </div>
+          </section>
+
+          <section class="website-card mb-4 website-section" data-website-section="about">
+            <div class="website-kicker">About</div>
+            <h5>Founder Profile</h5>
+            <p class="website-meta">This block powers the doctor or founder profile shown on the About page.</p>
+
+            <div class="form-group">
+              <label for="{{ form.about_founder_name.id_for_label }}">Founder Name</label>
+              {{ form.about_founder_name }}
+            </div>
+
+            <div class="form-group">
+              <label for="{{ form.about_founder_title.id_for_label }}">Founder Title</label>
+              {{ form.about_founder_title }}
+            </div>
+
+            <div class="form-group">
+              <label for="{{ form.about_founder_photo.id_for_label }}">Founder Photo</label>
+              {{ form.about_founder_photo }}
+            </div>
+
+            {% if content_object.about_founder_photo %}
+              <div class="website-media-preview">
+                <span class="website-preview-label">Current photo</span>
+                <img src="{{ content_object.about_founder_photo.url }}" alt="Founder photo">
+              </div>
+            {% endif %}
+          </section>
+
+          <section class="website-card mb-4 website-section" data-website-section="about">
+            <div class="website-kicker">About</div>
+            <h5>Shared Page Banner</h5>
+            <p class="website-meta">This banner is currently reused by the About and Services page headers.</p>
+
+            <div class="form-group">
+              <label for="{{ form.page_banner_background.id_for_label }}">Shared Page Banner Background</label>
+              {{ form.page_banner_background }}
+            </div>
+
+            {% if content_object.page_banner_background %}
+              <div class="website-media-preview">
+                <span class="website-preview-label">Current banner</span>
+                <img src="{{ content_object.page_banner_background.url }}" alt="Shared page banner background">
+              </div>
+            {% endif %}
+          </section>
+
+          <section class="website-card website-card--compact mb-4 website-section" data-website-section="services">
+            <div class="website-kicker">Services</div>
+            <h5>Content Map</h5>
+            <p class="website-meta">A quick guide so the long services tab stays easy to manage.</p>
+
+            <div class="website-guidance-grid">
+              <div class="website-guidance-card">
+                <strong>Services 1 to 3</strong>
+                <span>These appear on the homepage service preview and the full Services page.</span>
+              </div>
+              <div class="website-guidance-card">
+                <strong>Services 4 to 8</strong>
+                <span>These are used on the full Services page only, so they can be more treatment-specific.</span>
+              </div>
+              <div class="website-guidance-card">
+                <strong>Keep copy tight</strong>
+                <span>Short titles and one-sentence summaries usually read best on the public cards.</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="website-card website-section" data-website-section="services">
+            <div class="website-kicker">Services</div>
+            <h5>Clinic Services</h5>
+            <p class="website-meta">These fields power the homepage service preview and the public services page.</p>
+
+            <div class="website-services-grid">
+              <article class="website-service-card">
+                <div class="website-kicker">Service 1</div>
+                <h6>Primary Featured Service</h6>
+                <p>Homepage preview and services page.</p>
+                <div class="form-group">
+                  <label for="{{ form.service_1_title.id_for_label }}">Title</label>
+                  {{ form.service_1_title }}
+                </div>
+                <div class="form-group">
+                  <label for="{{ form.service_1_summary.id_for_label }}">Summary</label>
+                  {{ form.service_1_summary }}
+                </div>
+                <div class="form-group">
+                  <label for="{{ form.service_1_image.id_for_label }}">Image</label>
+                  {{ form.service_1_image }}
+                </div>
+                {% if content_object.service_1_image %}
+                  <div class="website-media-preview">
+                    <span class="website-preview-label">Current image</span>
+                    <img src="{{ content_object.service_1_image.url }}" alt="Service 1 image">
+                  </div>
+                {% endif %}
+              </article>
+
+              <article class="website-service-card">
+                <div class="website-kicker">Service 2</div>
+                <h6>Secondary Featured Service</h6>
+                <p>Another core offer with strong visibility.</p>
+                <div class="form-group">
+                  <label for="{{ form.service_2_title.id_for_label }}">Title</label>
+                  {{ form.service_2_title }}
+                </div>
+                <div class="form-group">
+                  <label for="{{ form.service_2_summary.id_for_label }}">Summary</label>
+                  {{ form.service_2_summary }}
+                </div>
+                <div class="form-group">
+                  <label for="{{ form.service_2_image.id_for_label }}">Image</label>
+                  {{ form.service_2_image }}
+                </div>
+                {% if content_object.service_2_image %}
+                  <div class="website-media-preview">
+                    <span class="website-preview-label">Current image</span>
+                    <img src="{{ content_object.service_2_image.url }}" alt="Service 2 image">
+                  </div>
+                {% endif %}
+              </article>
+
+              <article class="website-service-card">
+                <div class="website-kicker">Service 3</div>
+                <h6>Homepage Card Three</h6>
+                <p>Best for a broad or preventive treatment.</p>
+                <div class="form-group">
+                  <label for="{{ form.service_3_title.id_for_label }}">Title</label>
+                  {{ form.service_3_title }}
+                </div>
+                <div class="form-group">
+                  <label for="{{ form.service_3_summary.id_for_label }}">Summary</label>
+                  {{ form.service_3_summary }}
+                </div>
+                <div class="form-group">
+                  <label for="{{ form.service_3_image.id_for_label }}">Image</label>
+                  {{ form.service_3_image }}
+                </div>
+                {% if content_object.service_3_image %}
+                  <div class="website-media-preview">
+                    <span class="website-preview-label">Current image</span>
+                    <img src="{{ content_object.service_3_image.url }}" alt="Service 3 image">
+                  </div>
+                {% endif %}
+              </article>
+
+              <article class="website-service-card">
+                <div class="website-kicker">Service 4</div>
+                <h6>Services Page Slot Four</h6>
+                <p>Use for specialty or cosmetic treatments.</p>
+                <div class="form-group">
+                  <label for="{{ form.service_4_title.id_for_label }}">Title</label>
+                  {{ form.service_4_title }}
+                </div>
+                <div class="form-group">
+                  <label for="{{ form.service_4_summary.id_for_label }}">Summary</label>
+                  {{ form.service_4_summary }}
+                </div>
+                <div class="form-group">
+                  <label for="{{ form.service_4_image.id_for_label }}">Image</label>
+                  {{ form.service_4_image }}
+                </div>
+                {% if content_object.service_4_image %}
+                  <div class="website-media-preview">
+                    <span class="website-preview-label">Current image</span>
+                    <img src="{{ content_object.service_4_image.url }}" alt="Service 4 image">
+                  </div>
+                {% endif %}
+              </article>
+
+              <article class="website-service-card">
+                <div class="website-kicker">Service 5</div>
+                <h6>Services Page Slot Five</h6>
+                <p>Keep this one especially concise.</p>
+                <div class="form-group">
+                  <label for="{{ form.service_5_title.id_for_label }}">Title</label>
+                  {{ form.service_5_title }}
+                </div>
+                <div class="form-group">
+                  <label for="{{ form.service_5_summary.id_for_label }}">Summary</label>
+                  {{ form.service_5_summary }}
+                </div>
+                <div class="form-group">
+                  <label for="{{ form.service_5_image.id_for_label }}">Image</label>
+                  {{ form.service_5_image }}
+                </div>
+                {% if content_object.service_5_image %}
+                  <div class="website-media-preview">
+                    <span class="website-preview-label">Current image</span>
+                    <img src="{{ content_object.service_5_image.url }}" alt="Service 5 image">
+                  </div>
+                {% endif %}
+              </article>
+
+              <article class="website-service-card">
+                <div class="website-kicker">Service 6</div>
+                <h6>Services Page Slot Six</h6>
+                <p>Good for procedure-led services with a visual.</p>
+                <div class="form-group">
+                  <label for="{{ form.service_6_title.id_for_label }}">Title</label>
+                  {{ form.service_6_title }}
+                </div>
+                <div class="form-group">
+                  <label for="{{ form.service_6_summary.id_for_label }}">Summary</label>
+                  {{ form.service_6_summary }}
+                </div>
+                <div class="form-group">
+                  <label for="{{ form.service_6_image.id_for_label }}">Image</label>
+                  {{ form.service_6_image }}
+                </div>
+                {% if content_object.service_6_image %}
+                  <div class="website-media-preview">
+                    <span class="website-preview-label">Current image</span>
+                    <img src="{{ content_object.service_6_image.url }}" alt="Service 6 image">
+                  </div>
+                {% endif %}
+              </article>
+
+              <article class="website-service-card">
+                <div class="website-kicker">Service 7</div>
+                <h6>Services Page Slot Seven</h6>
+                <p>Use for orthodontics or another defined treatment.</p>
+                <div class="form-group">
+                  <label for="{{ form.service_7_title.id_for_label }}">Title</label>
+                  {{ form.service_7_title }}
+                </div>
+                <div class="form-group">
+                  <label for="{{ form.service_7_summary.id_for_label }}">Summary</label>
+                  {{ form.service_7_summary }}
+                </div>
+                <div class="form-group">
+                  <label for="{{ form.service_7_image.id_for_label }}">Image</label>
+                  {{ form.service_7_image }}
+                </div>
+                {% if content_object.service_7_image %}
+                  <div class="website-media-preview">
+                    <span class="website-preview-label">Current image</span>
+                    <img src="{{ content_object.service_7_image.url }}" alt="Service 7 image">
+                  </div>
+                {% endif %}
+              </article>
+
+              <article class="website-service-card">
+                <div class="website-kicker">Service 8</div>
+                <h6>Services Page Slot Eight</h6>
+                <p>Use for a treatment that stays off the homepage top three.</p>
+                <div class="form-group">
+                  <label for="{{ form.service_8_title.id_for_label }}">Title</label>
+                  {{ form.service_8_title }}
+                </div>
+                <div class="form-group">
+                  <label for="{{ form.service_8_summary.id_for_label }}">Summary</label>
+                  {{ form.service_8_summary }}
+                </div>
+                <div class="form-group">
+                  <label for="{{ form.service_8_image.id_for_label }}">Image</label>
+                  {{ form.service_8_image }}
+                </div>
+                {% if content_object.service_8_image %}
+                  <div class="website-media-preview">
+                    <span class="website-preview-label">Current image</span>
+                    <img src="{{ content_object.service_8_image.url }}" alt="Service 8 image">
+                  </div>
+                {% endif %}
+              </article>
+            </div>
+          </section>
+
+          <section class="website-card mt-4 website-section" data-website-section="homepage">
+            <div class="website-kicker">Doctor</div>
+            <h5>Featured Doctor</h5>
+            <p class="website-meta">This controls the doctor highlight shown on the homepage, including the section framing copy.</p>
+            
+            <div class="form-group">
+              <label for="{{ form.home_doctor_kicker.id_for_label }}">Doctor Section Kicker</label>
+              {{ form.home_doctor_kicker }}
+            </div>
+
+            <div class="form-group">
+              <label for="{{ form.home_doctor_heading.id_for_label }}">Doctor Section Heading</label>
+              {{ form.home_doctor_heading }}
+            </div>
+
+            <div class="form-group">
+              <label for="{{ form.home_doctor_intro.id_for_label }}">Doctor Section Intro</label>
+              {{ form.home_doctor_intro }}
+            </div>
+
+            <div class="form-group">
+              <label for="{{ form.doctor_name.id_for_label }}">Doctor Name</label>
+              {{ form.doctor_name }}
+            </div>
+
+            <div class="form-group">
+              <label for="{{ form.doctor_title.id_for_label }}">Doctor Title</label>
+              {{ form.doctor_title }}
+            </div>
+
+            <div class="form-group mb-0">
+              <label for="{{ form.doctor_bio.id_for_label }}">Doctor Bio</label>
+              {{ form.doctor_bio }}
+            </div>
+          </section>
+        </div>
+
+        <div class="col-lg-4 mb-4 website-column" data-website-column="secondary">
+          <section class="website-card website-card--compact mb-4 website-section" data-website-section="clinic">
+            <div class="website-kicker">Clinic Info</div>
+            <h5>Public Touchpoints</h5>
+            <p class="website-meta">These settings are reused in the places visitors look for quick trust signals.</p>
+
+            <div class="website-guidance-grid website-guidance-grid--single">
+              <div class="website-guidance-card">
+                <strong>Header and footer</strong>
+                <span>Phone, email, address, and hours are shown across the site chrome.</span>
+              </div>
+              <div class="website-guidance-card">
+                <strong>Contact page</strong>
+                <span>These same values also fill the contact cards, so keep them final and consistent.</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="website-card mb-4 website-section" data-website-section="clinic">
+            <div class="website-kicker">Contact</div>
+            <h5>Clinic Details</h5>
+            <p class="website-meta">These values appear in the public header, contact page, and footer.</p>
+
+            <div class="form-group">
+              <label for="{{ form.contact_phone.id_for_label }}">Phone Number</label>
+              {{ form.contact_phone }}
+            </div>
+
+            <div class="form-group">
+              <label for="{{ form.contact_email.id_for_label }}">Email Address</label>
+              {{ form.contact_email }}
+            </div>
+
+            <div class="form-group mb-0">
+              <label for="{{ form.clinic_address.id_for_label }}">Clinic Address</label>
+              {{ form.clinic_address }}
+            </div>
+          </section>
+
+          <section class="website-card mb-4 website-section" data-website-section="clinic">
+            <div class="website-kicker">Hours</div>
+            <h5>Opening Hours</h5>
+            <p class="website-meta">Keep this split in two lines to preserve the public layout styling.</p>
+
+            <div class="form-group">
+              <label for="{{ form.hours_line_1_label.id_for_label }}">Hours Line 1 Label</label>
+              {{ form.hours_line_1_label }}
+            </div>
+
+            <div class="form-group">
+              <label for="{{ form.hours_line_1_value.id_for_label }}">Hours Line 1 Value</label>
+              {{ form.hours_line_1_value }}
+            </div>
+
+            <div class="form-group">
+              <label for="{{ form.hours_line_2_label.id_for_label }}">Hours Line 2 Label</label>
+              {{ form.hours_line_2_label }}
+            </div>
+
+            <div class="form-group mb-0">
+              <label for="{{ form.hours_line_2_value.id_for_label }}">Hours Line 2 Value</label>
+              {{ form.hours_line_2_value }}
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div class="website-actions">
+        <div class="website-actions-meta">
+          <p class="website-note" data-website-status-message>No unsaved changes. You're editing the saved version.</p>
+          <p class="website-last-updated">
+            Last updated:
+            {% if content_object.updated_at %}
+              {{ content_object.updated_at|date:"M d, Y h:i A" }}
+            {% else %}
+              Not updated yet
+            {% endif %}
+          </p>
+        </div>
+        <button type="submit" class="btn btn-primary px-4 py-2 website-save-button" data-website-save-button>Save Website Content</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const form = document.querySelector(".website-form");
+      const buttons = Array.from(document.querySelectorAll("[data-website-tab]"));
+      const sections = Array.from(document.querySelectorAll("[data-website-section]"));
+      const columns = Array.from(document.querySelectorAll("[data-website-column]"));
+      const statusMessage = document.querySelector("[data-website-status-message]");
+      const saveButton = document.querySelector("[data-website-save-button]");
+      const tabSummaryLabel = document.querySelector("[data-website-tab-summary-label]");
+      const tabSummaryCopy = document.querySelector("[data-website-tab-summary-copy]");
+      const storageKey = "websiteManagementActiveTab";
+      const fallbackTab = "homepage";
+      const tabSummaries = {
+        homepage: "Edit hero slides, homepage section intros, the banner block, and the featured doctor highlight.",
+        about: "Manage the About page intro, founder profile, and the shared banner used by public inner pages.",
+        services: "Update all service titles, summaries, and images for both the homepage preview and the full services page.",
+        clinic: "Keep public contact details and opening hours consistent across the header, footer, and contact page.",
+      };
+
+      if (!form) {
+        return;
+      }
+
+      let justSaved = false;
+      try {
+        const currentUrl = new URL(window.location.href);
+        justSaved = currentUrl.searchParams.get("saved") === "1";
+
+        if (justSaved) {
+          currentUrl.searchParams.delete("saved");
+          const nextSearch = currentUrl.searchParams.toString();
+          const nextUrl = currentUrl.pathname + (nextSearch ? "?" + nextSearch : "") + currentUrl.hash;
+          window.history.replaceState({}, "", nextUrl);
+        }
+      } catch (error) {}
+
+      const trackedInputs = Array.from(
+        form.querySelectorAll(".website-section input, .website-section textarea, .website-section select")
+      ).filter(function (input) {
+        return !["hidden", "submit", "button"].includes(input.type);
+      });
+
+      const initialValues = new Map();
+
+      function getInputState(input) {
+        if (input.type === "file") {
+          return input.files && input.files.length > 0 ? "__has_file__" : "";
+        }
+
+        if (input.type === "checkbox" || input.type === "radio") {
+          return input.checked ? "checked" : "unchecked";
+        }
+
+        return input.value;
+      }
+
+      trackedInputs.forEach(function (input) {
+        initialValues.set(input, getInputState(input));
+      });
+
+      function formatTabName(name) {
+        const labels = {
+          homepage: "Homepage",
+          about: "About",
+          services: "Services",
+          clinic: "Clinic Info",
+        };
+
+        return labels[name] || name;
+      }
+
+      function updateTabSummary(name) {
+        if (!tabSummaryLabel || !tabSummaryCopy) {
+          return;
+        }
+
+        tabSummaryLabel.textContent = formatTabName(name);
+        tabSummaryCopy.textContent = tabSummaries[name] || tabSummaries[fallbackTab];
+      }
+
+      function formatDirtyTabs(dirtyTabs) {
+        const labels = dirtyTabs.map(formatTabName);
+
+        if (labels.length <= 1) {
+          return labels[0] || "";
+        }
+
+        if (labels.length === 2) {
+          return labels.join(" and ");
+        }
+
+        return labels.slice(0, -1).join(", ") + ", and " + labels[labels.length - 1];
+      }
+
+      function isInputDirty(input) {
+        return getInputState(input) !== initialValues.get(input);
+      }
+
+      function updateStatusMessage(dirtyTabs) {
+        if (!statusMessage || !saveButton) {
+          return;
+        }
+
+        if (!dirtyTabs.length) {
+          if (justSaved) {
+            statusMessage.textContent = "Saved just now. You're editing the latest version.";
+            statusMessage.classList.remove("is-dirty");
+            statusMessage.classList.add("is-saved");
+            saveButton.classList.remove("is-dirty");
+            saveButton.classList.add("is-saved");
+            return;
+          }
+
+          statusMessage.textContent = "No unsaved changes. You're editing the saved version.";
+          statusMessage.classList.remove("is-dirty");
+          statusMessage.classList.remove("is-saved");
+          saveButton.classList.remove("is-dirty");
+          saveButton.classList.remove("is-saved");
+          return;
+        }
+
+        const tabSummary = formatDirtyTabs(dirtyTabs);
+        const copy = dirtyTabs.length === 1
+          ? "Unsaved changes in " + tabSummary + ". Save when you're ready."
+          : "Unsaved changes in " + tabSummary + ". Save to publish this round of edits.";
+
+        statusMessage.textContent = copy;
+        statusMessage.classList.add("is-dirty");
+        statusMessage.classList.remove("is-saved");
+        saveButton.classList.add("is-dirty");
+        saveButton.classList.remove("is-saved");
+      }
+
+      function syncDirtyState() {
+        const dirtyTabs = [];
+
+        buttons.forEach(function (button) {
+          button.classList.remove("has-changes");
+        });
+
+        sections.forEach(function (section) {
+          let sectionDirty = false;
+
+          section.querySelectorAll(".form-group").forEach(function (group) {
+            group.classList.remove("is-dirty");
+          });
+
+          section.querySelectorAll(".website-media-preview").forEach(function (preview) {
+            preview.classList.remove("is-dirty");
+          });
+
+          trackedInputs.forEach(function (input) {
+            if (!section.contains(input) || !isInputDirty(input)) {
+              return;
+            }
+
+            sectionDirty = true;
+
+            const group = input.closest(".form-group");
+            if (group) {
+              group.classList.add("is-dirty");
+
+              const preview = group.nextElementSibling;
+              if (preview && preview.classList.contains("website-media-preview")) {
+                preview.classList.add("is-dirty");
+              }
+            }
+          });
+
+          if (sectionDirty) {
+            dirtyTabs.push(section.dataset.websiteSection);
+
+            const button = buttons.find(function (candidate) {
+              return candidate.dataset.websiteTab === section.dataset.websiteSection;
+            });
+
+            if (button) {
+              button.classList.add("has-changes");
+            }
+          }
+        });
+
+        updateStatusMessage(dirtyTabs);
+      }
+
+      function updateColumns() {
+        const visibleColumns = [];
+
+        columns.forEach(function (column) {
+          const visibleSection = column.querySelector(".website-section:not(.is-hidden)");
+          column.classList.toggle("is-hidden", !visibleSection);
+          column.classList.remove("website-column--expanded");
+
+          if (visibleSection) {
+            visibleColumns.push(column);
+          }
+        });
+
+        if (visibleColumns.length === 1) {
+          visibleColumns[0].classList.add("website-column--expanded");
+        }
+      }
+
+      function activateTab(name) {
+        const validTabs = buttons.map(function (button) {
+          return button.dataset.websiteTab;
+        });
+        const resolvedName = validTabs.includes(name) ? name : fallbackTab;
+
+        buttons.forEach(function (button) {
+          const isActive = button.dataset.websiteTab === resolvedName;
+          button.classList.toggle("is-active", isActive);
+          button.setAttribute("aria-selected", isActive ? "true" : "false");
+        });
+
+        updateTabSummary(resolvedName);
+
+        sections.forEach(function (section) {
+          section.classList.toggle("is-hidden", section.dataset.websiteSection !== resolvedName);
+        });
+
+        updateColumns();
+        syncDirtyState();
+
+        try {
+          localStorage.setItem(storageKey, resolvedName);
+        } catch (error) {}
+      }
+
+      let initialTab = fallbackTab;
+      try {
+        initialTab = localStorage.getItem(storageKey) || fallbackTab;
+      } catch (error) {}
+
+      activateTab(initialTab);
+
+      buttons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          activateTab(button.dataset.websiteTab);
+        });
+      });
+
+      trackedInputs.forEach(function (input) {
+        input.addEventListener("input", function () {
+          justSaved = false;
+          syncDirtyState();
+        });
+        input.addEventListener("change", function () {
+          justSaved = false;
+          syncDirtyState();
+        });
+      });
+
+      form.addEventListener("submit", function () {
+        justSaved = false;
+
+        if (statusMessage) {
+          statusMessage.textContent = "Saving changes...";
+          statusMessage.classList.remove("is-dirty");
+          statusMessage.classList.remove("is-saved");
+        }
+
+        if (saveButton) {
+          saveButton.classList.remove("is-dirty");
+          saveButton.classList.remove("is-saved");
+        }
+      });
+    });
+  </script>
+{% endblock %}

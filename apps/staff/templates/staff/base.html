@@ -131,11 +131,15 @@
               <img src="{% static 'staff/images/faces/face28.jpg' %}" alt="profile"/>
             </a>
             <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
-              <a class="dropdown-item">
+              <a class="dropdown-item" href="{% url 'dashboard:profile' %}">
+                <i class="ti-user text-primary"></i>
+                Profile
+              </a>
+              <a class="dropdown-item" href="{% url 'dashboard:settings' %}">
                 <i class="ti-settings text-primary"></i>
                 Settings
               </a>
-              <a class="dropdown-item">
+              <a class="dropdown-item" href="{% url 'dashboard:logout' %}">
                 <i class="ti-power-off text-primary"></i>
                 Logout
               </a>
@@ -200,31 +204,23 @@
             </a>
           </li>
 
-          <li class="nav-item {% if active_page == 'message' %}active{% endif %}">
-            <a href="{% url 'dashboard:message' %}" class="nav-link">
+          <li class="nav-item {% if active_page == 'inquiries' %}active{% endif %}">
+            <a href="{% url 'dashboard:inquiries' %}" class="nav-link">
               <i class="icon-mail menu-icon"></i>
-              <span class="menu-title">Message</span>
+              <span class="menu-title">Inquiries</span>
             </a>
           </li>
 
-          <li class="nav-item {% if active_page == 'blog' %}active{% endif %}">
-            <a href="{% url 'dashboard:blog' %}" class="nav-link">
+          <li class="nav-item {% if active_page == 'website' %}active{% endif %}">
+            <a href="{% url 'dashboard:website' %}" class="nav-link">
               <i class="icon-paper menu-icon"></i>
-              <span class="menu-title">Blog</span>
+              <span class="menu-title">Website</span>
             </a>
           </li>
 
-          <li class="nav-item {% if active_page == 'profile' %}active{% endif %}">
-            <a href="{% url 'dashboard:profile' %}" class="nav-link">
-              <i class="icon-head menu-icon"></i>
-              <span class="menu-title">Profile</span>
-            </a>
-          </li>
-
-          {# For now Settings can point to home or a dedicated settings view later #}
-          <li class="nav-item {% if active_page == 'home' %}active{% endif %}">
-            <a href="{% url 'dashboard:home' %}" class="nav-link">
-              <i class="icon-grid menu-icon"></i>
+          <li class="nav-item {% if active_page == 'settings' %}active{% endif %}">
+            <a href="{% url 'dashboard:settings' %}" class="nav-link">
+              <i class="icon-settings menu-icon"></i>
               <span class="menu-title">Settings</span>
             </a>
           </li>

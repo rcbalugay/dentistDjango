@@ -46,16 +46,23 @@
 	    				<span class="icon-map"></span>
 	    			</div>
 	    			<div class="pr-md-4 pl-md-0 pl-3 text">
-					    <p class="con"><span>Dial</span> <span>+63 967 406 4184</span></p>
-					    <p class="con">Purok 1 Planas Bridge, Porac, Pampanga 2008</p>
+					    <p class="con"><span>Dial</span> <span>{{ site_content.contact_phone }}</span></p>
+					    <p class="con">{{ site_content.clinic_address }}</p>
 				    </div>
 			    </div>
 			    <div class="col-md-4 order-md-3 d-flex topper mb-md-0 align-items-center">
 			    	<div class="icon d-flex justify-content-center align-items-center"><span class="icon-paper-plane"></span></div>
 			    	<div class="text pl-3 pl-md-3">
-					    <p class="hr"><span>Open Hours</span></p>
-					    <p class="time"><span>Mon & Wed, Sat - Sun:</span> <span>9:00am - 6:00pm</span></p><p class="time"><span>Tues & Thurs - Fri:</span> <span>Closed</span></p>
-				    </div>
+              <p class="hr"><span>Open Hours</span></p>
+              <p class="time">
+                <span>{{ site_content.hours_line_1_label }}</span>
+                <span>{{ site_content.hours_line_1_value }}</span>
+              </p>
+              <p class="time">
+                <span>{{ site_content.hours_line_2_label }}</span>
+                <span>{{ site_content.hours_line_2_value }}</span>
+              </p>
+            </div>
 			    </div>
 		    </div>
 		  </div>
@@ -229,9 +236,9 @@ End of Footer Area -->
       <div class="col-md-12">
         <div class="ftco-footer-widget">
           <h2 class="ftco-heading-2" style="font-size: 24px; text-transform: uppercase; letter-spacing: 2px;">CONTACT US</h2>
-          <p>Location: <a href="#" style="color: #fff; text-decoration: underline;">Purok 1 Planas Bridge, Porac, Pampanga<br></a>Nearest Landmarks: <a style="color: #fff; text-decoration: none;">Nathanielâ€™s Water Station, Planas Tricycle Terminal Station, Gasoline Station</a></p>
-          <p style="color: #fff;">(+63) 967 406 4184</p>
-          <p><a href="mailto:EMAIL" style="color: #fff; text-decoration: underline;">EMAIL</a></p>
+          <p>Location: <a href="#" style="color: #fff; text-decoration: underline;">{{ site_content.clinic_address }}<br></a>Nearest Landmarks: <a style="color: #fff; text-decoration: none;">Nathaniel’s Water Station, Planas Tricycle Terminal Station, Gasoline Station</a></p>
+          <p style="color: #fff;">{{ site_content.contact_phone }}</p>
+          <p><a href="mailto:{{ site_content.contact_email }}" style="color: #fff; text-decoration: underline;">{{ site_content.contact_email }}</a></p>
         </div>
       </div>
 
@@ -247,12 +254,12 @@ End of Footer Area -->
         <div class="ftco-footer-widget">
           <h2 class="ftco-heading-2" style="font-size: 24px; text-transform: uppercase; letter-spacing: 2px;">OPENING HOURS</h2>
           <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding: 0 20px;">
-            <span>Mon & Wed, Sat - Sun </span>
-            <span>9:00 am - 6:00 pm</span>
+            <span>{{ site_content.hours_line_1_label }}</span>
+            <span>{{ site_content.hours_line_1_value }}</span>
           </div>
           <div style="display: flex; justify-content: space-between; padding: 0 20px; margin-bottom: 30px;">
-            <span>Tuesday & Thurs - Fri</span>
-            <span>Closed</span>
+            <span>{{ site_content.hours_line_2_label }}</span>
+            <span>{{ site_content.hours_line_2_value }}</span>
           </div>
           
           <!-- Social Media -->

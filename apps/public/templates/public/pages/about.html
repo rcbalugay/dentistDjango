@@ -3,7 +3,7 @@
 {% block title %} About Us | Dental Clinic {% endblock %}
 {% block content %}
     
-    <section class="hero-wrap hero-wrap-2" style="background-image: url(' {% static 'website/images/bg_1.jpg' %} ');" data-stellar-background-ratio="0.5">
+    <section class="hero-wrap hero-wrap-2" style="background-image: url('{% if site_content.page_banner_background %}{{ site_content.page_banner_background.url }}{% else %}{% static 'website/images/bg_1.jpg' %}{% endif %}');" data-stellar-background-ratio="0.5">
       <div class="overlay"></div>
       <div class="container">
         <div class="row no-gutters slider-text align-items-center justify-content-center">
@@ -23,18 +23,17 @@
 					<div class="col-md-7 wrap-about py-4 py-md-5 ftco-animate">
 	          <div class="heading-section mb-5">
 	          	<div class="pl-md-5 ml-md-5 pt-md-5">
-		          	<span class="subheading mb-2">Welcome to Dentista</span>
-		            <h2 class="mb-2" style="font-size: 32px;">Medical specialty concerned with the care of acutely ill hospitalized patients</h2>
+		          	<span class="subheading mb-2">{{ site_content.about_kicker }}</span>
+					<h2 class="mb-2" style="font-size: 32px;">{{ site_content.about_heading }}</h2>
 	            </div>
 	          </div>
 	          <div class="pl-md-5 ml-md-5 mb-5">
-							<p>A small river named Duden flows by their place and supplies it with the necessary regelialia. It is a paradisematic country, in which roasted parts of sentences fly into your mouth. Even the all-powerful Pointing has no control about the blind texts it is an almost unorthographic life One day however a small line of blind text by the name of Lorem Ipsum decided to leave for the far World of Grammar.</p>
-							<p>A small river named Duden flows by their place and supplies it with the necessary regelialia. It is a paradisematic country, in which roasted parts of sentences fly into your mouth.</p>
+							<p>{{ site_content.about_summary|linebreaksbr }}</p>
 							<div class="founder d-flex align-items-center mt-5">
-								<div class="img" style="background-image: url( {% static 'website/images/doc-1.jpg' %} );"></div>
+								<div class="img" style="background-image: url('{% if site_content.about_founder_photo %}{{ site_content.about_founder_photo.url }}{% else %}{% static 'website/images/doc-1.jpg' %}{% endif %}');"></div>
 								<div class="text pl-3">
-									<h3 class="mb-0">Dr. Paul Foster</h3>
-									<span class="position">CEO, Founder</span>
+									<h3 class="mb-0">{{ site_content.about_founder_name }}</h3>
+									<span class="position">{{ site_content.about_founder_title }}</span>
 								</div>
 							</div>
 						</div>
