@@ -9,73 +9,6 @@
         linear-gradient(180deg, #fbfcff 0%, #f4f7fd 100%);
     }
 
-    .hero-content-panel {
-      max-width: 560px;
-      padding: 2rem 2.1rem;
-      border-radius: 28px;
-      background: rgba(19, 27, 46, 0.62);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      box-shadow: 0 24px 60px rgba(17, 24, 39, 0.22);
-      backdrop-filter: blur(10px);
-    }
-
-    .hero-eyebrow {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.42rem 0.85rem;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.14);
-      color: #fff;
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-bottom: 1rem;
-    }
-
-    .hero-content-panel h1,
-    .hero-content-panel .subheading {
-      color: #fff;
-    }
-
-    .hero-content-panel h1 {
-      font-size: clamp(2.4rem, 5vw, 4.4rem);
-      line-height: 1.06;
-      margin-bottom: 1rem;
-    }
-
-    .hero-content-panel .subheading {
-      font-size: 1.05rem;
-      line-height: 1.8;
-      font-weight: 400;
-      margin-bottom: 1.5rem;
-      display: block;
-    }
-
-    .hero-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.85rem;
-      margin-bottom: 1.2rem;
-    }
-
-    .hero-trust-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.6rem;
-    }
-
-    .hero-trust-list span {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.4rem 0.75rem;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.12);
-      color: #fff;
-      font-size: 0.84rem;
-      font-weight: 600;
-    }
-
     .section-intro {
       max-width: 660px;
       margin: 0 auto;
@@ -148,145 +81,63 @@
       margin-bottom: 0;
     }
 
-    .home-highlight {
-      position: relative;
+    .doctor-card-wrap {
+      max-width: 430px;
+      margin: 0 auto;
+    }
+
+    .doctor-card {
+      border-radius: 28px;
+      border: 1px solid rgba(219, 227, 244, 0.95);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(247, 250, 255, 0.98) 100%);
+      box-shadow: 0 20px 42px rgba(45, 57, 92, 0.08);
       overflow: hidden;
     }
 
-    .home-highlight::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: rgba(12, 22, 39, 0.56);
-    }
-
-    .home-highlight .container {
-      position: relative;
-      z-index: 1;
-    }
-
-    .home-highlight-card {
-      padding: 2rem;
-      border-radius: 30px;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      box-shadow: 0 28px 60px rgba(17, 24, 39, 0.18);
-      backdrop-filter: blur(10px);
-    }
-
-    .home-highlight-copy h3,
-    .home-highlight-copy p,
-    .home-highlight-copy .hero-eyebrow {
-      color: #fff;
-    }
-
-    .home-highlight-copy h3 {
-      font-size: clamp(2rem, 4vw, 3rem);
-      line-height: 1.12;
+    .doctor-card-media {
+      border-radius: 22px;
+      overflow: hidden;
+      border: 1px solid rgba(218, 226, 247, 0.95);
+      background: #eef3fb;
       margin-bottom: 1rem;
     }
 
-    .home-highlight-copy p {
-      line-height: 1.8;
-      margin-bottom: 0;
-    }
-
-    .highlight-grid {
-      display: grid;
-      gap: 0.9rem;
-    }
-
-    .highlight-item {
-      padding: 1rem 1.05rem;
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      color: #fff;
-    }
-
-    .highlight-item strong {
-      display: block;
-      margin-bottom: 0.25rem;
-      font-size: 0.98rem;
-    }
-
-    .highlight-item span {
-      display: block;
-      font-size: 0.94rem;
-      line-height: 1.6;
-      color: rgba(255, 255, 255, 0.86);
-    }
-
-    .doctor-feature-card {
-      padding: 1.3rem;
-      border-radius: 30px;
-      border: 1px solid rgba(222, 228, 245, 0.95);
-      background: rgba(255, 255, 255, 0.98);
-      box-shadow: 0 20px 46px rgba(45, 57, 92, 0.08);
-    }
-
-    .doctor-feature-card img {
+    .doctor-card img {
       width: 100%;
-      border-radius: 24px;
+      aspect-ratio: 4 / 4.2;
+      object-fit: cover;
       display: block;
-      border: 1px solid rgba(218, 226, 247, 0.95);
     }
 
-    .doctor-feature-copy {
-      padding: 0.8rem 0.7rem 0.8rem 1.1rem;
-    }
-
-    .doctor-feature-copy h3 {
+    .doctor-card h3 {
       color: #27314e;
-      font-size: clamp(1.8rem, 3vw, 2.35rem);
       font-weight: 700;
       margin-bottom: 0.35rem;
     }
 
-    .doctor-feature-title {
-      color: #5d6b8b;
-      font-size: 1rem;
+    .doctor-card .doctor-role {
+      font-size: 0.95rem;
       font-weight: 600;
-      margin-bottom: 1rem;
+      color: #667391;
+      margin-bottom: 0.85rem;
     }
 
-    .doctor-feature-copy p {
-      color: #485774;
-      line-height: 1.8;
-      margin-bottom: 1rem;
-    }
-
-    .doctor-point-list {
-      display: grid;
-      gap: 0.75rem;
+    .doctor-card .doctor-summary {
+      color: #53617f;
+      line-height: 1.75;
       margin-bottom: 1.25rem;
     }
 
-    .doctor-point {
-      padding: 0.9rem 1rem;
-      border-radius: 18px;
-      background: #f7f9ff;
-      border: 1px solid #e1e8fb;
-    }
-
-    .doctor-point strong {
-      display: block;
-      color: #27314e;
-      margin-bottom: 0.2rem;
-      font-size: 0.96rem;
-    }
-
-    .doctor-point span {
-      display: block;
-      color: #657390;
-      line-height: 1.6;
-      font-size: 0.92rem;
-    }
-
-    .doctor-actions {
+    .doctor-card-actions {
       display: flex;
+      justify-content: center;
+      gap: 0.75rem;
       flex-wrap: wrap;
-      gap: 0.8rem;
+    }
+
+    .doctor-card .btn {
+      min-width: 132px;
     }
 
     .testimonial-shell .testimony-wrap {
@@ -298,6 +149,23 @@
     .testimonial-shell .testimony-wrap .text {
       padding-top: 2rem;
       padding-bottom: 2rem;
+    }
+
+    .testimonial-shell .quote {
+      background: transparent !important;
+      color: inherit !important;
+    }
+
+    .testimonial-shell .quote i {
+      color: #89289a !important;
+    }
+
+    .testimonial-shell .position {
+      color: #89289a !important;
+    }
+
+    .testimonial-shell .owl-dots .owl-dot.active {
+      background: #89289a !important;
     }
 
     .blog-preview-head {
@@ -337,16 +205,25 @@
       margin-top: auto;
     }
 
+    .blog-entry .meta-date {
+      background: #89289a;
+      color: #fff;
+    }
+
+    .blog-entry .btn-primary {
+      background: #89289a;
+      border-color: #89289a;
+      color: #fff;
+    }
+
+    .blog-entry .btn-primary:hover,
+    .blog-entry .btn-primary:focus {
+      background: #741f84;
+      border-color: #741f84;
+      color: #fff;
+    }
+
     @media (max-width: 991.98px) {
-      .hero-content-panel,
-      .home-highlight-card {
-        padding: 1.4rem;
-      }
-
-      .doctor-feature-copy {
-        padding: 1.2rem 0.1rem 0.2rem;
-      }
-
       .blog-preview-head {
         align-items: start;
       }
@@ -358,21 +235,10 @@
       <div class="overlay"></div>
       <div class="container">
         <div class="row no-gutters slider-text align-items-center justify-content-end" data-scrollax-parent="true">
-          <div class="col-md-7 col-lg-6 text ftco-animate">
-            <div class="hero-content-panel">
-              <span class="hero-eyebrow">Comfort-first dental care</span>
-              <h1>{{ site_content.hero_title }}</h1>
-              <span class="subheading">{{ site_content.hero_subtitle }}</span>
-              <div class="hero-actions">
-                <a href="{% url 'appointment_form' %}" class="btn btn-secondary px-4 py-3">{{ site_content.hero_cta_text }}</a>
-                <a href="{% url 'services' %}" class="btn btn-outline-light px-4 py-3">See Treatments</a>
-              </div>
-              <div class="hero-trust-list">
-                <span>Gentle visits</span>
-                <span>Clear treatment plans</span>
-                <span>Family-friendly care</span>
-              </div>
-            </div>
+          <div class="col-md-6 text ftco-animate">
+            <h1 class="mb-4">{{ site_content.hero_title }}</h1>
+            <h3 class="subheading">{{ site_content.hero_subtitle }}</h3>
+            <p><a href="{% url 'appointment_form' %}" class="btn btn-secondary px-4 py-3 mt-3">{{ site_content.hero_cta_text }}</a></p>
           </div>
         </div>
       </div>
@@ -382,21 +248,10 @@
       <div class="overlay"></div>
       <div class="container">
         <div class="row no-gutters slider-text align-items-center justify-content-end" data-scrollax-parent="true">
-          <div class="col-md-7 col-lg-6 text ftco-animate">
-            <div class="hero-content-panel">
-              <span class="hero-eyebrow">Smile with confidence</span>
-              <h1>{{ site_content.hero_slide_2_title|default:"Your Confident Smile Starts Here" }}</h1>
-              <span class="subheading">{{ site_content.hero_slide_2_subtitle|default:"Unlock your true potential with comprehensive, cutting-edge cosmetic dental care. Schedule your consultation today to design the lasting impression you deserve." }}</span>
-              <div class="hero-actions">
-                <a href="{% url 'appointment_form' %}" class="btn btn-secondary px-4 py-3">{{ site_content.hero_slide_2_cta_text|default:"Make an Appointment" }}</a>
-                <a href="{% url 'contact' %}" class="btn btn-outline-light px-4 py-3">Ask a Question</a>
-              </div>
-              <div class="hero-trust-list">
-                <span>Thoughtful consultations</span>
-                <span>Preventive guidance</span>
-                <span>Practical follow-up care</span>
-              </div>
-            </div>
+          <div class="col-md-6 text ftco-animate">
+            <h1 class="mb-4">{{ site_content.hero_slide_2_title|default:"Your Confident Smile Starts Here" }}</h1>
+            <h3 class="subheading">{{ site_content.hero_slide_2_subtitle|default:"Unlock your true potential with comprehensive, cutting-edge cosmetic dental care. Schedule your consultation today to design the lasting impression you deserve." }}</h3>
+            <p><a href="{% url 'appointment_form' %}" class="btn btn-secondary px-4 py-3 mt-3">{{ site_content.hero_slide_2_cta_text|default:"Make an Appointment" }}</a></p>
           </div>
         </div>
       </div>
@@ -454,35 +309,12 @@
     </div>
   </section>
 
-  <section class="ftco-section home-highlight" style="background-image: url('{% if site_content.home_intro_background %}{{ site_content.home_intro_background.url }}{% else %}{% static 'website/images/bg_3.jpg' %}{% endif %}');" data-stellar-background-ratio="0.5">
+  <section class="ftco-section intro" style="background-image: url('{% if site_content.home_intro_background %}{{ site_content.home_intro_background.url }}{% else %}{% static 'website/images/bg_3.jpg' %}{% endif %}');" data-stellar-background-ratio="0.5">
     <div class="container">
-      <div class="home-highlight-card">
-        <div class="row align-items-center">
-          <div class="col-lg-7 mb-4 mb-lg-0 home-highlight-copy">
-            <span class="hero-eyebrow">Why patients stay with us</span>
-            <h3>{{ site_content.home_intro_heading }}</h3>
-            <p>{{ site_content.home_intro_text }}</p>
-            <div class="hero-actions mt-4 mb-0">
-              <a href="{% url 'appointment_form' %}" class="btn btn-secondary px-4 py-3">Book a Visit</a>
-              <a href="{% url 'contact' %}" class="btn btn-outline-light px-4 py-3">Talk to the Clinic</a>
-            </div>
-          </div>
-          <div class="col-lg-5">
-            <div class="highlight-grid">
-              <div class="highlight-item">
-                <strong>Clear next steps</strong>
-                <span>Patients should know what is happening, what matters now, and what to expect after the visit.</span>
-              </div>
-              <div class="highlight-item">
-                <strong>Less overwhelm, more support</strong>
-                <span>We keep the experience calm, practical, and easy to follow for both adults and children.</span>
-              </div>
-              <div class="highlight-item">
-                <strong>Prevention that feels realistic</strong>
-                <span>Advice works best when it fits everyday routines, not just ideal scenarios.</span>
-              </div>
-            </div>
-          </div>
+      <div class="row">
+        <div class="col-md-6">
+          <h3 class="mb-4">{{ site_content.home_intro_heading }}</h3>
+          <p>{{ site_content.home_intro_text }}</p>
         </div>
       </div>
     </div>
@@ -498,31 +330,23 @@
         </div>
       </div>
 
-      <div class="doctor-feature-card ftco-animate">
-        <div class="row align-items-center">
-          <div class="col-lg-5 mb-4 mb-lg-0">
-            <img src="{% if site_content.about_founder_photo %}{{ site_content.about_founder_photo.url }}{% else %}{% static 'website/images/doc-4.jpg' %}{% endif %}" alt="{{ site_content.doctor_name|default:'Doctor' }}">
-          </div>
-          <div class="col-lg-7">
-            <div class="doctor-feature-copy">
-              <h3>{{ site_content.doctor_name }}</h3>
-              <div class="doctor-feature-title">{{ site_content.doctor_title }}</div>
-              <p>{{ site_content.doctor_bio }}</p>
-
-              <div class="doctor-point-list">
-                <div class="doctor-point">
-                  <strong>Communication-first care</strong>
-                  <span>Treatment plans are explained clearly so patients understand their options before deciding.</span>
-                </div>
-                <div class="doctor-point">
-                  <strong>Built for long-term comfort</strong>
-                  <span>Every visit is designed to feel calmer, steadier, and easier to return to over time.</span>
-                </div>
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-5 ftco-animate">
+          <div class="doctor-card-wrap">
+            <div class="card doctor-card text-center p-3 p-md-4">
+            <div class="doctor-card-media">
+                <img src="{% if site_content.about_founder_photo %}{{ site_content.about_founder_photo.url }}{% else %}{% static 'website/images/doc-4.jpg' %}{% endif %}"
+                     alt="{{ site_content.doctor_name|default:'Doctor' }}">
               </div>
+              <h3 class="mb-1">{{ site_content.doctor_name }}</h3>
+              <div class="doctor-role">{{ site_content.doctor_title }}</div>
 
-              <div class="doctor-actions">
+              <p class="doctor-summary">
+                {{ site_content.doctor_bio }}
+              </p>
+
+              <div class="doctor-card-actions">
                 <a href="{% url 'about' %}" class="btn btn-dark btn-pill">Learn More</a>
-                <a href="{% url 'appointment_form' %}" class="btn btn-primary btn-pill">Book a Visit</a>
               </div>
             </div>
           </div>

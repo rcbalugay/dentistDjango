@@ -8,6 +8,7 @@
         background:
           radial-gradient(circle at top right, rgba(90, 84, 209, 0.08), transparent 28%),
           linear-gradient(180deg, #f8fbff 0%, #f3f6fb 100%);
+        padding-bottom: 1rem !important;
       }
 
       .contact-panel,
@@ -22,6 +23,9 @@
       .contact-panel,
       .contact-map-card {
         padding: 2rem;
+      }
+
+      .contact-panel {
         height: 100%;
       }
 
@@ -95,6 +99,19 @@
         font-size: 0.95rem;
       }
 
+      .contact-form-grid input[type="submit"] {
+        background: #89289a;
+        border-color: #89289a;
+        color: #fff;
+      }
+
+      .contact-form-grid input[type="submit"]:hover,
+      .contact-form-grid input[type="submit"]:focus {
+        background: #741f84;
+        border-color: #741f84;
+        color: #fff;
+      }
+
       .contact-map-frame {
         overflow: hidden;
         border-radius: 20px;
@@ -159,9 +176,9 @@
       </div>
     </section>
 
-		<section class="ftco-section ftco-no-pt contact-shell">
+		<section class="ftco-section ftco-no-pt ftco-no-pb contact-shell">
 			<div class="container">
-				<div class="row align-items-stretch">
+				<div class="row align-items-start">
 					<div class="col-lg-6 mb-4 mb-lg-0">
             <div class="contact-panel">
               <span class="contact-kicker">Message the Clinic</span>
@@ -201,11 +218,11 @@
             </div>
 					</div>
 
-					<div class="col-lg-6 d-flex align-items-stretch">
-            <div class="contact-map-card w-100">
+					<div class="col-lg-6">
+            <div class="contact-map-card">
               <span class="contact-kicker">Find Us</span>
               <h3 class="mb-3">Visit the clinic with less guesswork.</h3>
-              <p class="mb-4">Use the map to get your bearings, then check the contact cards below for address details, direct lines, and website information.</p>
+              <p class="mb-4">Use the map to get your bearings before your visit and make the trip easier to plan.</p>
               <div class="contact-map-frame">
                 <div id="map"></div>
               </div>
@@ -286,48 +303,4 @@
     </section>
  End of Appointment section -->
 
-		<section class="ftco-section contact-section pt-0">
-      <div class="container">
-        <div class="row justify-content-center mb-5">
-          <div class="col-md-8 text-center">
-            <span class="contact-kicker">Contact Details</span>
-            <h2 class="contact-section-heading mb-3">Everything you need before your visit.</h2>
-            <p class="mb-0" style="color: #5e6b89; line-height: 1.8;">Keep the essentials in one place: address, phone, email, and website. If you are sharing the clinic details with someone else, this is the easiest section to screenshot or send along.</p>
-          </div>
-        </div>
-        <div class="row contact-info-grid">
-          <div class="col-md-6 col-xl-3 d-flex">
-          	<div class="contact-info-card">
-              <span class="contact-info-label">Address</span>
-	            <p>{{ site_content.clinic_address }}</p>
-	          </div>
-          </div>
-          <div class="col-md-6 col-xl-3 d-flex">
-          	<div class="contact-info-card">
-              <span class="contact-info-label">Phone</span>
-	            <p><a href="tel:{{ site_content.contact_phone }}">{{ site_content.contact_phone }}</a></p>
-	          </div>
-          </div>
-          <div class="col-md-6 col-xl-3 d-flex">
-          	<div class="contact-info-card">
-              <span class="contact-info-label">Email</span>
-	            <p><a href="mailto:{{ site_content.contact_email }}">{{ site_content.contact_email }}</a></p>
-	          </div>
-          </div>
-          <div class="col-md-6 col-xl-3 d-flex">
-            <div class="contact-info-card">
-              <span class="contact-info-label">Website</span>
-	            <p>
-                {% if site_content.clinic_website_url %}
-                  <a href="{{ site_content.clinic_website_url }}" target="_blank" rel="noopener">{{ site_content.clinic_website_url }}</a>
-                {% else %}
-                  <a href="{% url 'home' %}">Visit homepage</a>
-                {% endif %}
-              </p>
-	          </div>
-          </div>
-        </div>
-      </div>
-    </section>
-		
 {% endblock %}

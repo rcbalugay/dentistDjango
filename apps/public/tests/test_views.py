@@ -92,7 +92,6 @@ class PublicPageSmokeTests(TestCase):
         self.assertEqual(contact_response.status_code, 200)
         self.assertContains(contact_response, "Managed Contact Title")
         self.assertContains(contact_response, "Managed Contact Heading")
-        self.assertContains(contact_response, "https://managed.example.com")
         self.assertContains(contact_response, "Managed landmark one, Managed landmark two")
 
     def test_about_page_shows_doctor_profile_content(self):

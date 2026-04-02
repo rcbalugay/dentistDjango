@@ -3,6 +3,39 @@
 {% block title %}News and Articles | Dental Clinic{% endblock %}
 {% block content %}
 
+  <style>
+    .blog-page-shell .meta-date {
+      background: #89289a;
+      color: #fff;
+    }
+
+    .blog-page-shell .btn-primary {
+      background: #89289a;
+      border-color: transparent;
+      color: #fff;
+    }
+
+    .blog-page-shell .btn-primary:hover,
+    .blog-page-shell .btn-primary:focus {
+      background: transparent;
+      border-color: transparent;
+      color: #1f2434;
+    }
+
+    .blog-page-shell .btn-outline-primary {
+      color: #89289a;
+      border-color: transparent;
+      background: transparent;
+    }
+
+    .blog-page-shell .btn-outline-primary:hover,
+    .blog-page-shell .btn-outline-primary:focus {
+      color: #1f2434;
+      background: transparent;
+      border-color: transparent;
+    }
+  </style>
+
   <section class="hero-wrap hero-wrap-2" style="background-image: url('{% if site_content.page_banner_background %}{{ site_content.page_banner_background.url }}{% else %}{% static 'website/images/bg_1.jpg' %}{% endif %}');" data-stellar-background-ratio="0.5">
     <div class="overlay"></div>
     <div class="container">
@@ -15,7 +48,7 @@
     </div>
   </section>
 
-  <section class="ftco-section bg-light">
+  <section class="ftco-section bg-light blog-page-shell">
     <div class="container">
       <div class="row justify-content-center mb-5 pb-2">
         <div class="col-md-8 text-center heading-section ftco-animate">
