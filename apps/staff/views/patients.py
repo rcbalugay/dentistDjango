@@ -4,6 +4,7 @@ from urllib.parse import urlencode
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Count, Max, Min, Q
+from django.http import JsonResponse, FileResponse, Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -30,6 +31,64 @@ def patients_url(*, patient_id=None, query="", sort="all"):
     return f"{base_url}?{urlencode(params)}" if params else base_url
 
 
+def get_patient_queue(patient_qs, sort="all"):
+    """
+    Retrieves the patient queue, annotated with last_seen for sorting,
+    filtering for patients with at least one appointment.
+    """
+    patient_queue_qs = (
+        patient_qs.filter(appointments__isnull=False)
+        .annotate(last_seen=Max("appointments__date"))
+        .distinct()
+    )
+    if sort == "newest":
+        patient_queue_qs = patient_queue_qs.order_by("-created_at", "name")
+    elif sort == "oldest":
+        patient_queue_qs = patient_queue_qs.order_by("created_at", "name")
+    else:
+        patient_queue_qs = patient_queue_qs.order_by("-last_seen", "name")
+    return list(patient_queue_qs)
+
+
+def get_patient_appointment_stats(selected_patient, selected_appointments):
+    """
+    Computes appointment statistics for a single selected patient.
+    """
+    stats = selected_appointments.aggregate(
+        total=Count("id"),
+        pending=Count("id", filter=Q(status=Appointment.STATUS_PENDING)),
+        confirmed=Count("id", filter=Q(status=Appointment.STATUS_CONFIRMED)),
+        completed=Count("id", filter=Q(status=Appointment.STATUS_COMPLETED)),
+        cancelled=Count("id", filter=Q(status=Appointment.STATUS_CANCELLED)),
+    )
+    
+    completed = stats["completed"]
+    total = stats["total"]
+    pending = stats["pending"]
+    confirmed = stats["confirmed"]
+    cancelled = stats["cancelled"]
+    
+    adherence = round((completed * 100.0 / total), 1) if total else 0
+    return {
+        "total": total,
+        "completed": completed,
+        "upcoming": pending + confirmed,
+        "cancelled": cancelled,
+        "adherence": adherence,
+    }
+
+
+def get_patient_documents(selected_patient):
+    """
+    Retrieves all documents for a patient in a single query,
+    splitting them into insurance and non-insurance lists.
+    """
+    all_docs = list(selected_patient.documents.all())
+    insurance_document = next((d for d in all_docs if d.document_type == PatientDocument.TYPE_INSURANCE), None)
+    document_items = [d for d in all_docs if d.document_type != PatientDocument.TYPE_INSURANCE]
+    return insurance_document, document_items
+
+
 @login_required(login_url="dashboard:login")
 @user_passes_test(staff_only)
 def patients(request):
@@ -47,6 +106,8 @@ def patients(request):
         action = request.POST.get("document_action", "")
 
         if not target_patient:
+            if request.headers.get("x-requested-with") == "XMLHttpRequest":
+                return JsonResponse({"success": False, "error": "Select a patient before uploading a file."})
             messages.error(request, "Select a patient before uploading a file.")
             return redirect(patients_url(query=q, sort=sort))
 
@@ -54,15 +115,38 @@ def patients(request):
             insurance_file = request.FILES.get("insurance_file")
             insurance_title = request.POST.get("insurance_title", "").strip() or "Insurance attachment"
             if not insurance_file:
+                if request.headers.get("x-requested-with") == "XMLHttpRequest":
+                    return JsonResponse({"success": False, "error": "Choose an insurance image or file to upload."})
                 messages.error(request, "Choose an insurance image or file to upload.")
             else:
-                PatientDocument.objects.create(
-                    patient=target_patient,
-                    title=insurance_title,
-                    document_type=PatientDocument.TYPE_INSURANCE,
-                    file=insurance_file,
-                )
-                messages.success(request, "Insurance attachment uploaded.")
+                form_data = {
+                    "title": insurance_title,
+                    "document_type": PatientDocument.TYPE_INSURANCE,
+                }
+                form_files = {
+                    "file": insurance_file,
+                }
+                insurance_form = PatientDocumentForm(form_data, form_files)
+                if insurance_form.is_valid():
+                    doc = insurance_form.save(commit=False)
+                    doc.patient = target_patient
+                    doc.save()
+                    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+                        return JsonResponse({
+                            "success": True,
+                            "message": "Insurance attachment uploaded.",
+                            "file_url": reverse("dashboard:download_patient_document", args=[doc.id]),
+                            "filename": doc.filename,
+                            "title": doc.title,
+                            "is_image": doc.is_image,
+                            "uploaded_at": doc.uploaded_at.strftime("%d %b %Y")
+                        })
+                    messages.success(request, "Insurance attachment uploaded.")
+                else:
+                    first_error = next(iter(insurance_form.errors.values()))[0] if insurance_form.errors else "Choose an insurance image or file to upload."
+                    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+                        return JsonResponse({"success": False, "error": first_error})
+                    messages.error(request, first_error)
             return redirect(patients_url(patient_id=target_patient.id, query=q, sort=sort))
 
         if action == "upload_document":
@@ -71,55 +155,35 @@ def patients(request):
                 document = document_form.save(commit=False)
                 document.patient = target_patient
                 document.save()
+                if request.headers.get("x-requested-with") == "XMLHttpRequest":
+                    from django.template.defaultfilters import filesizeformat
+                    return JsonResponse({
+                        "success": True,
+                        "message": "Patient document uploaded.",
+                        "file_url": reverse("dashboard:download_patient_document", args=[document.id]),
+                        "filename": document.filename,
+                        "title": document.title,
+                        "is_image": document.is_image,
+                        "doc_type": document.get_document_type_display(),
+                        "size": filesizeformat(document.file.size),
+                        "uploaded_at": document.uploaded_at.strftime("%d %b %Y")
+                    })
                 messages.success(request, "Patient document uploaded.")
                 return redirect(patients_url(patient_id=target_patient.id, query=q, sort=sort))
-            messages.error(request, "Please complete the document upload form.")
+            
+            first_error = next(iter(document_form.errors.values()))[0] if document_form.errors else "Please complete the document upload form."
+            if request.headers.get("x-requested-with") == "XMLHttpRequest":
+                return JsonResponse({"success": False, "error": first_error})
+            messages.error(request, first_error)
 
     patient_qs = Patient.objects.all()
     if q:
         patient_qs = patient_qs.filter(
             Q(name__icontains=q)
-            | Q(phone__icontains=q)
-            | Q(email__icontains=q)
+            | Q(patient_code__icontains=q)
         )
 
-    patient_queue_qs = (
-        patient_qs.annotate(
-            first_seen=Min("appointments__created_at"),
-            last_seen=Max("appointments__date"),
-            total_appointments=Count("appointments", distinct=True),
-            pending_count=Count(
-                "appointments",
-                filter=Q(appointments__status=Appointment.STATUS_PENDING),
-                distinct=True,
-            ),
-            confirmed_count=Count(
-                "appointments",
-                filter=Q(appointments__status=Appointment.STATUS_CONFIRMED),
-                distinct=True,
-            ),
-            completed_count=Count(
-                "appointments",
-                filter=Q(appointments__status=Appointment.STATUS_COMPLETED),
-                distinct=True,
-            ),
-            cancelled_count=Count(
-                "appointments",
-                filter=Q(appointments__status=Appointment.STATUS_CANCELLED),
-                distinct=True,
-            ),
-        )
-        .filter(total_appointments__gt=0)
-    )
-
-    if sort == "newest":
-        patient_queue_qs = patient_queue_qs.order_by("-created_at", "name")
-    elif sort == "oldest":
-        patient_queue_qs = patient_queue_qs.order_by("created_at", "name")
-    else:
-        patient_queue_qs = patient_queue_qs.order_by("-last_seen", "name")
-
-    patient_queue = list(patient_queue_qs)
+    patient_queue = get_patient_queue(patient_qs, sort=sort)
 
     selected_patient = None
     upcoming_schedule = []
@@ -153,26 +217,19 @@ def patients(request):
         )
         visit_history = list(selected_appointments[:8])
 
-        completed = selected_patient.completed_count
-        total = selected_patient.total_appointments
-        pending = selected_patient.pending_count
-        confirmed = selected_patient.confirmed_count
-        cancelled = selected_patient.cancelled_count
+        quick_stats = get_patient_appointment_stats(selected_patient, selected_appointments)
+        insurance_document, document_items = get_patient_documents(selected_patient)
 
-        adherence = round((completed * 100.0 / total), 1) if total else 0
-        quick_stats = {
-            "total": total,
-            "completed": completed,
-            "upcoming": pending + confirmed,
-            "cancelled": cancelled,
-            "adherence": adherence,
-        }
-
-        insurance_document = selected_patient.documents.filter(
-            document_type=PatientDocument.TYPE_INSURANCE
-        ).first()
-        document_items = list(
-            selected_patient.documents.exclude(document_type=PatientDocument.TYPE_INSURANCE)
+        # Log VIEW action in AuditLog
+        from apps.patients.models import AuditLog
+        from apps.patients.signals import get_client_ip
+        AuditLog.objects.create(
+            user=request.user if request.user.is_authenticated else None,
+            action=AuditLog.ACTION_VIEW,
+            model_name="Patient",
+            object_id=selected_patient.id,
+            description=f"Accessed profile for patient {selected_patient.name} (Code: {selected_patient.patient_code or 'pending'}) via staff panel.",
+            ip_address=get_client_ip(request)
         )
 
     return render(request, "staff/pages/patients.html", {
@@ -189,3 +246,36 @@ def patients(request):
         "quick_stats": quick_stats,
         "document_form": document_form,
     })
+
+
+@login_required(login_url="dashboard:login")
+@user_passes_test(staff_only)
+def download_patient_document(request, pk):
+    """
+    Securely streams a patient document file after verifying authentication
+    and staff authorization status.
+    """
+    try:
+        document = PatientDocument.objects.select_related("patient").get(pk=pk)
+    except PatientDocument.DoesNotExist:
+        raise Http404("Document does not exist.")
+
+    # Log VIEW action to the AuditLog
+    from apps.patients.models import AuditLog
+    from apps.patients.signals import get_client_ip
+    AuditLog.objects.create(
+        user=request.user if request.user.is_authenticated else None,
+        action=AuditLog.ACTION_VIEW,
+        model_name="PatientDocument",
+        object_id=document.id,
+        description=f"Downloaded/Opened document {document.title} ({document.get_document_type_display()}) for patient {document.patient.name}.",
+        ip_address=get_client_ip(request)
+    )
+    
+    try:
+        response = FileResponse(document.file.open("rb"))
+        # Set content-type cleanly or let FileResponse infer it
+        return response
+    except FileNotFoundError:
+        raise Http404("File not found on storage disk.")
+

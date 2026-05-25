@@ -10,7 +10,7 @@ from django.urls import reverse
 
 from apps.appointments.models import Appointment
 from apps.patients.models import Patient, PatientDocument
-from apps.public.models import BlogPost, SiteContent, Testimonial
+from apps.public.models import BlogPost, SiteContent, Testimonial, ClinicSettings
 
 # Create your tests here.
 @override_settings(WEATHERAPI_KEY="", SECURE_SSL_REDIRECT=False)
@@ -209,6 +209,170 @@ class PatientWorkspaceDocumentTests(TestCase):
             ).exists()
         )
 
+    def test_document_upload_rejected_if_too_large(self):
+        self.client.login(username="docstaff", password="pass12345")
+        
+        uploaded = SimpleUploadedFile(
+            "large_document.pdf",
+            b"0" * (11 * 1024 * 1024),
+            content_type="application/pdf",
+        )
+
+        response = self.client.post(
+            reverse("dashboard:patients"),
+            {
+                "document_action": "upload_document",
+                "patient_id": str(self.patient.id),
+                "doc-title": "Large document",
+                "doc-document_type": PatientDocument.TYPE_AGREEMENT,
+                "doc-file": uploaded,
+            },
+        )
+        
+        # Should NOT be a redirect (302) because form validation fails
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(
+            PatientDocument.objects.filter(
+                patient=self.patient,
+                title="Large document",
+            ).exists()
+        )
+
+    def test_document_upload_rejected_if_invalid_extension(self):
+        self.client.login(username="docstaff", password="pass12345")
+        
+        uploaded = SimpleUploadedFile(
+            "exploit.py",
+            b"print('hack')",
+            content_type="text/x-python",
+        )
+
+        response = self.client.post(
+            reverse("dashboard:patients"),
+            {
+                "document_action": "upload_document",
+                "patient_id": str(self.patient.id),
+                "doc-title": "Exploit script",
+                "doc-document_type": PatientDocument.TYPE_AGREEMENT,
+                "doc-file": uploaded,
+            },
+        )
+        
+        # Form validation fails, so we remain on page (200)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(
+            PatientDocument.objects.filter(
+                patient=self.patient,
+                title="Exploit script",
+            ).exists()
+        )
+
+    def test_insurance_upload_rejected_if_too_large(self):
+        self.client.login(username="docstaff", password="pass12345")
+        
+        uploaded = SimpleUploadedFile(
+            "large_insurance.png",
+            b"0" * (11 * 1024 * 1024),
+            content_type="image/png",
+        )
+
+        response = self.client.post(
+            reverse("dashboard:patients"),
+            {
+                "document_action": "upload_insurance",
+                "patient_id": str(self.patient.id),
+                "insurance_title": "Large Insurance",
+                "insurance_file": uploaded,
+            },
+        )
+        
+        # Should return 302 redirect with validation error messages, not save the document
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(
+            PatientDocument.objects.filter(
+                patient=self.patient,
+                title="Large Insurance",
+            ).exists()
+        )
+
+    def test_insurance_upload_rejected_if_invalid_extension(self):
+        self.client.login(username="docstaff", password="pass12345")
+        
+        uploaded = SimpleUploadedFile(
+            "malicious.html",
+            b"<h1>evil</h1>",
+            content_type="text/html",
+        )
+
+        response = self.client.post(
+            reverse("dashboard:patients"),
+            {
+                "document_action": "upload_insurance",
+                "patient_id": str(self.patient.id),
+                "insurance_title": "HTML Insurance",
+                "insurance_file": uploaded,
+            },
+        )
+        
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(
+            PatientDocument.objects.filter(
+                patient=self.patient,
+                title="HTML Insurance",
+            ).exists()
+        )
+
+    def test_ajax_document_upload_rejected_with_json_errors(self):
+        self.client.login(username="docstaff", password="pass12345")
+        
+        uploaded = SimpleUploadedFile(
+            "malicious.exe",
+            b"binary exe content",
+            content_type="application/octet-stream",
+        )
+
+        response = self.client.post(
+            reverse("dashboard:patients"),
+            {
+                "document_action": "upload_document",
+                "patient_id": str(self.patient.id),
+                "doc-title": "Executable document",
+                "doc-document_type": PatientDocument.TYPE_AGREEMENT,
+                "doc-file": uploaded,
+            },
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertFalse(data["success"])
+        self.assertIn("Only JPG, PNG, PDF, and DOCX are allowed", data["error"])
+
+    def test_ajax_insurance_upload_rejected_with_json_errors(self):
+        self.client.login(username="docstaff", password="pass12345")
+        
+        uploaded = SimpleUploadedFile(
+            "malicious.py",
+            b"print('hack')",
+            content_type="text/x-python",
+        )
+
+        response = self.client.post(
+            reverse("dashboard:patients"),
+            {
+                "document_action": "upload_insurance",
+                "patient_id": str(self.patient.id),
+                "insurance_title": "Python Insurance",
+                "insurance_file": uploaded,
+            },
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertFalse(data["success"])
+        self.assertIn("Only JPG, PNG, PDF, and DOCX are allowed", data["error"])
+
 @override_settings(WEATHERAPI_KEY="", SECURE_SSL_REDIRECT=False)
 class WebsiteManagementTests(TestCase):
     def setUp(self):
@@ -230,12 +394,6 @@ class WebsiteManagementTests(TestCase):
             hours_line_1_value="9:00am - 5:00pm",
             hours_line_2_label="Sat",
             hours_line_2_value="Closed",
-            service_1_title="Service One",
-            service_1_summary="Service one summary",
-            service_2_title="Service Two",
-            service_2_summary="Service two summary",
-            service_3_title="Service Three",
-            service_3_summary="Service three summary",
         )
 
     def test_staff_can_open_website_management_page(self):
@@ -243,40 +401,23 @@ class WebsiteManagementTests(TestCase):
         response = self.client.get(reverse("dashboard:website"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Website Management")
-        self.assertContains(response, "Testimonials and Blog")
-        self.assertContains(response, "Manage testimonials")
+        self.assertContains(response, "Website Content Management")
+        self.assertContains(response, "Services, Testimonials, and Blog")
+        self.assertContains(response, "testimonials")
         self.assertContains(response, "Manage blog posts")
-        self.assertIn("form", response.context)
+        self.assertIn("homepage_form", response.context)
+        self.assertIn("about_form", response.context)
 
-    def test_staff_can_update_website_content(self):
+    def test_staff_can_update_website_content_homepage(self):
         self.client.login(username="webstaff", password="pass12345")
 
         response = self.client.post(
             reverse("dashboard:website"),
             {
+                "active_tab": "homepage",
                 "hero_title": "Updated Hero",
                 "hero_subtitle": "Updated subtitle",
                 "hero_cta_text": "Schedule Today",
-                "about_summary": "Updated about summary",
-                "services_page_title": "Updated Services Title",
-                "contact_page_title": "Updated Contact Title",
-                "contact_form_heading": "Updated Form Heading",
-                "clinic_website_url": "https://updated.example.com",
-                "clinic_landmarks": "Updated landmark one, Updated landmark two",
-                "contact_phone": "09171112222",
-                "contact_email": "updated@test.com",
-                "clinic_address": "Updated clinic address",
-                "hours_line_1_label": "Mon-Wed",
-                "hours_line_1_value": "8:00am - 4:00pm",
-                "hours_line_2_label": "Thu-Sat",
-                "hours_line_2_value": "10:00am - 6:00pm",
-                "service_1_title": "Updated Service 1",
-                "service_1_summary": "Updated service 1 summary",
-                "service_2_title": "Updated Service 2",
-                "service_2_summary": "Updated service 2 summary",
-                "service_3_title": "Updated Service 3",
-                "service_3_summary": "Updated service 3 summary",
             },
             follow=True,
         )
@@ -285,17 +426,75 @@ class WebsiteManagementTests(TestCase):
 
         self.content.refresh_from_db()
         self.assertEqual(self.content.hero_title, "Updated Hero")
-        self.assertEqual(self.content.contact_email, "updated@test.com")
+        self.assertEqual(self.content.hero_subtitle, "Updated subtitle")
+        self.assertEqual(self.content.hero_cta_text, "Schedule Today")
+        self.assertEqual(
+            response.redirect_chain,
+            [(f"{reverse('dashboard:website')}?tab=homepage&saved=1", 302)],
+        )
+
+    def test_staff_can_update_website_content_about(self):
+        self.client.login(username="webstaff", password="pass12345")
+
+        response = self.client.post(
+            reverse("dashboard:website"),
+            {
+                "active_tab": "about",
+                "about_summary": "Updated about summary",
+                "services_page_title": "Updated Services Title",
+                "contact_page_title": "Updated Contact Title",
+                "contact_form_heading": "Updated Form Heading",
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.content.refresh_from_db()
+        self.assertEqual(self.content.about_summary, "Updated about summary")
         self.assertEqual(self.content.services_page_title, "Updated Services Title")
         self.assertEqual(self.content.contact_page_title, "Updated Contact Title")
         self.assertEqual(self.content.contact_form_heading, "Updated Form Heading")
-        self.assertEqual(self.content.clinic_website_url, "https://updated.example.com")
-        self.assertEqual(self.content.clinic_landmarks, "Updated landmark one, Updated landmark two")
-        self.assertEqual(self.content.service_3_title, "Updated Service 3")
         self.assertEqual(
             response.redirect_chain,
-            [(f"{reverse('dashboard:website')}?saved=1", 302)],
+            [(f"{reverse('dashboard:website')}?tab=about&saved=1", 302)],
         )
+
+    def test_staff_can_update_clinic_settings(self):
+        self.client.login(username="webstaff", password="pass12345")
+
+        settings, _ = ClinicSettings.objects.get_or_create(pk=1)
+
+        response = self.client.post(
+            reverse("dashboard:settings"),
+            {
+                "clinic_name": "Updated Clinic Name",
+                "clinic_website_url": "https://updated.example.com",
+                "contact_email": "updated@test.com",
+                "contact_phone": "09171112222",
+                "clinic_address": "Updated clinic address",
+                "clinic_landmarks": "Updated landmarks",
+                "hours_line_1_label": "Mon-Wed",
+                "hours_line_1_value": "8:00am - 4:00pm",
+                "hours_line_2_label": "Thu-Sat",
+                "hours_line_2_value": "10:00am - 6:00pm",
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        settings.refresh_from_db()
+        self.assertEqual(settings.clinic_name, "Updated Clinic Name")
+        self.assertEqual(settings.clinic_website_url, "https://updated.example.com")
+        self.assertEqual(settings.contact_email, "updated@test.com")
+        self.assertEqual(settings.contact_phone, "09171112222")
+        self.assertEqual(settings.clinic_address, "Updated clinic address")
+        self.assertEqual(settings.clinic_landmarks, "Updated landmarks")
+        self.assertEqual(settings.hours_line_1_label, "Mon-Wed")
+        self.assertEqual(settings.hours_line_1_value, "8:00am - 4:00pm")
+        self.assertEqual(settings.hours_line_2_label, "Thu-Sat")
+        self.assertEqual(settings.hours_line_2_value, "10:00am - 6:00pm")
 
 
 @override_settings(WEATHERAPI_KEY="", SECURE_SSL_REDIRECT=False)

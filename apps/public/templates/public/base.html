@@ -31,7 +31,26 @@
     <link rel="stylesheet" href=" {% static 'website/css/style.css' %} ">
 
     <link rel="shortcut icon" href="{% static 'website/images/logo-1.png' %}" />
+
+    {% if settings %}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Dentist",
+      "name": "{{ settings.clinic_name }}",
+      "url": "{{ settings.clinic_website_url }}",
+      "telephone": "{{ settings.contact_phone }}",
+      "email": "{{ settings.contact_email }}",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "{{ settings.clinic_address }}"
+      },
+      "openingHoursSpecification": {{ settings.opening_hours_spec_json|safe }}
+    }
+    </script>
+    {% endif %}
   </head>
+
 
 <!-- Start of the Header -->
   <body>
@@ -46,8 +65,8 @@
 	    				<span class="icon-map"></span>
 	    			</div>
 	    			<div class="pr-md-4 pl-md-0 pl-3 text">
-					    <p class="con"><span>Dial</span> <span>{{ site_content.contact_phone }}</span></p>
-					    <p class="con">{{ site_content.clinic_address }}</p>
+					    <p class="con"><span>Dial</span> <span>{{ settings.contact_phone }}</span></p>
+					    <p class="con">{{ settings.clinic_address }}</p>
 				    </div>
 			    </div>
 			    <div class="col-md-4 order-md-3 d-flex topper mb-md-0 align-items-center">
@@ -55,12 +74,12 @@
 			    	<div class="text pl-3 pl-md-3">
               <p class="hr"><span>Open Hours</span></p>
               <p class="time">
-                <span>{{ site_content.hours_line_1_label }}</span>
-                <span>{{ site_content.hours_line_1_value }}</span>
+                <span>{{ settings.hours_line_1_label }}</span>
+                <span>{{ settings.hours_line_1_value }}</span>
               </p>
               <p class="time">
-                <span>{{ site_content.hours_line_2_label }}</span>
-                <span>{{ site_content.hours_line_2_value }}</span>
+                <span>{{ settings.hours_line_2_label }}</span>
+                <span>{{ settings.hours_line_2_value }}</span>
               </p>
             </div>
 			    </div>
@@ -236,9 +255,9 @@ End of Footer Area -->
       <div class="col-md-12">
         <div class="ftco-footer-widget">
           <h2 class="ftco-heading-2" style="font-size: 24px; text-transform: uppercase; letter-spacing: 2px;">CONTACT US</h2>
-          <p>Location: <a href="#" style="color: #fff; text-decoration: underline;">{{ site_content.clinic_address }}<br></a>Nearest Landmarks: <a style="color: #fff; text-decoration: none;">{{ site_content.clinic_landmarks }}</a></p>
-          <p style="color: #fff;">{{ site_content.contact_phone }}</p>
-          <p><a href="mailto:{{ site_content.contact_email }}" style="color: #fff; text-decoration: underline;">{{ site_content.contact_email }}</a></p>
+          <p>Location: <a href="#" style="color: #fff; text-decoration: underline;">{{ settings.clinic_address }}<br></a>Nearest Landmarks: <a style="color: #fff; text-decoration: none;">{{ settings.clinic_landmarks }}</a></p>
+          <p style="color: #fff;">{{ settings.contact_phone }}</p>
+          <p><a href="mailto:{{ settings.contact_email }}" style="color: #fff; text-decoration: underline;">{{ settings.contact_email }}</a></p>
         </div>
       </div>
 
@@ -254,12 +273,12 @@ End of Footer Area -->
         <div class="ftco-footer-widget">
           <h2 class="ftco-heading-2" style="font-size: 24px; text-transform: uppercase; letter-spacing: 2px;">OPENING HOURS</h2>
           <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding: 0 20px;">
-            <span>{{ site_content.hours_line_1_label }}</span>
-            <span>{{ site_content.hours_line_1_value }}</span>
+            <span>{{ settings.hours_line_1_label }}</span>
+            <span>{{ settings.hours_line_1_value }}</span>
           </div>
           <div style="display: flex; justify-content: space-between; padding: 0 20px; margin-bottom: 30px;">
-            <span>{{ site_content.hours_line_2_label }}</span>
-            <span>{{ site_content.hours_line_2_value }}</span>
+            <span>{{ settings.hours_line_2_label }}</span>
+            <span>{{ settings.hours_line_2_value }}</span>
           </div>
           
           <!-- Social Media -->

@@ -71,3 +71,5 @@ build/
 htmlcov/
 .mypy_cache/
 pytest_cache/
+protected_media/
+dashboard.mkv

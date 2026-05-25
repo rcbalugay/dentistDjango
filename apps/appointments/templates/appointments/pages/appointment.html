@@ -109,6 +109,7 @@
               <div id="timeslotList" class="slot-list"></div>
               <!-- hidden field to carry the selected time -->
               <input type="hidden" id="appointment_time" name="appointment_time" value="{{ form.appointment_time.value|default:'' }}">
+              <div id="availabilityIndicator" class="mt-3" aria-live="polite"></div>
             </div>
           </div>
         </div>
@@ -118,6 +119,8 @@
             class="appt-matrix d-lg-none mt-4"
             aria-label="Choose date and time">
         </div>
+        <div id="mobileAvailabilityIndicator" class="d-lg-none mt-3 px-3" aria-live="polite"></div>
+
 
         <div class="text-center mt-4">
         <button type="submit" class="btn btn-submit-custom mt-4">Request an Appointment</button>

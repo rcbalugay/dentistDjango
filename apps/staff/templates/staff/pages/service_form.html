@@ -1,0 +1,199 @@
+{% extends "staff/base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block extra_head %}
+<style>
+  .form-card {
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 10px 28px rgba(34, 51, 84, 0.05);
+    background: #ffffff;
+    max-width: 800px;
+  }
+  .form-kicker {
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #8d99bd;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+  .form-group label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #7c89ad;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+  .form-group input[type="text"],
+  .form-group input[type="number"],
+  .form-group input[type="file"],
+  .form-group textarea,
+  .form-group select {
+    border-radius: 14px;
+    border: 1px solid #d8e1fb;
+    min-height: 48px;
+    box-shadow: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+    background: #fbfcff;
+    padding: 0.75rem 1rem;
+    width: 100%;
+    color: #2d355a;
+    font-size: 0.92rem;
+  }
+  .form-group input[type="text"]:focus,
+  .form-group input[type="number"]:focus,
+  .form-group textarea:focus,
+  .form-group select:focus {
+    border-color: #8a84ec;
+    box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.08);
+    background: #fff;
+    outline: none;
+  }
+  .form-group textarea {
+    min-height: 120px;
+    resize: vertical;
+  }
+  .form-group input[type="file"] {
+    min-height: auto;
+    padding: 0.65rem 0.85rem;
+    background: #fff;
+  }
+  .image-preview-container {
+    margin-top: 1rem;
+    border-radius: 14px;
+    border: 1px dashed #d8e1fb;
+    background: #fbfcff;
+    padding: 0.75rem;
+    display: inline-block;
+    max-width: 100%;
+  }
+  .image-preview-label {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #8d99bd;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{% url 'dashboard:services' %}" class="text-muted text-decoration-none mb-2 d-inline-block" style="font-weight: 600;">
+        &larr; Back to Services
+    </a>
+    <div class="form-kicker">Operations</div>
+    <h3 class="font-weight-bold mb-1">{{ page_title }}</h3>
+    <p class="text-muted mb-0">{{ page_subtitle }}</p>
+</div>
+
+<div class="card form-card">
+    <div class="card-body p-4">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="form-group mb-4">
+                <label>Service Title</label>
+                {{ form.title }}
+            </div>
+
+            <div class="form-group mb-4">
+                <label>Service Summary</label>
+                {{ form.summary }}
+                <small class="text-muted mt-2 d-block" style="font-size: 0.8rem; line-height: 1.4;">A short, compelling description of what the service entails for patients.</small>
+            </div>
+
+            <div class="form-group mb-4">
+                <label>Cover Image</label>
+                {{ form.image }}
+                
+                <div class="image-preview-container" id="preview-box">
+                    <span class="image-preview-label">Live Cover Preview</span>
+                    <img id="image-preview" src="{% if service.image %}{{ service.image.url }}{% else %}#{% endif %}" 
+                         alt="Cover Preview" class="img-fluid" 
+                         style="max-height: 200px; border-radius: 10px; {% if not service.image %}display: none;{% endif %} object-fit: cover;">
+                    {% if not service.image %}
+                        <div id="preview-placeholder" class="text-muted" style="font-size: 0.85rem; padding: 1.5rem; text-align: center; border-radius: 10px; background: #f0f2f5; border: 1px dashed #d8e1fb;">
+                            <i class="icon-image mr-1" style="font-size: 1.25rem; vertical-align: middle;"></i> No cover image selected.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6 form-group">
+                    <label>Display Order</label>
+                    {{ form.sort_order }}
+                    <small class="text-muted mt-2 d-block" style="font-size: 0.8rem; line-height: 1.4;">Lower numbers appear first on the website (e.g. 0, 1, 2).</small>
+                </div>
+                <div class="col-md-6 form-group">
+                    <div class="form-check mt-md-4 pt-md-3">
+                        <label class="form-check-label font-weight-bold" style="text-transform: none; font-size: 0.9rem; letter-spacing: 0; color: #2d355a; display: inline-flex; align-items: center; cursor: pointer;">
+                            {{ form.is_published }}
+                            <span class="ml-2">Publish immediately to website</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4" style="border-top: 1px solid #edf1f9;">
+
+            <div class="d-flex justify-content-end align-items-center">
+                <a href="{% url 'dashboard:services' %}" class="btn btn-light mr-3 rounded-pill px-4 py-2" style="font-weight: 600;">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-primary rounded-pill px-4 py-2" style="font-weight: 700;">
+                    Save Service
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var fileInput = document.querySelector('input[type="file"]');
+    var imgPreview = document.getElementById('image-preview');
+    var placeholder = document.getElementById('preview-placeholder');
+    
+    if (fileInput && imgPreview) {
+      fileInput.addEventListener('change', function(e) {
+        var file = e.target.files[0];
+        if (file) {
+          var reader = new FileReader();
+          reader.onload = function(event) {
+            imgPreview.src = event.target.result;
+            imgPreview.style.display = 'block';
+            if (placeholder) {
+              placeholder.style.display = 'none';
+            }
+          };
+          reader.readAsDataURL(file);
+        } else {
+          // If cleared
+          {% if service.image %}
+            imgPreview.src = '{{ service.image.url }}';
+            imgPreview.style.display = 'block';
+            if (placeholder) {
+              placeholder.style.display = 'none';
+            }
+          {% else %}
+            imgPreview.src = '#';
+            imgPreview.style.display = 'none';
+            if (placeholder) {
+              placeholder.style.display = 'block';
+            }
+          {% endif %}
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

@@ -141,7 +141,7 @@
       border-color: #c3caea;
     }
     .history-filter-control:focus {
-      border-color: #7269e6;
+      border-color: #6c5ce7;
       box-shadow: 0 0 0 0.18rem rgba(108, 92, 231, 0.14);
     }
     .history-filter-control::-webkit-calendar-picker-indicator {
@@ -158,31 +158,33 @@
       min-height: 48px;
       border: none;
       border-radius: 14px;
-      background: linear-gradient(135deg, #5c56bf 0%, #7168e8 100%);
-      box-shadow: 0 12px 24px rgba(96, 87, 205, 0.22);
+      background: linear-gradient(135deg, #6c5ce7 0%, #8272f2 100%);
+      box-shadow: 0 12px 24px rgba(108, 92, 231, 0.22);
       font-size: 0.95rem;
       font-weight: 700;
       letter-spacing: 0.01em;
       transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+      color: #fff;
     }
     .history-filter-submit:hover,
     .history-filter-submit:focus {
       transform: translateY(-1px);
-      box-shadow: 0 15px 28px rgba(96, 87, 205, 0.28);
+      box-shadow: 0 15px 28px rgba(108, 92, 231, 0.28);
       filter: brightness(1.02);
+      color: #fff;
     }
     .history-filter-clear-row {
       display: flex;
       justify-content: flex-end;
     }
     .history-filter-clear {
-      color: #5c56bf;
+      color: #6c5ce7;
       font-size: 0.82rem;
       font-weight: 600;
       text-decoration: none;
     }
     .history-filter-clear:hover {
-      color: #443ca8;
+      color: #4e3fd3;
       text-decoration: underline;
     }
     .history-pagination {
@@ -371,12 +373,12 @@
                           {% csrf_token %}
                           <input type="hidden" name="appointment_id" value="{{ a.id }}">
                           <button type="submit" name="action" value="approve"
-                                  class="btn btn-sm btn-success">Approve</button>
+                                  class="btn btn-sm btn-success d-inline-flex align-items-center"><i class="icon-check mr-1"></i> Approve</button>
                           <button type="submit" name="action" value="cancel"
-                                  class="btn btn-sm btn-outline-danger">Cancel</button>
+                                  class="btn btn-sm btn-outline-danger d-inline-flex align-items-center"><i class="icon-cross mr-1"></i> Cancel</button>
                           <button type="button"
-                                  class="btn btn-sm btn-outline-primary" disabled>
-                            Reschedule
+                                  class="btn btn-sm btn-outline-primary d-inline-flex align-items-center" disabled>
+                            <i class="icon-clock mr-1"></i> Reschedule
                           </button>
                         </form>
                       </td>
@@ -455,28 +457,21 @@
                           <button type="submit"
                                   name="action"
                                   value="complete"
-                                  class="btn btn-sm btn-success">
-                            Complete
+                                  class="btn btn-sm btn-success d-inline-flex align-items-center">
+                            <i class="icon-check mr-1"></i> Complete
                           </button>
 
                           <button type="submit"
                                   name="action"
                                   value="cancel"
-                                  class="btn btn-sm btn-outline-danger">
-                            Cancel
+                                  class="btn btn-sm btn-outline-danger d-inline-flex align-items-center">
+                            <i class="icon-cross mr-1"></i> Cancel
                           </button>
 
-                          {# If you already have the reschedule view/URL: #}
-                          {# <a href="{% url 'dashboard:reschedule_appointment' a.id %}" #}
-                          {#    class="btn btn-sm btn-outline-primary"> #}
-                          {#   Reschedule #}
-                          {# </a> #}
-
-                          {# OR keep it disabled for now: #}
                           <button type="button"
-                                  class="btn btn-sm btn-outline-primary"
+                                  class="btn btn-sm btn-outline-primary d-inline-flex align-items-center"
                                   disabled>
-                            Reschedule
+                            <i class="icon-clock mr-1"></i> Reschedule
                           </button>
                         </form>
                       </td>

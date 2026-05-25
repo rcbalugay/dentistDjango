@@ -80,3 +80,38 @@ class AppointmentViewSmokeTests(TestCase):
         appointment = Appointment.objects.get(email="smoke@test.com")
         self.assertEqual(appointment.status, Appointment.STATUS_PENDING)
         self.assertTrue(appointment.appointment_code)
+
+    def test_check_appointment_slot_available(self):
+        booking_date = self.next_open_date()
+        response = self.client.get(
+            reverse("check_appointment_slot"),
+            {"date": booking_date.isoformat(), "start_time": "10:00 AM"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"available": True})
+
+    def test_check_appointment_slot_booked(self):
+        booking_date = self.next_open_date()
+        Appointment.objects.create(
+            name="Booked Patient",
+            phone="09170000111",
+            email="booked@test.com",
+            date=booking_date,
+            timeslot="10:00 AM",
+            start_time="10:00",
+            services=[APPOINTMENT_SERVICES[0]],
+            status=Appointment.STATUS_CONFIRMED,
+        )
+
+        response = self.client.get(
+            reverse("check_appointment_slot"),
+            {"date": booking_date.isoformat(), "start_time": "10:00 AM"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"available": False})
+
+    def test_check_appointment_slot_missing_params(self):
+        response = self.client.get(reverse("check_appointment_slot"))
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("error", response.json())
+

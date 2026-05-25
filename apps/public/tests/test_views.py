@@ -5,7 +5,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
-from apps.public.models import BlogPost, SiteContent, Testimonial
+from apps.public.models import BlogPost, SiteContent, Testimonial, Service, ClinicSettings
 
 @override_settings(
     DEFAULT_FROM_EMAIL="clinic@test.com",
@@ -49,6 +49,9 @@ class PublicPageSmokeTests(TestCase):
             hero_subtitle="Managed Hero Subtitle",
             hero_cta_text="Managed CTA",
             about_summary="Managed about summary",
+        )
+        ClinicSettings.objects.create(
+            pk=1,
             contact_phone="09175550000",
             contact_email="managed@test.com",
             clinic_address="Managed clinic address",
@@ -56,13 +59,10 @@ class PublicPageSmokeTests(TestCase):
             hours_line_1_value="9:00am - 5:00pm",
             hours_line_2_label="Sat",
             hours_line_2_value="Closed",
-            service_1_title="Managed Service 1",
-            service_1_summary="Managed summary 1",
-            service_2_title="Managed Service 2",
-            service_2_summary="Managed summary 2",
-            service_3_title="Managed Service 3",
-            service_3_summary="Managed summary 3",
         )
+        Service.objects.create(title="Managed Service 1", summary="Managed summary 1", is_published=True, sort_order=1)
+        Service.objects.create(title="Managed Service 2", summary="Managed summary 2", is_published=True, sort_order=2)
+        Service.objects.create(title="Managed Service 3", summary="Managed summary 3", is_published=True, sort_order=3)
 
         response = self.client.get(reverse("home"))
 
@@ -80,6 +80,9 @@ class PublicPageSmokeTests(TestCase):
             services_page_title="Managed Services Title",
             contact_page_title="Managed Contact Title",
             contact_form_heading="Managed Contact Heading",
+        )
+        ClinicSettings.objects.create(
+            pk=1,
             clinic_website_url="https://managed.example.com",
             clinic_landmarks="Managed landmark one, Managed landmark two",
         )

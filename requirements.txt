@@ -20,3 +20,5 @@ tzdata==2025.2
 urllib3==2.5.0
 whitenoise==6.11.0
 Pillow
+cryptography==48.0.0
+

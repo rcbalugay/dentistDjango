@@ -1,900 +1,9 @@
 {% extends "staff/base.html" %}
+{% load static %}
 {% block title %}Patients{% endblock %}
 
-{% block extra_head %}
-  <style>
-    .patients-workspace {
-      margin-top: 0.25rem;
-    }
-    .patients-shell {
-      background: linear-gradient(180deg, #fbfcff 0%, #f4f7fd 100%);
-      border-radius: 20px;
-      border: 1px solid #e7ecf5;
-      padding: 1rem;
-      box-shadow: 0 12px 32px rgba(23, 40, 85, 0.06);
-    }
-    .queue-card {
-      border-radius: 18px;
-      border: 1px solid #e5ebf5;
-      overflow: hidden;
-      background: #fff;
-      box-shadow: 0 10px 28px rgba(34, 51, 84, 0.05);
-      display: flex;
-      flex-direction: column;
-      position: relative;
-    }
-    .queue-card::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      right: 6px;
-      bottom: 0;
-      height: 52px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.9) 68%, #ffffff 100%);
-      pointer-events: none;
-      z-index: 2;
-    }
-    .queue-head {
-      border-bottom: 1px solid #edf2fb;
-      background: #fbfcff;
-      padding: 1rem;
-      position: relative;
-      z-index: 3;
-    }
-    .queue-head-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 0.75rem;
-    }
-    .queue-head-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      border: 1px solid #e3eaf7;
-      background: #fff;
-      color: #7d89a5;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      font-size: 1rem;
-    }
-    .queue-search-form {
-      margin-top: 0.8rem;
-    }
-    .queue-search-shell {
-      display: flex;
-      align-items: center;
-      gap: 0.55rem;
-      border: 1px solid #dfe6f4;
-      border-radius: 999px;
-      background: #fff;
-      padding: 0.3rem 0.35rem 0.3rem 0.8rem;
-      box-shadow: inset 0 1px 2px rgba(32, 47, 89, 0.02);
-    }
-    .queue-search-shell i {
-      color: #92a0bb;
-      font-size: 0.95rem;
-      flex-shrink: 0;
-    }
-    .queue-search-shell .form-control {
-      border: 0;
-      box-shadow: none;
-      background: transparent;
-      min-height: auto;
-      padding: 0;
-      font-size: 0.85rem;
-      color: #2d3651;
-    }
-    .queue-search-shell .form-control::placeholder {
-      color: #9aa7c0;
-    }
-    .queue-search-shell .queue-sort-select {
-      border: 0;
-      background: #f5f7fd;
-      color: #55627f;
-      border-radius: 999px;
-      min-height: 34px;
-      padding: 0 0.8rem;
-      font-size: 0.8rem;
-      font-weight: 600;
-      box-shadow: none;
-      flex-shrink: 0;
-      min-width: 92px;
-      cursor: pointer;
-    }
-    .queue-search-shell .queue-sort-select:focus {
-      outline: 0;
-      box-shadow: 0 0 0 0.15rem rgba(108, 92, 231, 0.12);
-    }
-    .queue-search-shell .btn {
-      border-radius: 999px;
-      min-width: 40px;
-      height: 34px;
-      padding: 0;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .queue-list {
-      max-height: 620px;
-      overflow: auto;
-      padding: 0.7rem 0 0.7rem 0.7rem;
-      flex: 1 1 auto;
-      min-height: 0;
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-      position: relative;
-      z-index: 1;
-    }
-    .queue-list::-webkit-scrollbar {
-      display: none;
-    }
-    .queue-item {
-      display: block;
-      width: 100%;
-      box-sizing: border-box;
-      text-decoration: none;
-      color: inherit;
-      border: 1px solid #e7edf7;
-      border-radius: 18px;
-      padding: 1rem 1rem 0.95rem;
-      margin-bottom: 0.8rem;
-      background: #fff;
-      box-shadow: 0 8px 20px rgba(35, 54, 96, 0.05);
-      transition: all 0.18s ease;
-    }
-    .queue-item:hover {
-      border-color: #d5deef;
-      box-shadow: 0 14px 28px rgba(51, 82, 148, 0.1);
-      transform: translateY(-1px);
-      text-decoration: none;
-      color: inherit;
-    }
-    .queue-item.active {
-      border-color: #9fc8ff;
-      box-shadow: 0 12px 24px rgba(84, 140, 255, 0.13);
-      background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
-    }
-    .queue-layout {
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      grid-template-areas:
-        "avatar spacer kebab"
-        "name name name"
-        "gap gap gap"
-        "footer footer enter";
-      grid-template-rows: auto auto auto;
-      row-gap: 0.55rem;
-      column-gap: 0.75rem;
-      align-items: start;
-      width: 100%;
-      max-width: 100%;
-      min-height: 132px;
-    }
-    .queue-avatar {
-      grid-area: avatar;
-    }
-    .queue-name-copy {
-      grid-area: name;
-      min-width: 0;
-    }
-    .queue-footer-copy {
-      grid-area: footer;
-      min-width: 0;
-      align-self: end;
-    }
-    .queue-kebab {
-      grid-area: kebab;
-      justify-self: end;
-    }
-    .queue-enter {
-      grid-area: enter;
-      justify-self: end;
-      align-self: end;
-    }
-    .queue-avatar {
-      width: 46px;
-      height: 46px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #5d7fff 0%, #56b0ff 100%);
-      color: #fff;
-      font-weight: 700;
-      font-size: 1rem;
-      box-shadow: 0 6px 16px rgba(79, 125, 255, 0.28);
-      flex-shrink: 0;
-    }
-    .queue-kebab {
-      color: #7e879d;
-      font-size: 0.95rem;
-      line-height: 1;
-      padding-top: 0.15rem;
-    }
-    .queue-name {
-      font-size: 0.94rem;
-      font-weight: 700;
-      line-height: 1.2;
-      color: #20293f;
-      margin-bottom: 0;
-    }
-    .queue-meta {
-      font-size: 0.78rem;
-      color: #8b94a9;
-      line-height: 1.35;
-      margin-bottom: 0;
-    }
-    .queue-enter {
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-      border: 1px solid #dfe6f3;
-      background: #fff;
-      color: #6d7892;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 6px 16px rgba(52, 69, 107, 0.06);
-      flex-shrink: 0;
-      transition: all 0.18s ease;
-    }
-    .queue-item.active .queue-enter {
-      border-color: #cfe2ff;
-      color: #4d78ff;
-      background: #f7fbff;
-      box-shadow: 0 8px 18px rgba(77, 120, 255, 0.1);
-    }
-    .queue-item:hover .queue-enter {
-      transform: translateX(1px);
-    }
-    .profile-card,
-    .detail-card,
-    .history-card,
-    .docs-card,
-    .insurance-card,
-    .snapshot-card {
-      border-radius: 18px;
-      border: 1px solid #e5ebf5;
-      background: #fff;
-      box-shadow: 0 10px 28px rgba(34, 51, 84, 0.05);
-    }
-    .profile-card .card-body,
-    .detail-card .card-body,
-    .history-card .card-body,
-    .docs-card .card-body,
-    .insurance-card .card-body,
-    .snapshot-card .card-body {
-      padding: 1.15rem;
-    }
-    .profile-card .card-body {
-      padding: 1.2rem 1.25rem 1.05rem;
-    }
-    .detail-card .card-body {
-      padding: 1.15rem 1.2rem 1.05rem;
-    }
-    .history-card .card-body {
-      padding: 1.2rem 1.25rem 1rem;
-    }
-    .docs-card .card-body {
-      padding: 1.15rem 1.15rem 1rem;
-    }
-    .insurance-card .card-body {
-      padding: 1.1rem 1.1rem 1rem;
-    }
-    .profile-avatar {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #1d70ff 0%, #32b1ff 100%);
-      color: #fff;
-      font-size: 1.05rem;
-      font-weight: 700;
-      box-shadow: 0 8px 18px rgba(50, 116, 255, 0.25);
-    }
-    .member-pill {
-      display: inline-block;
-      font-size: 0.66rem;
-      font-weight: 700;
-      background: #eaf7ec;
-      color: #289447;
-      border: 1px solid #cfe9d5;
-      border-radius: 999px;
-      padding: 0.14rem 0.5rem;
-      vertical-align: middle;
-      margin-left: 0.45rem;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-    .profile-subline {
-      color: #8893aa;
-      font-size: 0.82rem;
-    }
-    .profile-actions .btn {
-      border-radius: 12px;
-      min-width: 38px;
-      height: 38px;
-      padding: 0;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .profile-summary-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 0.7rem;
-      margin-top: 0.9rem;
-    }
-    .profile-summary-chip {
-      border-radius: 14px;
-      border: 1px solid #e8edf7;
-      background: linear-gradient(180deg, #ffffff 0%, #f6f8fd 100%);
-      padding: 0.85rem 0.95rem;
-      min-height: 78px;
-    }
-    .profile-summary-label {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: #93a0bb;
-      font-weight: 700;
-      margin-bottom: 0.2rem;
-    }
-    .profile-summary-value {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: #25324e;
-      line-height: 1.1;
-    }
-    .info-list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-    .info-list li {
-      display: flex;
-      gap: 0.85rem;
-      padding: 0.65rem 0;
-      border-bottom: 1px dashed #edf2fa;
-    }
-    .info-list li:last-child {
-      border-bottom: 0;
-      padding-bottom: 0;
-    }
-    .info-icon {
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: #edf3ff;
-      color: #4675f4;
-      flex-shrink: 0;
-    }
-    .info-copy .label {
-      display: block;
-      font-size: 0.74rem;
-      color: #8a93aa;
-      margin-bottom: 0.08rem;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-    .info-copy .value {
-      display: block;
-      font-size: 0.9rem;
-      color: #26324b;
-      font-weight: 600;
-      word-break: break-word;
-    }
-    .timeline-item {
-      position: relative;
-      padding-left: 1.2rem;
-      margin-bottom: 1rem;
-    }
-    .timeline-item:last-child {
-      margin-bottom: 0;
-    }
-    .timeline-item::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 0.28rem;
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: #5a81ff;
-      box-shadow: 0 0 0 4px #ebf1ff;
-    }
-    .timeline-date {
-      color: #8d95ab;
-      font-size: 0.74rem;
-      margin-bottom: 0.12rem;
-    }
-    .timeline-title {
-      font-weight: 600;
-      margin-bottom: 0.08rem;
-      color: #24324e;
-    }
-    .timeline-sub {
-      color: #8a92a8;
-      font-size: 0.79rem;
-    }
-    .insurance-card {
-      background: linear-gradient(135deg, #586df8 0%, #a04be0 100%);
-      color: #fff;
-      overflow: hidden;
-    }
-    .insurance-card .section-kicker {
-      color: rgba(255, 255, 255, 0.82);
-    }
-    .insurance-card .section-title {
-      color: #fff;
-    }
-    .insurance-panel {
-      border-radius: 16px;
-      padding: 0.9rem;
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(8px);
-    }
-    .insurance-preview {
-      width: 100%;
-      min-height: 190px;
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px dashed rgba(255, 255, 255, 0.28);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      margin-bottom: 0.85rem;
-      position: relative;
-    }
-    .insurance-preview-trigger {
-      cursor: pointer;
-      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
-    }
-    .insurance-preview-trigger:hover {
-      transform: translateY(-1px);
-      border-color: rgba(255, 255, 255, 0.45);
-      box-shadow: 0 14px 26px rgba(20, 29, 74, 0.16);
-    }
-    .insurance-preview img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .insurance-placeholder {
-      text-align: center;
-      color: rgba(255, 255, 255, 0.9);
-      padding: 1rem;
-    }
-    .insurance-placeholder i {
-      display: block;
-      font-size: 1.55rem;
-      margin-bottom: 0.4rem;
-    }
-    .insurance-preview-badge {
-      position: absolute;
-      right: 12px;
-      bottom: 12px;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0.38rem 0.72rem;
-      border-radius: 999px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: #fff;
-      background: rgba(255, 255, 255, 0.15);
-      border: 1px solid rgba(255, 255, 255, 0.24);
-      backdrop-filter: blur(8px);
-      box-shadow: 0 8px 16px rgba(30, 39, 87, 0.16);
-    }
-    .insurance-meta {
-      color: rgba(255, 255, 255, 0.88);
-      font-size: 0.8rem;
-      margin-bottom: 0.8rem;
-    }
-    .insurance-toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
-      gap: 0.75rem;
-      text-align: center;
-    }
-    .insurance-toolbar-copy {
-      flex: 0 1 260px;
-      min-width: 0;
-      text-align: center;
-    }
-    .insurance-toolbar-copy .upload-filename {
-      margin-bottom: 0.1rem;
-    }
-    .insurance-toolbar-actions {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 0.55rem;
-    }
-    .insurance-upload .custom-file-label,
-    .insurance-upload .custom-file-input {
-      border-radius: 12px;
-    }
-    .insurance-upload .btn-light {
-      border-radius: 999px;
-      font-weight: 600;
-      color: #3550ba;
-    }
-    .upload-stack {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      gap: 0.7rem;
-    }
-    .upload-field {
-      width: 100%;
-      border-radius: 16px;
-      padding: 1rem 0.9rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0.55rem;
-      border: 1px dashed rgba(116, 137, 196, 0.35);
-      background: rgba(255, 255, 255, 0.08);
-    }
-    .upload-field-soft {
-      background: linear-gradient(180deg, #fdfefe 0%, #f2f6fe 100%);
-      border-color: #d7e1f4;
-    }
-    .upload-field-inline {
-      padding: 0.85rem 0.95rem;
-    }
-    .upload-input-native {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
-    .upload-trigger {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.45rem;
-      min-width: 180px;
-      min-height: 46px;
-      padding: 0.7rem 1.2rem;
-      border-radius: 999px;
-      cursor: pointer;
-      font-weight: 700;
-      transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
-      margin-bottom: 0;
-    }
-    .upload-trigger:hover {
-      transform: translateY(-1px);
-      text-decoration: none;
-    }
-    .upload-trigger-light {
-      background: #fff;
-      color: #3550ba;
-      box-shadow: 0 10px 22px rgba(32, 53, 129, 0.18);
-    }
-    .upload-trigger-light:hover {
-      color: #2f47aa;
-      box-shadow: 0 14px 26px rgba(32, 53, 129, 0.24);
-    }
-    .upload-trigger-soft {
-      background: linear-gradient(135deg, #5d6ef4 0%, #6554df 100%);
-      color: #fff;
-      box-shadow: 0 12px 24px rgba(85, 102, 215, 0.2);
-    }
-    .upload-trigger-soft:hover {
-      color: #fff;
-      box-shadow: 0 16px 28px rgba(85, 102, 215, 0.28);
-    }
-    .upload-filename {
-      font-size: 0.88rem;
-      font-weight: 600;
-      line-height: 1.35;
-      word-break: break-word;
-    }
-    .upload-filename.muted-light {
-      color: rgba(255, 255, 255, 0.92);
-    }
-    .upload-filename.muted-dark {
-      color: #50617f;
-    }
-    .upload-caption {
-      font-size: 0.78rem;
-      line-height: 1.45;
-      max-width: 250px;
-    }
-    .upload-caption.light-copy {
-      color: rgba(255, 255, 255, 0.78);
-    }
-    .upload-caption.dark-copy {
-      color: #7d88a1;
-    }
-    .upload-actions {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 0.65rem;
-      width: 100%;
-    }
-    .upload-inline {
-      width: 100%;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
-      gap: 0.8rem;
-    }
-    .upload-inline-copy {
-      flex: 1 1 190px;
-      min-width: 0;
-      text-align: center;
-    }
-    .upload-inline-copy .upload-filename {
-      margin-bottom: 0.18rem;
-    }
-    .upload-inline-copy .upload-caption {
-      max-width: none;
-      margin: 0;
-    }
-    .upload-current-link {
-      margin-top: 0.55rem;
-    }
-    .snapshot-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0.75rem;
-    }
-    .snapshot-item {
-      border-radius: 14px;
-      padding: 0.85rem;
-      border: 1px solid #edf1f8;
-      background: linear-gradient(180deg, #ffffff 0%, #f7f9fe 100%);
-    }
-    .snapshot-label {
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: #8c95ac;
-      margin-bottom: 0.2rem;
-    }
-    .snapshot-value {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: #25324e;
-    }
-    .history-table th {
-      border-top: 0;
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      color: #96a0b9;
-      letter-spacing: 0.04em;
-    }
-    .history-table td {
-      vertical-align: middle;
-      font-size: 0.85rem;
-    }
-    .history-table td.status-cell {
-      min-width: 135px;
-    }
-    .history-table td.result-cell {
-      min-width: 150px;
-    }
-    .status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45rem;
-      border-radius: 999px;
-      padding: 0.42rem 0.78rem;
-      font-size: 0.74rem;
-      font-weight: 700;
-      letter-spacing: 0.01em;
-      border: 1px solid transparent;
-      box-shadow: 0 8px 18px rgba(33, 47, 84, 0.06);
-      white-space: nowrap;
-    }
-    .status-pill i {
-      font-size: 0.72rem;
-      line-height: 1;
-    }
-    .status-pill.status-completed {
-      background: #e7f9ed;
-      color: #059669;
-      border-color: #cbeed7;
-    }
-    .status-pill.status-confirmed {
-      background: #e6f0ff;
-      color: #6c5ce7;
-      border-color: #d3defd;
-    }
-    .status-pill.status-pending {
-      background: #fff5e6;
-      color: #f59e0b;
-      border-color: #ffd7a0;
-    }
-    .status-pill.status-cancelled {
-      background: #ffe4e6;
-      color: #e11d48;
-      border-color: #f8bcc8;
-    }
-    .result-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.42rem;
-      border-radius: 999px;
-      padding: 0.42rem 0.78rem;
-      font-size: 0.74rem;
-      font-weight: 700;
-      letter-spacing: 0.01em;
-      border: 1px solid transparent;
-      box-shadow: 0 8px 18px rgba(33, 47, 84, 0.06);
-      white-space: nowrap;
-    }
-    .result-pill i {
-      font-size: 0.72rem;
-      line-height: 1;
-    }
-    .result-pill.result-done {
-      background: #e7f9ed;
-      color: #059669;
-      border-color: #cbeed7;
-    }
-    .result-pill.result-ongoing {
-      background: #e6f0ff;
-      color: #6c5ce7;
-      border-color: #d3defd;
-    }
-    .result-pill.result-not-completed {
-      background: #ffe4e6;
-      color: #e11d48;
-      border-color: #f8bcc8;
-    }
-    .doc-upload {
-      border-radius: 16px;
-      background: linear-gradient(180deg, #f7f9ff 0%, #eef3fb 100%);
-      border: 1px solid #e1e8f6;
-      padding: 0.95rem;
-      margin-bottom: 1rem;
-    }
-    .doc-upload .form-label {
-      font-size: 0.74rem;
-      color: #7f89a0;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      font-weight: 600;
-      margin-bottom: 0.35rem;
-    }
-    .doc-upload .btn-primary,
-    .insurance-upload .btn-light {
-      min-width: 130px;
-    }
-    .doc-upload .form-control,
-    .doc-upload .form-control-sm,
-    .doc-upload select {
-      min-height: 50px;
-      border-radius: 12px;
-      border-color: #d7dfef;
-      background: rgba(255, 255, 255, 0.88);
-      box-shadow: inset 0 1px 2px rgba(33, 47, 84, 0.02);
-      font-size: 0.94rem;
-    }
-    .doc-item {
-      border: 1px solid #edf1f8;
-      border-radius: 14px;
-      padding: 0.8rem;
-      margin-bottom: 0.65rem;
-      background: #fff;
-      box-shadow: 0 6px 18px rgba(37, 55, 96, 0.04);
-    }
-    .doc-item:last-of-type {
-      margin-bottom: 0;
-    }
-    .doc-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: #eef3ff;
-      color: #4d74f7;
-      font-size: 1rem;
-      flex-shrink: 0;
-    }
-    .doc-item h6 {
-      margin-bottom: 0.12rem;
-      font-size: 0.88rem;
-      color: #273453;
-    }
-    .doc-meta,
-    .doc-subtitle {
-      margin: 0;
-      color: #8d95ab;
-      font-size: 0.76rem;
-    }
-    .doc-item .btn {
-      border-radius: 10px;
-    }
-    .section-kicker {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #8992a8;
-      font-weight: 700;
-      margin-bottom: 0.2rem;
-    }
-    .section-title {
-      font-size: 1rem;
-      font-weight: 700;
-      color: #25324e;
-      margin-bottom: 0;
-    }
-    @media (max-width: 1199.98px) {
-      .queue-list {
-        max-height: 420px;
-      }
-    }
-    @media (min-width: 1200px) {
-      .queue-column {
-        align-self: flex-start;
-      }
-      .queue-list {
-        max-height: 1110px;
-        align-self: stretch;
-        width: 100%;
-      }
-    }
-    @media (max-width: 767.98px) {
-      .profile-summary-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-      .snapshot-grid {
-        grid-template-columns: 1fr;
-      }
-      .insurance-toolbar {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .insurance-toolbar-actions {
-        justify-content: center;
-      }
-      .queue-search-shell {
-        padding-left: 0.7rem;
-      }
-      .upload-inline {
-        flex-direction: column;
-      }
-      .upload-inline-copy {
-        flex-basis: auto;
-      }
-      .profile-actions {
-        margin-top: 0.75rem;
-      }
-      .profile-actions .btn {
-        margin-bottom: 0.35rem;
-      }
-    }
-  </style>
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'staff/css/patients.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -907,7 +16,16 @@
               <div class="queue-head-top">
                 <div>
                   <h6 class="mb-1">Patient Queue</h6>
-                  <small class="text-muted">{{ patient_queue|length }} records</small>
+                  <div class="d-flex align-items-center">
+                    <small class="text-muted mr-2">{{ patient_queue|length }} records</small>
+                    <div class="shortcut-toggle-wrapper" title="Toggle arrow keys browsing and '/' search">
+                      <label class="shortcut-switch" for="shortcutToggle">
+                        <input type="checkbox" id="shortcutToggle">
+                        <span class="shortcut-slider"></span>
+                      </label>
+                      <span class="ml-1">Shortcuts</span>
+                    </div>
+                  </div>
                 </div>
                 <span class="queue-head-icon"><i class="ti-search"></i></span>
               </div>
@@ -917,7 +35,7 @@
                 {% endif %}
                 <div class="queue-search-shell">
                   <i class="ti-search"></i>
-                  <input type="text" class="form-control" name="q" value="{{ q }}" placeholder="Search patients">
+                  <input type="text" class="form-control" name="q" value="{{ q }}" placeholder="Search patients" id="patientSearchInput">
                   <select class="queue-sort-select" name="sort" aria-label="Sort patients">
                     <option value="all" {% if sort == "all" %}selected{% endif %}>All</option>
                     <option value="newest" {% if sort == "newest" %}selected{% endif %}>Newest</option>
@@ -929,9 +47,10 @@
                 </div>
               </form>
             </div>
-            <div class="queue-list">
+            <div class="queue-list" id="patientQueueList">
               {% for p in patient_queue %}
                 <a class="queue-item {% if selected_patient and p.id == selected_patient.id %}active{% endif %}"
+                   data-patient-id="{{ p.id }}"
                    href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if sort and sort != 'all' %}sort={{ sort|urlencode }}&{% endif %}patient={{ p.id }}">
                   <div class="queue-layout">
                     <div class="queue-avatar">{{ p.name|slice:":1"|upper }}</div>
@@ -984,19 +103,19 @@
                   </div>
                 </div>
                 <div class="profile-summary-grid">
-                  <div class="profile-summary-chip">
+                  <div class="profile-summary-chip stat-total">
                     <div class="profile-summary-label">Total Visits</div>
                     <div class="profile-summary-value">{{ quick_stats.total }}</div>
                   </div>
-                  <div class="profile-summary-chip">
+                  <div class="profile-summary-chip stat-completed">
                     <div class="profile-summary-label">Completed</div>
                     <div class="profile-summary-value">{{ quick_stats.completed }}</div>
                   </div>
-                  <div class="profile-summary-chip">
+                  <div class="profile-summary-chip stat-upcoming">
                     <div class="profile-summary-label">Upcoming</div>
                     <div class="profile-summary-value">{{ quick_stats.upcoming }}</div>
                   </div>
-                  <div class="profile-summary-chip">
+                  <div class="profile-summary-chip stat-cancelled">
                     <div class="profile-summary-label">Cancelled</div>
                     <div class="profile-summary-value">{{ quick_stats.cancelled }}</div>
                   </div>
@@ -1074,7 +193,7 @@
                     <div class="section-kicker">Insurance Record</div>
                     <h6 class="section-title mb-3">Coverage Document</h6>
                     <div class="insurance-panel">
-                      <form method="post" enctype="multipart/form-data" class="insurance-upload">
+                      <form method="post" enctype="multipart/form-data" class="insurance-upload js-async-upload-form" id="insuranceUploadForm">
                         {% csrf_token %}
                         <input type="hidden" name="document_action" value="upload_insurance">
                         <input type="hidden" name="patient_id" value="{{ selected_patient.id }}">
@@ -1082,53 +201,57 @@
                         <input type="hidden" name="sort" value="{{ sort }}">
                         <input type="hidden" name="insurance_title" value="Insurance attachment">
                         <input type="file" class="upload-input-native js-file-upload" id="insuranceFile" name="insurance_file" data-target="insuranceFileName">
-                        <label class="insurance-preview insurance-preview-trigger" for="insuranceFile">
-                        {% if insurance_document and insurance_document.is_image %}
-                          <img src="{{ insurance_document.file.url }}" alt="{{ insurance_document.title }}">
-                        {% elif insurance_document %}
-                          <div class="insurance-placeholder">
-                            <i class="ti-files"></i>
-                            <strong>{{ insurance_document.title }}</strong>
-                            <div class="small mt-1">{{ insurance_document.filename }}</div>
-                          </div>
-                        {% else %}
-                          <div class="insurance-placeholder">
-                            <i class="ti-image"></i>
-                            <strong>No insurance image uploaded yet</strong>
-                            <div class="small mt-1">Click this panel to choose an insurance image or proof file.</div>
+                        
+                        <label class="insurance-preview insurance-preview-trigger js-drag-zone" for="insuranceFile" data-input-id="insuranceFile" id="insurancePreviewContainer">
+                          {% if insurance_document and insurance_document.is_image %}
+                            <img src="{{ insurance_document.file.url }}" alt="{{ insurance_document.title }}" id="insurancePreviewImg">
+                          {% elif insurance_document %}
+                            <div class="insurance-placeholder" id="insurancePlaceholder">
+                              <i class="ti-files"></i>
+                              <strong id="insuranceDocTitle">{{ insurance_document.title }}</strong>
+                              <div class="small mt-1" id="insuranceDocFilename">{{ insurance_document.filename }}</div>
+                            </div>
+                          {% else %}
+                            <div class="insurance-placeholder" id="insurancePlaceholder">
+                              <i class="ti-image"></i>
+                              <strong>No insurance image uploaded yet</strong>
+                              <div class="small mt-1">Click or drag here to upload insurance files.</div>
+                            </div>
+                          {% endif %}
+                          <span class="insurance-preview-badge">
+                            <i class="ti-upload"></i>
+                            <span id="insuranceBadgeLabel">{% if insurance_document %}Click to replace{% else %}Click to upload{% endif %}</span>
+                          </span>
+                        </label>
+
+                        <div class="upload-progress-container mb-2" id="insuranceProgressContainer">
+                          <div class="upload-progress-bar" id="insuranceProgressBar"></div>
+                        </div>
+
+                        {% if insurance_document %}
+                          <div class="insurance-meta" id="insuranceMetaBlock">
+                            Latest file: <span id="metaFilename">{{ insurance_document.filename }}</span> · <span id="metaUploadedAt">{{ insurance_document.uploaded_at|date:"d M Y" }}</span>
                           </div>
                         {% endif %}
-                        <span class="insurance-preview-badge">
-                          <i class="ti-upload"></i>
-                          {% if insurance_document %}Click to replace{% else %}Click to upload{% endif %}
-                        </span>
-                      </label>
-
-                      {% if insurance_document %}
-                        <div class="insurance-meta">
-                          Latest file: {{ insurance_document.filename }} · {{ insurance_document.uploaded_at|date:"d M Y" }}
-                        </div>
-                      {% endif %}
 
                         <div class="insurance-toolbar">
                           <div class="insurance-toolbar-copy">
-                            <div class="upload-filename muted-light" id="insuranceFileName">
+                            <div class="upload-filename muted-light text-truncate" id="insuranceFileName">
                               {% if insurance_document %}Current: {{ insurance_document.filename }}{% else %}No file chosen yet{% endif %}
                             </div>
                             <div class="upload-caption light-copy">PNG, JPG, PDF, or other proof files.</div>
                           </div>
                           <div class="insurance-toolbar-actions">
                             {% if insurance_document %}
-                              <a class="btn btn-outline-light btn-sm" href="{{ insurance_document.file.url }}" target="_blank">Open Current</a>
+                              <a class="btn btn-outline-dark btn-sm" href="{% url 'dashboard:download_patient_document' insurance_document.id %}" target="_blank" id="openInsuranceLink">Open Current</a>
                             {% endif %}
-                            <button class="btn btn-light btn-sm" type="submit">Upload Insurance</button>
+                            <button class="btn btn-light btn-sm js-submit-btn" type="submit">Upload Insurance</button>
                           </div>
                         </div>
                       </form>
                     </div>
                   </div>
                 </div>
-
               </div>
             </div>
 
@@ -1150,7 +273,6 @@
                             <th>Treatment</th>
                             <th>Date</th>
                             <th>Status</th>
-                            <th>Result</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -1176,19 +298,10 @@
                                   <span class="status-pill status-cancelled"><i class="ti-close"></i>Cancelled</span>
                                 {% endif %}
                               </td>
-                              <td class="result-cell">
-                                {% if row.status == "completed" %}
-                                  <span class="result-pill result-done"><i class="ti-check"></i>Well done</span>
-                                {% elif row.status == "cancelled" %}
-                                  <span class="result-pill result-not-completed"><i class="ti-close"></i>Not completed</span>
-                                {% else %}
-                                  <span class="result-pill result-ongoing"><i class="ti-reload"></i>Ongoing</span>
-                                {% endif %}
-                              </td>
                             </tr>
                           {% empty %}
                             <tr>
-                              <td colspan="5" class="text-center text-muted">No visit history yet.</td>
+                              <td colspan="4" class="text-center text-muted">No visit history yet.</td>
                             </tr>
                           {% endfor %}
                         </tbody>
@@ -1204,7 +317,7 @@
                     <div class="section-kicker">Records</div>
                     <h6 class="section-title mb-3">Agreement Documents</h6>
 
-                    <form method="post" enctype="multipart/form-data" class="doc-upload">
+                    <form method="post" enctype="multipart/form-data" class="doc-upload js-async-upload-form" id="documentUploadForm">
                       {% csrf_token %}
                       <input type="hidden" name="document_action" value="upload_document">
                       <input type="hidden" name="patient_id" value="{{ selected_patient.id }}">
@@ -1222,7 +335,7 @@
                       <div class="form-group mb-3">
                         <label class="form-label" for="{{ document_form.file.id_for_label }}">Upload File</label>
                         <div class="upload-stack">
-                          <div class="upload-field upload-field-soft upload-field-inline">
+                          <div class="upload-field upload-field-soft upload-field-inline js-drag-zone" data-input-id="{{ document_form.file.id_for_label }}">
                             <div class="upload-inline">
                               <input
                                 type="file"
@@ -1236,40 +349,45 @@
                               </label>
                               <div class="upload-inline-copy">
                                 <div class="upload-filename muted-dark" id="documentFileName">No file chosen yet</div>
-                                <div class="upload-caption dark-copy">Upload agreements, consent forms, IDs, or other supporting files.</div>
+                                <div class="upload-caption dark-copy">Upload agreements, consent forms, IDs, or supporting files.</div>
                               </div>
-                              <button class="btn btn-primary btn-sm px-4" type="submit">Upload Document</button>
+                              <button class="btn btn-primary btn-sm px-4 js-submit-btn" type="submit">Upload Document</button>
+                            </div>
+                            <div class="upload-progress-container w-100" id="docProgressContainer">
+                              <div class="upload-progress-bar" id="docProgressBar"></div>
                             </div>
                           </div>
                         </div>
                       </div>
                     </form>
 
-                    {% for doc in document_items %}
-                      <div class="doc-item">
-                        <div class="d-flex justify-content-between align-items-start">
-                          <div class="d-flex mr-2">
-                            <div class="doc-icon mr-2">
-                              {% if doc.is_image %}
-                                <i class="ti-image"></i>
-                              {% else %}
-                                <i class="ti-files"></i>
-                              {% endif %}
+                    <div id="documentItemsList">
+                      {% for doc in document_items %}
+                        <div class="doc-item">
+                          <div class="d-flex justify-content-between align-items-start">
+                            <div class="d-flex mr-2">
+                              <div class="doc-icon mr-2">
+                                {% if doc.is_image %}
+                                  <i class="ti-image"></i>
+                                {% else %}
+                                  <i class="ti-files"></i>
+                                {% endif %}
+                              </div>
+                              <div>
+                                <h6>{{ doc.title }}</h6>
+                                <p class="doc-subtitle">{{ doc.get_document_type_display }}</p>
+                                <p class="doc-meta">{{ doc.filename }} · {{ doc.file.size|filesizeformat }} · {{ doc.uploaded_at|date:"d M Y" }}</p>
+                              </div>
                             </div>
-                            <div>
-                              <h6>{{ doc.title }}</h6>
-                              <p class="doc-subtitle">{{ doc.get_document_type_display }}</p>
-                              <p class="doc-meta">{{ doc.filename }} · {{ doc.file.size|filesizeformat }} · {{ doc.uploaded_at|date:"d M Y" }}</p>
-                            </div>
+                            <a class="btn btn-outline-primary btn-sm" href="{% url 'dashboard:download_patient_document' doc.id %}" target="_blank">
+                              <i class="ti-download mr-1"></i> Open
+                            </a>
                           </div>
-                          <a class="btn btn-outline-primary btn-sm" href="{{ doc.file.url }}" target="_blank">
-                            <i class="ti-download mr-1"></i> Open
-                          </a>
                         </div>
-                      </div>
-                    {% empty %}
-                      <p class="text-muted mb-0">No uploaded agreement or supporting files yet.</p>
-                    {% endfor %}
+                      {% empty %}
+                        <p class="text-muted mb-0" id="noDocumentsPlaceholder">No uploaded agreement or supporting files yet.</p>
+                      {% endfor %}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1289,26 +407,5 @@
 {% endblock %}
 
 {% block extra_js %}
-  <script>
-    (function() {
-      var uploadInputs = document.querySelectorAll('.js-file-upload');
-
-      uploadInputs.forEach(function(input) {
-        var targetId = input.getAttribute('data-target');
-        var label = targetId ? document.getElementById(targetId) : null;
-        if (!label) {
-          return;
-        }
-
-        var defaultText = label.textContent;
-        input.addEventListener('change', function() {
-          if (input.files && input.files.length) {
-            label.textContent = input.files[0].name;
-          } else {
-            label.textContent = defaultText;
-          }
-        });
-      });
-    })();
-  </script>
+  <script src="{% static 'staff/js/patients.js' %}"></script>
 {% endblock %}

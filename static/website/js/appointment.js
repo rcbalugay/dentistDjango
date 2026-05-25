@@ -19,6 +19,53 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
+  const indicator = document.getElementById('availabilityIndicator');
+  const mobileIndicator = document.getElementById('mobileAvailabilityIndicator');
+
+  const checkAvailability = (dateVal, timeVal) => {
+    if (!dateVal || !timeVal) {
+      if (indicator) indicator.innerHTML = '';
+      if (mobileIndicator) mobileIndicator.innerHTML = '';
+      return;
+    }
+
+    const setIndicatorHTML = (html) => {
+      if (indicator) indicator.innerHTML = html;
+      if (mobileIndicator) mobileIndicator.innerHTML = html;
+    };
+
+    setIndicatorHTML('<div class="slot-checking-spinner" style="font-size: 0.9rem; color: #666; display: flex; align-items: center; gap: 6px;"><div class="spinner-border spinner-border-sm" role="status" style="width: 1rem; height: 1rem; border: 0.15em solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spinner-border .75s linear infinite;"></div>Checking availability...</div>');
+
+    fetch(`/appointment/check/?date=${encodeURIComponent(dateVal)}&start_time=${encodeURIComponent(timeVal)}`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.available) {
+          setIndicatorHTML(`
+            <div class="alert alert-success d-flex align-items-center py-2 px-3" style="border-radius: 8px; border: 1px solid #c3e6cb; background-color: #d4edda; color: #155724; font-size: 0.9rem; margin-top: 10px;">
+              <span style="font-size: 1.2rem; margin-right: 8px; line-height: 1;">✓</span>
+              <span><strong>Available:</strong> This slot is open and available.</span>
+            </div>
+          `);
+        } else {
+          setIndicatorHTML(`
+            <div class="alert alert-danger d-flex align-items-center py-2 px-3" style="border-radius: 8px; border: 1px solid #f5c6cb; background-color: #f8d7da; color: #721c24; font-size: 0.9rem; margin-top: 10px;">
+              <span style="font-size: 1.2rem; margin-right: 8px; line-height: 1;">⚠</span>
+              <span><strong>Taken:</strong> This slot is popular and currently booked. Please choose another slot or date.</span>
+            </div>
+          `);
+        }
+      })
+      .catch(error => {
+        console.error('Error checking availability:', error);
+        setIndicatorHTML('');
+      });
+  };
+
   // Build time labels: 9:00 AM â€“ 5:00 PM (1-hour steps)
   const buildDefaultSlotLabels = () => {
     const labels = [];
@@ -165,6 +212,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof renderMatrix === 'function') {
       renderMatrix();
     }
+
+    checkAvailability(dateValue, timeValue);
   };
 
   window.addEventListener('appointment:suggestion-selected', (event) => {
@@ -198,6 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
           .forEach(b => b.classList.remove('is-active'));
         btn.classList.add('is-active');
         timeField.value = label; // submit full value with AM/PM
+        checkAvailability(dateInput.value, label);
       });
 
       slotList.appendChild(btn);
@@ -237,6 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (slotList) {
           slotList.innerHTML = '';
         }
+        checkAvailability('', '');
 
         if (!selectedDates.length) {
           if (slotWrap) slotWrap.classList.add('timeslots--hidden');
@@ -424,6 +475,7 @@ document.addEventListener('DOMContentLoaded', () => {
             dateInput.value = day.iso;
             timeField.value = label; // form submits full "9:00 AM" etc.
             renderMatrix();
+            checkAvailability(day.iso, label);
           });
 
           td.appendChild(btn);
@@ -447,6 +499,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // ===========================
   // FORM VALIDATION
   // ===========================
+  if (selectedDateIso && selectedTime) {
+    checkAvailability(selectedDateIso, selectedTime);
+  }
+
   form.addEventListener('submit', (e) => {
     const anyService = !!form.querySelector('input[name="services"]:checked');
     if (!anyService) {

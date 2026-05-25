@@ -10,6 +10,7 @@ from .constants import (
     SAME_DAY_BOOKING_CUTOFF_HOURS,
 )
 from apps.appointments.models import Appointment
+from apps.public.views import get_site_content, get_clinic_settings
 from .forms import AppointmentForm
 
 def clinic_schedule_for_js():
@@ -110,12 +111,20 @@ def appointment_form(request):
     if request.method == "POST":
         form = AppointmentForm(request.POST)
         if form.is_valid():
-            appointment = form.save(status=Appointment.STATUS_PENDING)
-            request.session["appointment_success_dialog"] = {
-                "appointment_code": appointment.appointment_code,
-                "tracking_url": f"{reverse('appointment_status')}?code={appointment.appointment_code}",
-            }
-            return redirect(f"{reverse('appointment_form')}#appointment-form-section")
+            from django.db import IntegrityError
+            try:
+                appointment = form.save(status=Appointment.STATUS_PENDING)
+                request.session["appointment_success_dialog"] = {
+                    "appointment_code": appointment.appointment_code,
+                    "tracking_url": f"{reverse('appointment_status')}?code={appointment.appointment_code}",
+                }
+                return redirect(f"{reverse('appointment_form')}#appointment-form-section")
+            except IntegrityError:
+                form.add_error(None, "The selected date or time is already booked by another user. Please choose a different date or time.")
+                form.unavailable_reason = "booked"
+                form.unavailable_date = form.cleaned_data.get("appointment_date")
+                form.unavailable_time = form.cleaned_data.get("appointment_time")
+                error_dialog = build_appointment_error_dialog(form)
         else:
             error_dialog = build_appointment_error_dialog(form)
     else:
@@ -126,6 +135,8 @@ def appointment_form(request):
         "clinic_schedule": clinic_schedule_for_js(),
         "success_dialog": success_dialog,
         "error_dialog": error_dialog,
+        "site_content": get_site_content,
+        "settings": get_clinic_settings(),
     })
 
 
@@ -143,4 +154,42 @@ def appointment_status(request):
         "lookup_code": lookup_code,
         "appointment": appointment,
         "lookup_error": lookup_error,
+        "site_content": get_site_content,
+        "settings": get_clinic_settings(),
     })
+
+
+from django.http import JsonResponse
+
+def check_appointment_slot(request):
+    date_str = request.GET.get("date")
+    start_time_str = request.GET.get("start_time")
+
+    if not date_str or not start_time_str:
+        return JsonResponse({"available": False, "error": "Missing parameters"}, status=400)
+
+    try:
+        date_obj = datetime.strptime(date_str.strip(), "%Y-%m-%d").date()
+    except ValueError:
+        return JsonResponse({"available": False, "error": "Invalid date format"}, status=400)
+
+    time_obj = None
+    for fmt in ["%I:%M %p", "%I:%M%p", "%H:%M", "%H:%M:%S"]:
+        try:
+            time_obj = datetime.strptime(start_time_str.strip(), fmt).time()
+            break
+        except ValueError:
+            pass
+
+    if not time_obj:
+        return JsonResponse({"available": False, "error": "Invalid time format"}, status=400)
+
+    exists = Appointment.objects.filter(
+        date=date_obj,
+        start_time=time_obj,
+        status__in=[Appointment.STATUS_PENDING, Appointment.STATUS_CONFIRMED]
+    ).exists()
+
+    return JsonResponse({"available": not exists})
+
+

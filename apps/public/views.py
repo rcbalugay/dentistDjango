@@ -7,10 +7,36 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from .forms import ContactForm
-from .models import BlogPost, SiteContent, Testimonial
+from .models import BlogPost, SiteContent, Testimonial, Service, ClinicSettings
 
 logger = logging.getLogger(__name__)
 
+
+
+def get_clinic_settings():
+    settings_obj, _ = ClinicSettings.objects.get_or_create(pk=1)
+    
+    fallback_defaults = {
+        "clinic_address": "Purok 1 Planas Bridge, Porac, Pampanga 2008",
+        "contact_phone": "(+63) 967 406 4184",
+        "contact_email": "clinic@example.com",
+        "hours_line_1_label": "Mon & Wed, Sat - Sun:",
+        "hours_line_1_value": "9:00am - 6:00pm",
+        "hours_line_2_label": "Tues & Thurs - Fri:",
+        "hours_line_2_value": "Closed",
+        "clinic_landmarks": "Nathaniel's Water Station, Planas Tricycle Terminal Station, Gasoline Station"
+    }
+    
+    updated = False
+    for field_name, value in fallback_defaults.items():
+        if not getattr(settings_obj, field_name):
+            setattr(settings_obj, field_name, value)
+            updated = True
+            
+    if updated:
+        settings_obj.save()
+        
+    return settings_obj
 
 def get_site_content():
     content, _ = SiteContent.objects.get_or_create(
@@ -54,29 +80,6 @@ def get_site_content():
             "clinic_landmarks": "Nathaniel's Water Station, Planas Tricycle Terminal Station, Gasoline Station",
             "about_founder_name": "Dr. Paul Foster",
             "about_founder_title": "CEO, Founder",
-            "contact_phone": "(+63) 967 406 4184",
-            "contact_email": "clinic@example.com",
-            "clinic_address": "Purok 1 Planas Bridge, Porac, Pampanga 2008",
-            "hours_line_1_label": "Mon & Wed, Sat - Sun:",
-            "hours_line_1_value": "9:00am - 6:00pm",
-            "hours_line_2_label": "Tues & Thurs - Fri:",
-            "hours_line_2_value": "Closed",
-            "service_1_title": "General Dentistry",
-            "service_1_summary": "Comprehensive oral exams, cleaning, and preventive dental care for all ages.",
-            "service_2_title": "Pediatric Dentistry",
-            "service_2_summary": "Gentle and fun dental care tailored for children to build lifelong oral habits.",
-            "service_3_title": "Orthodontics",
-            "service_3_summary": "Braces and aligner treatments to correct teeth alignment and improve smiles.",
-            "service_4_title": "Teeth Whitening",
-            "service_4_summary": "Brighten stained or discolored teeth with safe cosmetic whitening care.",
-            "service_5_title": "Dental Calculus Removal",
-            "service_5_summary": "Professional cleaning and scaling to remove tartar buildup and protect gum health.",
-            "service_6_title": "Periodontics",
-            "service_6_summary": "Treatment focused on gum health, periodontal care, and long-term oral stability.",
-            "service_7_title": "Braces & Orthodontics",
-            "service_7_summary": "Alignment solutions designed to improve bite, spacing, and smile confidence.",
-            "service_8_title": "Root Canal",
-            "service_8_summary": "Tooth-saving treatment that relieves pain and protects infected teeth.",
             "doctor_name": "Dr. Gennie Lyn Perez, DMD",
             "doctor_title": "General & Pediatric Dentistry",
             "doctor_bio": (
@@ -128,6 +131,8 @@ def home(request):
         "public/home.html",
         {
             "site_content": get_site_content(),
+            "settings": get_clinic_settings(),
+            "services": Service.objects.filter(is_published=True).order_by("sort_order"),
             "testimonials": get_published_testimonials()[:4],
             "featured_posts": get_published_blog_posts()[:3],
         },
@@ -135,7 +140,7 @@ def home(request):
 
 
 def about(request):
-    return render(request, "public/pages/about.html", {"site_content": get_site_content()})
+    return render(request, "public/pages/about.html", {"site_content": get_site_content(), "settings": get_clinic_settings(), "services": Service.objects.filter(is_published=True).order_by("sort_order")})
 
 
 def blog(request):
@@ -153,6 +158,8 @@ def blog(request):
         "public/pages/blog.html",
         {
             "site_content": get_site_content(),
+            "settings": get_clinic_settings(),
+            "services": Service.objects.filter(is_published=True).order_by("sort_order"),
             "blog_posts": blog_posts,
             "blog_categories": BlogPost.Category.choices,
             "active_blog_category": active_category,
@@ -172,6 +179,8 @@ def blog_detail(request, slug):
         "public/pages/blog_detail.html",
         {
             "site_content": get_site_content(),
+            "settings": get_clinic_settings(),
+            "services": Service.objects.filter(is_published=True).order_by("sort_order"),
             "post": post,
             "recent_posts": get_published_blog_posts().exclude(pk=post.pk)[:3],
         },
@@ -179,7 +188,7 @@ def blog_detail(request, slug):
 
 
 def services(request):
-    return render(request, "public/pages/services.html", {"site_content": get_site_content()})
+    return render(request, "public/pages/services.html", {"site_content": get_site_content(), "settings": get_clinic_settings(), "services": Service.objects.filter(is_published=True).order_by("sort_order")})
 
 
 def contact(request):
@@ -220,5 +229,7 @@ def contact(request):
         {
             "form": form,
             "site_content": get_site_content(),
+            "settings": get_clinic_settings(),
+            "services": Service.objects.filter(is_published=True).order_by("sort_order"),
         },
     )

@@ -29,31 +29,42 @@ def appointments(request):
             messages.error(request, "Invalid action.")
             return redirect(next_url)
 
-        appoint = get_object_or_404(Appointment, id=appoint_id)
+        from django.db import transaction, IntegrityError
+        try:
+            with transaction.atomic():
+                # Lock row with select_for_update to handle concurrent modifications safely
+                appoint = Appointment.objects.select_for_update().filter(id=appoint_id).first()
+                if not appoint:
+                    messages.error(request, "Appointment not found.")
+                    return redirect(next_url)
 
-        # Guard: check if the action is valid for the current status
-        if action == "approve" and appoint.status != Appointment.STATUS_PENDING:
-            messages.error(request, "Only pending appointments can be approved.")
-            return redirect(next_url)
+                # Guard: check if the action is valid for the current status
+                if action == "approve" and appoint.status != Appointment.STATUS_PENDING:
+                    messages.error(request, "Only pending appointments can be approved.")
+                    return redirect(next_url)
 
-        if action == "complete" and appoint.status != Appointment.STATUS_CONFIRMED:
-            messages.error(request, "Only confirmed appointments can be completed.")
-            return redirect(next_url)
+                if action == "complete" and appoint.status != Appointment.STATUS_CONFIRMED:
+                    messages.error(request, "Only confirmed appointments can be completed.")
+                    return redirect(next_url)
 
-        if action == "cancel" and appoint.status not in [Appointment.STATUS_PENDING, Appointment.STATUS_CONFIRMED]:
-            messages.error(request, "Only pending/confirmed appointments can be cancelled.")
-            return redirect(next_url)
+                if action == "cancel" and appoint.status not in [Appointment.STATUS_PENDING, Appointment.STATUS_CONFIRMED]:
+                    messages.error(request, "Only pending/confirmed appointments can be cancelled.")
+                    return redirect(next_url)
 
-        # Performs the action
-        if action == "approve":
-            appoint.status = Appointment.STATUS_CONFIRMED
-        elif action == "cancel":
-            appoint.status = Appointment.STATUS_CANCELLED
-        elif action == "complete":
-            appoint.status = Appointment.STATUS_COMPLETED
-        # "reschedule" can later redirect to an edit form if you add one
+                # Performs the action
+                if action == "approve":
+                    appoint.status = Appointment.STATUS_CONFIRMED
+                elif action == "cancel":
+                    appoint.status = Appointment.STATUS_CANCELLED
+                elif action == "complete":
+                    appoint.status = Appointment.STATUS_COMPLETED
+                # "reschedule" can later redirect to an edit form if you add one
 
-        appoint.save(update_fields=["status"])
+                appoint.save(update_fields=["status"])
+                messages.success(request, f"Appointment status updated to {appoint.get_status_display().lower()}.")
+        except IntegrityError:
+            messages.error(request, "This timeslot is already booked by another confirmed appointment.")
+            
         return redirect(next_url)
 
     # ---- Base queryset with search filter ----
@@ -145,9 +156,13 @@ def appointments_form(request):
     if request.method == 'POST':
         form = StaffAppointmentForm(request.POST)
         if form.is_valid():
-            form.save(status=Appointment.STATUS_CONFIRMED)
-            messages.success(request, "Appointment has been created.")
-            return redirect('dashboard:appointments')
+            from django.db import IntegrityError
+            try:
+                form.save(status=Appointment.STATUS_CONFIRMED)
+                messages.success(request, "Appointment has been created.")
+                return redirect('dashboard:appointments')
+            except IntegrityError:
+                messages.error(request, "The selected timeslot is already booked by another confirmed/pending appointment.")
         else:
             messages.error(request, "Please correct the errors below.")
     else:

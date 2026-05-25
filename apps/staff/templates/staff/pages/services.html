@@ -1,0 +1,191 @@
+{% extends "staff/base.html" %}
+{% block title %}Manage Services{% endblock %}
+
+{% block extra_head %}
+<style>
+  .services-wrapper {
+    margin-top: 0.5rem;
+  }
+  .services-table {
+    border-collapse: separate;
+    border-spacing: 0 10px;
+    width: 100%;
+  }
+  .services-table thead th {
+    border: none;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #a0a3b1;
+    font-weight: 600;
+    padding: 0.8rem 1rem;
+  }
+  .services-table tbody tr {
+    background: #f7f9ff;
+    box-shadow: 0 6px 18px rgba(15, 30, 80, 0.06);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .services-table tbody tr:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgba(15, 30, 80, 0.08);
+  }
+  .services-table tbody tr td {
+    border: none;
+    padding: 0.85rem 1rem;
+    vertical-align: middle;
+    font-size: 0.9rem;
+  }
+  .services-table tbody tr td:first-child {
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+  }
+  .services-table tbody tr td:last-child {
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+  }
+  .service-thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    border: 1px solid #e3eaf7;
+    object-fit: cover;
+    display: block;
+  }
+  .service-thumb-placeholder {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: #ece4ff;
+    color: #6c5ce7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+    border: 1px solid #dcd3fc;
+  }
+  .status-toggle-btn {
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+  }
+  .status-toggle-btn:hover {
+    opacity: 0.85;
+  }
+  .status-pill-pub {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: #e7f9ed;
+    color: #059669;
+    border: 1px solid #cbeed7;
+  }
+  .status-pill-hid {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: #f0f2f5;
+    color: #6c757d;
+    border: 1px solid #e2e5e8;
+  }
+  .status-pill-pub i, .status-pill-hid i {
+    font-size: 0.7rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="font-weight-bold mb-1">Clinic Services</h3>
+        <p class="text-muted mb-0">Manage the services and treatments displayed on your public website.</p>
+    </div>
+    <a href="{% url 'dashboard:service_create' %}" class="btn btn-primary rounded-pill px-3 d-inline-flex align-items-center">
+        <i class="icon-plus mr-1" style="font-size: 0.95rem;"></i> Add New Service
+    </a>
+</div>
+
+<div class="card" style="border-radius: 16px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.03); background: transparent;">
+    <div class="card-body p-0">
+        <div class="table-responsive services-wrapper">
+            <table class="table services-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>Cover</th>
+                        <th>Service Title</th>
+                        <th>Status</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for service in services %}
+                    <tr>
+                        <td class="font-weight-bold text-muted" style="width: 80px;">{{ service.sort_order }}</td>
+                        <td style="width: 80px;">
+                            {% if service.image %}
+                                <img src="{{ service.image.url }}" class="service-thumb" alt="{{ service.title }}">
+                            {% else %}
+                                <div class="service-thumb-placeholder">
+                                    <i class="icon-shield"></i>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td class="font-weight-bold text-dark" style="font-size: 0.95rem;">{{ service.title }}</td>
+                        <td>
+                            <form method="post" action="{% url 'dashboard:service_toggle' service.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="status-toggle-btn" title="Click to toggle visibility">
+                                    {% if service.is_published %}
+                                        <span class="status-pill-pub">
+                                            <i class="icon-eye mr-1"></i> Published
+                                        </span>
+                                    {% else %}
+                                        <span class="status-pill-hid">
+                                            <i class="icon-cross mr-1"></i> Hidden
+                                        </span>
+                                    {% endif %}
+                                </button>
+                            </form>
+                        </td>
+                        <td class="text-right" style="width: 200px;">
+                            <a href="{% url 'dashboard:service_edit' service.pk %}"
+                                class="btn btn-sm btn-outline-primary d-inline-flex align-items-center mr-1" style="border-radius: 99px;">
+                                <i class="icon-paper mr-1"></i> Edit
+                            </a>
+                            <form method="post" action="{% url 'dashboard:service_delete' service.pk %}"
+                                class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center"
+                                    style="border-radius: 99px;">
+                                    <i class="icon-trash mr-1"></i> Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted bg-white rounded-lg">
+                            <div class="py-3">
+                                <i class="icon-file mb-2" style="font-size: 2rem; color: #a0a3b1; display: block;"></i>
+                                No services added yet. Click "Add New Service" to get started.
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

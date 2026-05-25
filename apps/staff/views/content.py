@@ -3,8 +3,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from apps.public.models import BlogPost, Testimonial
-from apps.staff.forms import BlogPostForm, TestimonialForm
+from apps.public.models import BlogPost, Testimonial, Service
+from apps.staff.forms import BlogPostForm, TestimonialForm, ServiceForm
 
 from .auth import staff_only
 
@@ -255,3 +255,79 @@ def blog_post_toggle_publish(request, pk):
             "Blog post published." if post.is_published else "Blog post hidden.",
         )
     return redirect("dashboard:blog")
+
+@login_required(login_url="dashboard:login")
+@user_passes_test(staff_only)
+def services(request):
+    items = Service.objects.all()
+    return render(
+        request,
+        "staff/pages/services.html",
+        {
+            "active_page": "website",
+            "services": items,
+            "service_count": items.count(),
+            "published_service_count": items.filter(is_published=True).count(),
+        },
+    )
+
+@login_required(login_url="dashboard:login")
+@user_passes_test(staff_only)
+def service_create(request):
+    if request.method == "POST":
+        form = ServiceForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Service created.")
+            return redirect("dashboard:services")
+    else:
+        form = ServiceForm()
+
+    return _render_content_form(
+        request,
+        "staff/pages/service_form.html",
+        form,
+        "Add Service",
+        "Create a new clinic service.",
+    )
+
+@login_required(login_url="dashboard:login")
+@user_passes_test(staff_only)
+def service_edit(request, pk):
+    service = get_object_or_404(Service, pk=pk)
+
+    if request.method == "POST":
+        form = ServiceForm(request.POST, request.FILES, instance=service)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Service updated.")
+            return redirect("dashboard:services")
+    else:
+        form = ServiceForm(instance=service)
+
+    return _render_content_form(
+        request,
+        "staff/pages/service_form.html",
+        form,
+        "Edit Service",
+        "Update service details.",
+    )
+
+@login_required(login_url="dashboard:login")
+@user_passes_test(staff_only)
+def service_delete(request, pk):
+    service = get_object_or_404(Service, pk=pk)
+    if request.method == "POST":
+        service.delete()
+        messages.success(request, "Service deleted.")
+    return redirect("dashboard:services")
+
+@login_required(login_url="dashboard:login")
+@user_passes_test(staff_only)
+def service_toggle_publish(request, pk):
+    service = get_object_or_404(Service, pk=pk)
+    if request.method == "POST":
+        service.is_published = not service.is_published
+        service.save(update_fields=["is_published", "updated_at"])
+        messages.success(request, "Service published." if service.is_published else "Service hidden.")
+    return redirect("dashboard:services")

@@ -133,3 +133,19 @@ Planned separately:
 - decide whether `website` and `dashboard` can be slimmed down further
 - plan future infrastructure changes, such as PostgreSQL migration, as separate projects
 
+### Next Steps: Security and Performance Hardening
+(Derived from backend review)
+
+**Immediate Security Actions:**
+- **Rotate Exposed Secrets:** Rotate `SECRET_KEY`, `WEATHERAPI_KEY`, and `GOOGLE_MAPS_API_KEY` due to `.env` exposure in Git history. Remove `.env` from tracking.
+- **Secure Patient Documents:** Migrate `PatientDocument` storage from public `MEDIA_ROOT` to a private cloud bucket (e.g., S3 with signed URLs) or a protected view with `staff_only` access control.
+
+**Performance Improvements:**
+- **Cache Global Site Content:** Implement caching for `SiteContent` to prevent DB reads and writes on every public page load.
+- **Paginate Staff Views:** Add date limits and pagination to dashboard queries (e.g., `upcoming` appointments and `get_latest_appointments()`) to prevent unbounded memory usage.
+- **Optimize Queries:** Introduce `select_related` and `prefetch_related` to eliminate N+1 query patterns in staff views.
+
+**Refactoring & Tech Debt:**
+- **Normalize SiteContent:** Extract the 24 hardcoded `service_N_*` fields into a related `ClinicService` model.
+- **Service Layer Expansion:** Move scheduling and conflict-resolution logic entirely out of `apps/appointments/views.py` into `apps/appointments/services.py`.
+- **Remove Data Fixups from Views:** Move the string-replacement logic in `get_site_content()` into a Django data migration.

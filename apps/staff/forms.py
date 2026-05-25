@@ -2,11 +2,11 @@ from django import forms
 from django.utils import timezone
 from django.utils.text import slugify
 
-from apps.public.models import BlogPost, SiteContent, Testimonial
+from apps.public.models import BlogPost, SiteContent, Testimonial, ClinicSettings, Service
 from apps.public.richtext import normalize_rich_text
 
 
-class SiteContentForm(forms.ModelForm):
+class HomepageForm(forms.ModelForm):
     class Meta:
         model = SiteContent
         fields = [
@@ -27,6 +27,101 @@ class SiteContentForm(forms.ModelForm):
             "home_doctor_kicker",
             "home_doctor_heading",
             "home_doctor_intro",
+            "doctor_name",
+            "doctor_title",
+            "doctor_bio",
+        ]
+        widgets = {
+            "hero_title": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "We're Here for You. Gentle & Compassionate Care."
+            }),
+            "hero_subtitle": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 3,
+                "placeholder": "Write a warm, welcoming description explaining your clinic's philosophy, patient comfort, and values..."
+            }),
+            "hero_cta_text": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Book an Appointment"
+            }),
+            "hero_slide_1_background": forms.ClearableFileInput(attrs={"class": "form-control"}),
+            "hero_slide_2_title": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Smile with Confidence (Complementary Slide 2 Headline)"
+            }),
+            "hero_slide_2_subtitle": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 3,
+                "placeholder": "Highlight another key service, dental philosophy, or welcoming message..."
+            }),
+            "hero_slide_2_cta_text": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Meet Our Doctors"
+            }),
+            "hero_slide_2_background": forms.ClearableFileInput(attrs={"class": "form-control"}),
+            "home_intro_heading": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Modern Dentistry, Compassionate Care"
+            }),
+            "home_intro_text": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 3,
+                "placeholder": "Provide a brief introductory description about your clinic's philosophy and services..."
+            }),
+            "home_intro_background": forms.ClearableFileInput(attrs={"class": "form-control"}),
+            "home_services_kicker": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "OUR SERVICES"
+            }),
+            "home_services_heading": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Comprehensive Dental Care for Everyone"
+            }),
+            "home_services_intro": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 3,
+                "placeholder": "Learn more about the full range of preventive, cosmetic, and restorative dental procedures available at our clinic..."
+            }),
+            "home_doctor_kicker": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "MEET OUR TEAM"
+            }),
+            "home_doctor_heading": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Your Health & Comfort is Our First Priority"
+            }),
+            "home_doctor_intro": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 3,
+                "placeholder": "Get to know our skilled clinical staff and specialized dental health professionals..."
+            }),
+            "doctor_name": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Dr. Jane Doe"
+            }),
+            "doctor_title": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Lead Surgeon & Pediatric Dentist"
+            }),
+            "doctor_bio": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 4,
+                "placeholder": "Summarize the featured doctor's medical background, certifications, and care philosophy..."
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            if hasattr(field, "max_length") and field.max_length is not None:
+                field.widget.attrs["maxlength"] = str(field.max_length)
+
+
+class AboutForm(forms.ModelForm):
+    class Meta:
+        model = SiteContent
+        fields = [
             "about_kicker",
             "about_heading",
             "about_summary",
@@ -38,111 +133,51 @@ class SiteContentForm(forms.ModelForm):
             "services_page_title",
             "contact_page_title",
             "contact_form_heading",
-            "clinic_website_url",
-            "clinic_landmarks",
-            "contact_phone",
-            "contact_email",
-            "clinic_address",
-            "hours_line_1_label",
-            "hours_line_1_value",
-            "hours_line_2_label",
-            "hours_line_2_value",
-            "service_1_title",
-            "service_1_summary",
-            "service_1_image",
-            "service_2_title",
-            "service_2_summary",
-            "service_2_image",
-            "service_3_title",
-            "service_3_summary",
-            "service_3_image",
-            "service_4_title",
-            "service_4_summary",
-            "service_4_image",
-            "service_5_title",
-            "service_5_summary",
-            "service_5_image",
-            "service_6_title",
-            "service_6_summary",
-            "service_6_image",
-            "service_7_title",
-            "service_7_summary",
-            "service_7_image",
-            "service_8_title",
-            "service_8_summary",
-            "service_8_image",
-            "doctor_name",
-            "doctor_title",
-            "doctor_bio",
-
         ]
         widgets = {
-            "hero_title": forms.TextInput(attrs={"class": "form-control"}),
-            "hero_subtitle": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
-            "hero_cta_text": forms.TextInput(attrs={"class": "form-control"}),
-            "hero_slide_1_background": forms.ClearableFileInput(attrs={"class": "form-control"}),
-            "hero_slide_2_title": forms.TextInput(attrs={"class": "form-control"}),
-            "hero_slide_2_subtitle": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
-            "hero_slide_2_cta_text": forms.TextInput(attrs={"class": "form-control"}),
-            "hero_slide_2_background": forms.ClearableFileInput(attrs={"class": "form-control"}),
-            "home_intro_heading": forms.TextInput(attrs={"class": "form-control"}),
-            "home_intro_text": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
-            "home_intro_background": forms.ClearableFileInput(attrs={"class": "form-control"}),
-            "home_services_kicker": forms.TextInput(attrs={"class": "form-control"}),
-            "home_services_heading": forms.TextInput(attrs={"class": "form-control"}),
-            "home_services_intro": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
-            "home_doctor_kicker": forms.TextInput(attrs={"class": "form-control"}),
-            "home_doctor_heading": forms.TextInput(attrs={"class": "form-control"}),
-            "home_doctor_intro": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
-            "about_kicker": forms.TextInput(attrs={"class": "form-control"}),
-            "about_heading": forms.TextInput(attrs={"class": "form-control"}),
-            "about_summary": forms.Textarea(attrs={"class": "form-control", "rows": 5}),
+            "about_kicker": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "GET TO KNOW US"
+            }),
+            "about_heading": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Excellence in Dental Care Since [Year]"
+            }),
+            "about_summary": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 5,
+                "placeholder": "Tell your clinic's history, founding story, core clinic mission, and dedication to oral hygiene..."
+            }),
             "about_side_image": forms.ClearableFileInput(attrs={"class": "form-control"}),
-            "about_founder_name": forms.TextInput(attrs={"class": "form-control"}),
-            "about_founder_title": forms.TextInput(attrs={"class": "form-control"}),
+            "about_founder_name": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Dr. John Smith"
+            }),
+            "about_founder_title": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Clinic Founder & Senior Partner"
+            }),
             "about_founder_photo": forms.ClearableFileInput(attrs={"class": "form-control"}),
             "page_banner_background": forms.ClearableFileInput(attrs={"class": "form-control"}),
-            "services_page_title": forms.TextInput(attrs={"class": "form-control"}),
-            "contact_page_title": forms.TextInput(attrs={"class": "form-control"}),
-            "contact_form_heading": forms.TextInput(attrs={"class": "form-control"}),
-            "clinic_website_url": forms.URLInput(attrs={"class": "form-control", "placeholder": "https://yourclinic.com"}),
-            "clinic_landmarks": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
-            "contact_phone": forms.TextInput(attrs={"class": "form-control"}),
-            "contact_email": forms.EmailInput(attrs={"class": "form-control"}),
-            "clinic_address": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
-            "hours_line_1_label": forms.TextInput(attrs={"class": "form-control"}),
-            "hours_line_1_value": forms.TextInput(attrs={"class": "form-control"}),
-            "hours_line_2_label": forms.TextInput(attrs={"class": "form-control"}),
-            "hours_line_2_value": forms.TextInput(attrs={"class": "form-control"}),
-            "service_1_title": forms.TextInput(attrs={"class": "form-control"}),
-            "service_1_summary": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
-            "service_1_image": forms.ClearableFileInput(attrs={"class": "form-control"}),
-            "service_2_title": forms.TextInput(attrs={"class": "form-control"}),
-            "service_2_summary": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
-            "service_2_image": forms.ClearableFileInput(attrs={"class": "form-control"}),
-            "service_3_title": forms.TextInput(attrs={"class": "form-control"}),
-            "service_3_summary": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
-            "service_3_image": forms.ClearableFileInput(attrs={"class": "form-control"}),
-            "service_4_title": forms.TextInput(attrs={"class": "form-control"}),
-            "service_4_summary": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
-            "service_4_image": forms.ClearableFileInput(attrs={"class": "form-control"}),
-            "service_5_title": forms.TextInput(attrs={"class": "form-control"}),
-            "service_5_summary": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
-            "service_5_image": forms.ClearableFileInput(attrs={"class": "form-control"}),
-            "service_6_title": forms.TextInput(attrs={"class": "form-control"}),
-            "service_6_summary": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
-            "service_6_image": forms.ClearableFileInput(attrs={"class": "form-control"}),
-            "service_7_title": forms.TextInput(attrs={"class": "form-control"}),
-            "service_7_summary": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
-            "service_7_image": forms.ClearableFileInput(attrs={"class": "form-control"}),
-            "service_8_title": forms.TextInput(attrs={"class": "form-control"}),
-            "service_8_summary": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
-            "service_8_image": forms.ClearableFileInput(attrs={"class": "form-control"}),
-            "doctor_name": forms.TextInput(attrs={"class": "form-control"}),
-            "doctor_title": forms.TextInput(attrs={"class": "form-control"}),
-            "doctor_bio": forms.Textarea(attrs={"class": "form-control", "rows": 4}),
+            "services_page_title": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Our Services & Treatments"
+            }),
+            "contact_page_title": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Get in Touch"
+            }),
+            "contact_form_heading": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Send a Message"
+            }),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            if hasattr(field, "max_length") and field.max_length is not None:
+                field.widget.attrs["maxlength"] = str(field.max_length)
 
 class TestimonialForm(forms.ModelForm):
     class Meta:
@@ -214,3 +249,33 @@ class BlogPostForm(forms.ModelForm):
 
     def clean_body(self):
         return normalize_rich_text(self.cleaned_data.get("body", ""))
+
+class ClinicSettingsForm(forms.ModelForm):
+    class Meta:
+        model = ClinicSettings
+        fields = "__all__"
+        widgets = {
+            "clinic_name": forms.TextInput(attrs={"class": "form-control"}),
+            "clinic_website_url": forms.URLInput(attrs={"class": "form-control"}),
+            "contact_email": forms.EmailInput(attrs={"class": "form-control"}),
+            "contact_phone": forms.TextInput(attrs={"class": "form-control"}),
+            "clinic_address": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+            "clinic_landmarks": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+            "hours_line_1_label": forms.TextInput(attrs={"class": "form-control"}),
+            "hours_line_1_value": forms.TextInput(attrs={"class": "form-control"}),
+            "hours_line_2_label": forms.TextInput(attrs={"class": "form-control"}),
+            "hours_line_2_value": forms.TextInput(attrs={"class": "form-control"}),
+        }
+
+class ServiceForm(forms.ModelForm):
+    class Meta:
+        model = Service
+        fields = ["title", "summary", "image", "sort_order", "is_published"]
+        widgets = {
+            "title": forms.TextInput(attrs={"class": "form-control"}),
+            "summary": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+            "image": forms.ClearableFileInput(attrs={"class": "form-control"}),
+            "sort_order": forms.NumberInput(attrs={"class": "form-control", "min": 0}),
+            "is_published": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }
+

@@ -75,37 +75,6 @@ class SiteContent(models.Model):
     hours_line_2_label = models.CharField(max_length=120, blank=True)
     hours_line_2_value = models.CharField(max_length=120, blank=True)
 
-    service_1_title = models.CharField(max_length=120, blank=True)
-    service_1_summary = models.TextField(blank=True)
-    service_1_image = models.ImageField(upload_to="site/services/", blank=True, null=True)
-
-    service_2_title = models.CharField(max_length=120, blank=True)
-    service_2_summary = models.TextField(blank=True)
-    service_2_image = models.ImageField(upload_to="site/services/", blank=True, null=True)
-
-    service_3_title = models.CharField(max_length=120, blank=True)
-    service_3_summary = models.TextField(blank=True)
-    service_3_image = models.ImageField(upload_to="site/services/", blank=True, null=True)
-
-    service_4_title = models.CharField(max_length=120, blank=True)
-    service_4_summary = models.TextField(blank=True)
-    service_4_image = models.ImageField(upload_to="site/services/", blank=True, null=True)
-
-    service_5_title = models.CharField(max_length=120, blank=True)
-    service_5_summary = models.TextField(blank=True)
-    service_5_image = models.ImageField(upload_to="site/services/", blank=True, null=True)
-
-    service_6_title = models.CharField(max_length=120, blank=True)
-    service_6_summary = models.TextField(blank=True)
-    service_6_image = models.ImageField(upload_to="site/services/", blank=True, null=True)
-
-    service_7_title = models.CharField(max_length=120, blank=True)
-    service_7_summary = models.TextField(blank=True)
-    service_7_image = models.ImageField(upload_to="site/services/", blank=True, null=True)
-
-    service_8_title = models.CharField(max_length=120, blank=True)
-    service_8_summary = models.TextField(blank=True)
-    service_8_image = models.ImageField(upload_to="site/services/", blank=True, null=True)
 
     doctor_name = models.CharField(max_length=120, blank=True)
     doctor_title = models.CharField(max_length=120, blank=True)
@@ -186,3 +155,153 @@ class BlogPost(models.Model):
                 counter += 1
             self.slug = slug
         super().save(*args, **kwargs)
+
+class ClinicSettings(models.Model):
+    clinic_name = models.CharField(max_length=120, default="Our Clinic")
+    clinic_website_url = models.URLField(blank=True)
+    contact_email = models.EmailField(blank=True)
+    contact_phone = models.CharField(max_length=40, blank=True)
+    clinic_address = models.TextField(blank=True)
+    clinic_landmarks = models.TextField(blank=True)
+    hours_line_1_label = models.CharField(max_length=120, blank=True, default="Monday - Friday")
+    hours_line_1_value = models.CharField(max_length=120, blank=True, default="8:00 AM - 5:00 PM")
+    hours_line_2_label = models.CharField(max_length=120, blank=True, default="Saturday")
+    hours_line_2_value = models.CharField(max_length=120, blank=True, default="9:00 AM - 1:00 PM")
+
+    class Meta:
+        verbose_name = "Clinic Settings"
+        verbose_name_plural = "Clinic Settings"
+
+    def __str__(self):
+        return "Clinic Settings"
+
+    @property
+    def opening_hours_spec(self):
+        import re
+        from datetime import datetime
+        
+        specs = []
+        days_map = {
+            "mon": "Monday", "tue": "Tuesday", "wed": "Wednesday",
+            "thu": "Thursday", "fri": "Friday", "sat": "Saturday", "sun": "Sunday"
+        }
+        ordered_days = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+        
+        def parse_days(label):
+            normalized = label.lower().replace("&", ",").replace("and", ",")
+            segments = [s.strip() for s in normalized.split(",") if s.strip()]
+            
+            found_days = []
+            for segment in segments:
+                range_match = re.search(r"(\w+)\s*[-–to]+\s*(\w+)", segment)
+                if range_match:
+                    start_day_raw = range_match.group(1)[:3]
+                    end_day_raw = range_match.group(2)[:3]
+                    
+                    def normalize_day(d):
+                        if d.startswith("thu"): return "thu"
+                        if d.startswith("tue"): return "tue"
+                        return d
+                        
+                    start_day = normalize_day(start_day_raw)
+                    end_day = normalize_day(end_day_raw)
+                    
+                    try:
+                        start_idx = ordered_days.index(start_day)
+                        end_idx = ordered_days.index(end_day)
+                        if start_idx <= end_idx:
+                            selected = ordered_days[start_idx:end_idx+1]
+                        else:
+                            selected = ordered_days[start_idx:] + ordered_days[:end_idx+1]
+                        for d in selected:
+                            if days_map[d] not in found_days:
+                                found_days.append(days_map[d])
+                    except ValueError:
+                        pass
+                else:
+                    for short, full in days_map.items():
+                        if segment.startswith(short) or (short == "thu" and segment.startswith("thu")) or (short == "tue" and segment.startswith("tue")):
+                            if full not in found_days:
+                                found_days.append(full)
+                                break
+            return found_days
+            
+        def parse_times(val):
+            if "closed" in val.lower():
+                return None, None
+                
+            matches = re.findall(r"(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)", val.lower())
+            if len(matches) >= 2:
+                times = []
+                for t in matches[:2]:
+                    t_str = t.strip().upper()
+                    if "AM" in t_str or "PM" in t_str:
+                        if ":" not in t_str:
+                            t_str = re.sub(r"(\d+)\s*(AM|PM)", r"\1:00 \2", t_str)
+                        try:
+                            dt = datetime.strptime(t_str, "%I:%M %p")
+                            times.append(dt.strftime("%H:%M"))
+                        except ValueError:
+                            pass
+                    else:
+                        try:
+                            dt = datetime.strptime(t_str, "%H:%M")
+                            times.append(dt.strftime("%H:%M"))
+                        except ValueError:
+                            try:
+                                dt = datetime.strptime(t_str, "%H")
+                                times.append(dt.strftime("%H:%M"))
+                            except ValueError:
+                                pass
+                if len(times) == 2:
+                    return times[0], times[1]
+            return None, None
+
+        # Process Line 1
+        if self.hours_line_1_label and self.hours_line_1_value:
+            days = parse_days(self.hours_line_1_label)
+            opens, closes = parse_times(self.hours_line_1_value)
+            if days and opens and closes:
+                specs.append({
+                    "@type": "OpeningHoursSpecification",
+                    "dayOfWeek": days,
+                    "opens": opens,
+                    "closes": closes
+                })
+                
+        # Process Line 2
+        if self.hours_line_2_label and self.hours_line_2_value:
+            days = parse_days(self.hours_line_2_label)
+            opens, closes = parse_times(self.hours_line_2_value)
+            if days and opens and closes:
+                specs.append({
+                    "@type": "OpeningHoursSpecification",
+                    "dayOfWeek": days,
+                    "opens": opens,
+                    "closes": closes
+                })
+                
+        return specs
+
+    @property
+    def opening_hours_spec_json(self):
+        import json
+        return json.dumps(self.opening_hours_spec)
+
+
+
+class Service(models.Model):
+    title = models.CharField(max_length=120)
+    summary = models.TextField(blank=True)
+    image = models.ImageField(upload_to="site/services/", blank=True, null=True)
+    sort_order = models.PositiveIntegerField(default=0)
+    is_published = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ("sort_order", "id")
+
+    def __str__(self):
+        return self.title
+
