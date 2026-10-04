@@ -1,7 +1,8 @@
 from pathlib import Path
 from django.db import models
 from .storage import protected_storage
-from apps.shared.fields import EncryptedCharField, EncryptedTextField
+from apps.shared.fields import EncryptedCharField, EncryptedTextField, compute_lookup_hash
+from apps.patients.normalization import normalize_phone, normalize_email
 
 def patient_document_upload_to(instance, filename):
     return f"patient_documents/{instance.patient_id}/{filename}"
@@ -21,6 +22,19 @@ class Patient(models.Model):
         editable=False,
         db_index=True,
     )
+    phone_lookup_hash = models.CharField(
+        max_length=64,
+        blank=True,
+        editable=False,
+        db_index=True,
+    )
+    email_lookup_hash = models.CharField(
+        max_length=64,
+        blank=True,
+        editable=False,
+        db_index=True,
+    )
+
 
     class Meta:
         ordering = ["name"]
@@ -30,13 +44,26 @@ class Patient(models.Model):
         db_table = "website_patient"
 
     def save(self, *args, **kwargs):
+        norm_phone = normalize_phone(self.phone) if self.phone else ""
+        norm_email = normalize_email(self.email) if self.email else ""
+
+        self.phone_lookup_hash = compute_lookup_hash(norm_phone) if norm_phone else ""
+        self.email_lookup_hash = compute_lookup_hash(norm_email) if norm_email else ""
+
+        update_fields = kwargs.get("update_fields")
+        if update_fields is not None:
+            update_fields = set(update_fields)
+            if "phone" in update_fields:
+                update_fields.add("phone_lookup_hash")
+            if "email" in update_fields:
+                update_fields.add("email_lookup_hash")
+            kwargs["update_fields"] = list(update_fields)
+
         super().save(*args, **kwargs)
 
-        if self.patient_code:
-            return
-
-        self.patient_code = f"PAT-{self.pk:06d}"
-        super().save(update_fields=["patient_code"])
+        if not self.patient_code:
+            self.patient_code = f"PAT-{self.pk:06d}"
+            super().save(update_fields=["patient_code"])
 
     def __str__(self):
         contact = self.phone or self.email or "no contact"

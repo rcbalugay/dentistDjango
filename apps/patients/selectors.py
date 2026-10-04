@@ -1,4 +1,5 @@
 from apps.patients.models import Patient
+from apps.shared.fields import compute_lookup_hash
 from .normalization import normalize_phone, normalize_email
 
 
@@ -13,20 +14,16 @@ def find_patient_by_phone(phone: str):
     norm = normalize_phone(phone)
     if not norm:
         return None
-    for patient in Patient.objects.all():
-        if normalize_phone(patient.phone) == norm:
-            return patient
-    return None
+    lookup_hash = compute_lookup_hash(norm)
+    return Patient.objects.filter(phone_lookup_hash=lookup_hash).first()
 
 
 def find_patient_by_email(email: str):
     norm = normalize_email(email)
     if not norm:
         return None
-    for patient in Patient.objects.all():
-        if normalize_email(patient.email) == norm:
-            return patient
-    return None
+    lookup_hash = compute_lookup_hash(norm)
+    return Patient.objects.filter(email_lookup_hash=lookup_hash).first()
 
 
 def resolve_patient_identity(*, name: str = "", phone: str = "", email: str = ""):
@@ -40,13 +37,12 @@ def resolve_patient_identity(*, name: str = "", phone: str = "", email: str = ""
     phone_patient = find_patient_by_phone(phone) if phone else None
     email_patient = find_patient_by_email(email) if email else None
 
-    # Conflick check: phone belongs to Patient A, email belongs to Patient B
+    # Conflict check: phone belongs to Patient A, email belongs to Patient B
     if phone_patient and email_patient and phone_patient.pk != email_patient.pk:
         raise PatientConflictError(
-            "The provided phone number and email address belong to"
-            "different existing patient records."
+            "The provided phone number and email address belong to different existing patient records."
         )
-
+        
     return phone_patient or email_patient
 
 

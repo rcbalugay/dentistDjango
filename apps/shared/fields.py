@@ -1,7 +1,29 @@
 import os
+import hmac
+import hashlib
 from django.db import models
-from django.conf import settings
-from cryptography.fernet import Fernet
+from django.core.exceptions import ImproperlyConfigured
+from cryptography.fernet import Fernet, InvalidToken
+
+
+class DecryptionError(Exception):
+    """Raised when ciphertext cannot be decrypted with the active key."""
+    pass
+
+def get_field_encryption_key() -> bytes:
+    """Retrieves and validates the mandatory FIELD_ENCRYPTION_KEY."""
+    raw_key = os.getenv("FIELD_ENCRYPTION_KEY")
+    if not raw_key or not raw_key.strip():
+        raise ImproperlyConfigured("FIELD_ENCRYPTION_KEY environment variable is mandatory and missing.")
+    key = raw_key.strip()
+    return key.encode("utf-8") if isinstance(key, str) else key
+def compute_lookup_hash(val: str) -> str:
+    """Compute a deterministic HMAC-SHA256 digest for indexed lookups."""
+    if not val or not val.strip():
+        return ""
+    key = get_field_encryption_key()
+    return hmac.new(key, val.strip().encode("utf-8"), hashlib.sha256).hexdigest()
+
 
 class FernetEncryptor:
     _fernet = None
@@ -9,17 +31,7 @@ class FernetEncryptor:
     @classmethod
     def get_fernet(cls):
         if cls._fernet is None:
-            key = os.getenv("FIELD_ENCRYPTION_KEY")
-            if not key:
-                # Safe fallback during local runs or test phases
-                is_debug = getattr(settings, "DEBUG", True)
-                running_tests = getattr(settings, "RUNNING_TESTS", False)
-                if not is_debug and not running_tests:
-                    raise ValueError("FIELD_ENCRYPTION_KEY environment variable is missing in production!")
-                # Fallback dummy key for development/tests
-                key = Fernet.generate_key()
-            elif isinstance(key, str):
-                key = key.encode()
+            key = get_field_encryption_key()
             cls._fernet = Fernet(key)
         return cls._fernet
 
@@ -30,21 +42,21 @@ class FernetEncryptor:
         if not isinstance(val, str):
             val = str(val)
         fernet = cls.get_fernet()
-        return fernet.encrypt(val.encode()).decode()
+        return fernet.encrypt(val.encode("utf-8")).decode("utf-8")
 
     @classmethod
     def decrypt(cls, val):
         if val is None or val == "":
             return val
         if not isinstance(val, str):
-            return val
-        
+            val = str(val)
         try:
             fernet = cls.get_fernet()
-            return fernet.decrypt(val.encode()).decode()
-        except Exception:
-            # Fallback to plain text if the value is not encrypted yet (crucial for migration)
-            return val
+            return fernet.decrypt(val.encode("utf-8")).decode("utf-8")
+        except (InvalidToken, ValueError, TypeError, UnicodeDecodeError) as e:
+            raise DecryptionError(
+                "Failed to decrypt ciphertext with active encryption key."
+            ) from e
 
 class EncryptedCharField(models.CharField):
     """
@@ -62,9 +74,10 @@ class EncryptedCharField(models.CharField):
     def to_python(self, value):
         if value is None:
             return value
-        if isinstance(value, str):
+        if isinstance(value, str) and value.startswith("gAAAA"):
             return FernetEncryptor.decrypt(value)
-        return super().to_python(value)
+        return value
+
 
     def get_prep_value(self, value):
         value = super().get_prep_value(value)
@@ -85,9 +98,9 @@ class EncryptedTextField(models.TextField):
     def to_python(self, value):
         if value is None:
             return value
-        if isinstance(value, str):
+        if isinstance(value, str) and value.startswith("gAAAA"):
             return FernetEncryptor.decrypt(value)
-        return super().to_python(value)
+        return value
 
     def get_prep_value(self, value):
         value = super().get_prep_value(value)
