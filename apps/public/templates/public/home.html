@@ -228,7 +228,28 @@
       align-items: start;
     }
   }
+
+  /* Team Carousel stretch & layout styles */
+  .carousel-team .owl-stage {
+    display: flex;
+  }
+  .carousel-team .owl-item {
+    display: flex;
+    flex: 1 0 auto;
+  }
+  .carousel-team .item {
+    display: flex;
+    width: 100%;
+  }
+  .carousel-team.owl-carousel:not(.owl-loaded) {
+    display: flex;
+    justify-content: center;
+  }
+  .carousel-team.owl-carousel:not(.owl-loaded) .item {
+    max-width: 430px;
+  }
 </style>
+
 
 <section class="home-slider owl-carousel">
   <div class="slider-item"
@@ -335,26 +356,61 @@
       </div>
     </div>
 
-    <div class="row justify-content-center">
-      <div class="col-12 col-md-8 col-lg-5 ftco-animate">
-        <div class="doctor-card-wrap">
-          <div class="card doctor-card text-center p-3 p-md-4">
-            <div class="doctor-card-media">
-              <img
-                src="{% if site_content.about_founder_photo %}{{ site_content.about_founder_photo.url }}{% else %}{% static 'website/images/doc-4.jpg' %}{% endif %}"
-                alt="{{ site_content.doctor_name|default:'Doctor' }}">
-            </div>
-            <h3 class="mb-1">{{ site_content.doctor_name }}</h3>
-            <div class="doctor-role">{{ site_content.doctor_title }}</div>
-
-            <p class="doctor-summary">
-              {{ site_content.doctor_bio }}
-            </p>
-
-            <div class="doctor-card-actions">
-              <a href="{% url 'about' %}" class="btn btn-dark btn-pill">Learn More</a>
+    <div class="row ftco-animate justify-content-center">
+      <div class="col-md-12">
+        <div class="carousel-team owl-carousel">
+          
+          {% for member in team_members %}
+          <!-- Dynamic Team Members -->
+          <div class="item">
+            <div class="doctor-card-wrap w-100 px-2 h-100">
+              <div class="card doctor-card text-center p-3 p-md-4 h-100 d-flex flex-column" style="border-radius: 28px; border: 1px solid rgba(219, 227, 244, 0.95); background: linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(247, 250, 255, 0.98) 100%); box-shadow: 0 20px 42px rgba(45, 57, 92, 0.08); overflow: hidden;">
+                <div class="doctor-card-media" style="border-radius: 22px; overflow: hidden; margin-bottom: 1rem;">
+                  {% if member.photo %}
+                    <img src="{{ member.photo.url }}" alt="{{ member.name }}" style="width: 100%; border-radius: 22px; border: 1px solid rgba(218, 226, 247, 0.95); display: block;">
+                  {% else %}
+                    <img src="{% static 'website/images/doc-4.jpg' %}" alt="{{ member.name }}" style="width: 100%; border-radius: 22px; border: 1px solid rgba(218, 226, 247, 0.95); display: block;">
+                  {% endif %}
+                </div>
+                <h3 class="mb-1" style="font-size: 1.35rem; font-weight: 700; color: #27314e;">{{ member.name }}</h3>
+                <div class="doctor-role" style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: #5a54d1; font-weight: 700; margin-bottom: 0.75rem;">{{ member.role }}</div>
+                <p class="doctor-summary flex-grow-1" style="color: #657390; font-size: 0.92rem; line-height: 1.7;">
+                  {{ member.bio }}
+                </p>
+                <div class="doctor-card-actions mt-3">
+                  <a href="{% url 'about' %}" class="btn btn-dark btn-pill">Learn More</a>
+                </div>
+              </div>
             </div>
           </div>
+          {% empty %}
+          <!-- Lead Doctor Fallback Card (When list is empty) -->
+          <div class="item">
+            <div class="doctor-card-wrap w-100 px-2 h-100">
+              <div class="card doctor-card text-center p-3 p-md-4 h-100 d-flex flex-column" style="border-radius: 28px; border: 1px solid rgba(219, 227, 244, 0.95); background: linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(247, 250, 255, 0.98) 100%); box-shadow: 0 20px 42px rgba(45, 57, 92, 0.08); overflow: hidden;">
+                <div class="doctor-card-media" style="border-radius: 22px; overflow: hidden; margin-bottom: 1rem;">
+                  <img
+                    src="{% if site_content.about_founder_photo %}{{ site_content.about_founder_photo.url }}{% else %}{% static 'website/images/doc-4.jpg' %}{% endif %}"
+                    alt="{{ site_content.doctor_name|default:'Doctor' }}"
+                    style="width: 100%; border-radius: 22px; border: 1px solid rgba(218, 226, 247, 0.95); display: block;">
+                </div>
+                <h3 class="mb-1" style="font-size: 1.35rem; font-weight: 700; color: #27314e;">{{ site_content.doctor_name }}</h3>
+                <div class="doctor-role" style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: #5a54d1; font-weight: 700; margin-bottom: 0.75rem;">{{ site_content.doctor_title }}</div>
+                <p class="doctor-summary flex-grow-1" style="color: #657390; font-size: 0.92rem; line-height: 1.7;">
+                  {{ site_content.doctor_bio }}
+                </p>
+                <div class="doctor-card-actions mt-3">
+                  <a href="{% url 'about' %}" class="btn btn-dark btn-pill">Learn More</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+
+        </div>
+      </div>
+    </div>
+
         </div>
       </div>
     </div>
@@ -454,4 +510,38 @@
     {% endif %}
   </div>
 </section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var $carousel = $('.carousel-team');
+    if ($carousel.length > 0) {
+      var itemCount = $carousel.find('.item').length;
+      if (itemCount > 1) {
+        $carousel.owlCarousel({
+          autoplay: true,
+          center: false,
+          loop: true,
+          margin: 30,
+          stagePadding: 0,
+          nav: false,
+          dots: true,
+          responsive:{
+            0:{
+              items: 1
+            },
+            768:{
+              items: 2
+            },
+            992:{
+              items: Math.min(itemCount, 3)
+            }
+          }
+        });
+      } else {
+        $carousel.addClass('d-flex justify-content-center');
+        $carousel.find('.item').css('max-width', '430px');
+      }
+    }
+  });
+</script>
 {% endblock %}

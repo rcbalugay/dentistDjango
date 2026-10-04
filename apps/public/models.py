@@ -80,6 +80,9 @@ class SiteContent(models.Model):
     doctor_title = models.CharField(max_length=120, blank=True)
     doctor_bio = models.TextField(blank=True)
 
+    meta_description = models.TextField(blank=True, help_text="Highly recommended for Google results (150-160 characters).")
+    meta_keywords = models.CharField(max_length=255, blank=True, help_text="Comma-separated SEO keywords.")
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -129,6 +132,8 @@ class BlogPost(models.Model):
     author_name = models.CharField(max_length=120, blank=True, default="Clinic Team")
     published_at = models.DateTimeField(default=timezone.now)
     is_published = models.BooleanField(default=True)
+    meta_description = models.TextField(blank=True, help_text="Configure custom dynamic snippet for search engine indexing.")
+    meta_keywords = models.CharField(max_length=255, blank=True, help_text="Comma-separated keywords for this post.")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -304,4 +309,21 @@ class Service(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class TeamMember(models.Model):
+    name = models.CharField(max_length=120)
+    role = models.CharField(max_length=120, help_text="e.g. Pediatric Dentist, Orthodontist, Clinic Manager")
+    bio = models.TextField(blank=True, help_text="Short bio displayed on card highlights.")
+    photo = models.ImageField(upload_to="site/team/", blank=True, null=True)
+    sort_order = models.PositiveIntegerField(default=0)
+    is_published = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ("sort_order", "id")
+
+    def __str__(self):
+        return f"{self.name} - {self.role}"
 

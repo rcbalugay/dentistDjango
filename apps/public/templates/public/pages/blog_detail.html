@@ -1,6 +1,18 @@
 {% extends "public/base.html" %}
 {% load static %}
 {% block title %}{{ post.title }} | Dental Clinic{% endblock %}
+
+{% block seo_meta %}
+{% if post.meta_description %}
+<meta name="description" content="{{ post.meta_description }}">
+{% else %}
+<meta name="description" content="{{ post.excerpt }}">
+{% endif %}
+{% if post.meta_keywords %}
+<meta name="keywords" content="{{ post.meta_keywords }}">
+{% endif %}
+{% endblock %}
+
 {% block content %}
 
   <style>

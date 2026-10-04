@@ -5,7 +5,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
-from apps.public.models import BlogPost, SiteContent, Testimonial, Service, ClinicSettings
+from apps.public.models import BlogPost, SiteContent, Testimonial, Service, ClinicSettings, TeamMember
 
 @override_settings(
     DEFAULT_FROM_EMAIL="clinic@test.com",
@@ -222,5 +222,128 @@ class PublicPageSmokeTests(TestCase):
         detail_response = self.client.get(reverse("blog_detail", args=[orthodontic_post.slug]))
         self.assertEqual(detail_response.status_code, 200)
         self.assertContains(detail_response, "<strong>guidance</strong>", html=False)
+
+from django.core.files.uploadedfile import SimpleUploadedFile
+from io import BytesIO
+from PIL import Image
+
+class SEOAndImageEngineTests(TestCase):
+    def test_sitemap_xml_serves_valid_sitemap_index(self):
+        BlogPost.objects.create(
+            title="Dynamic Article For Sitemap",
+            category=BlogPost.Category.CLINIC_UPDATES,
+            excerpt="Sitemap post excerpt.",
+            body="Sitemap body content.",
+            published_at=timezone.now(),
+            is_published=True,
+        )
+        response = self.client.get(reverse("sitemap_xml"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/xml")
+        self.assertContains(response, "<urlset")
+        self.assertContains(response, "/blog/dynamic-article-for-sitemap/")
+        
+    def test_robots_txt_serves_valid_sitemap_link(self):
+        response = self.client.get(reverse("robots_txt"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "text/plain")
+        self.assertContains(response, "User-agent: *")
+        self.assertContains(response, "Sitemap: http://testserver/sitemap.xml")
+        
+    def test_dynamic_seo_metadata_rendering(self):
+        # Home page SEO metadata
+        SiteContent.objects.create(
+            pk=1,
+            meta_description="Dynamic Dental Home Page Description.",
+            meta_keywords="porac, dentist, teeth, pedodontist",
+        )
+        home_res = self.client.get(reverse("home"))
+        self.assertEqual(home_res.status_code, 200)
+        self.assertContains(home_res, '<meta name="description" content="Dynamic Dental Home Page Description.">')
+        self.assertContains(home_res, '<meta name="keywords" content="porac, dentist, teeth, pedodontist">')
+        self.assertContains(home_res, '<link rel="canonical" href="http://testserver/">')
+        
+        # Blog post SEO metadata
+        post = BlogPost.objects.create(
+            title="SEO Optimized Post",
+            excerpt="Article excerpt.",
+            body="Article body content.",
+            meta_description="Custom Blog Article Meta Tag.",
+            meta_keywords="kids dentistry, child toothcare",
+            published_at=timezone.now(),
+            is_published=True,
+        )
+        blog_res = self.client.get(reverse("blog_detail", args=[post.slug]))
+        self.assertEqual(blog_res.status_code, 200)
+        self.assertContains(blog_res, '<meta name="description" content="Custom Blog Article Meta Tag.">')
+        self.assertContains(blog_res, '<meta name="keywords" content="kids dentistry, child toothcare">')
+        self.assertContains(blog_res, '<link rel="canonical" href="http://testserver/blog/seo-optimized-post/">')
+
+    def test_webp_image_compression_signal(self):
+        # Create a mock heavy raw image (RGBA)
+        f = BytesIO()
+        image = Image.new("RGBA", (1400, 1400), (255, 0, 0, 255))
+        image.save(f, "PNG")
+        f.seek(0)
+        uploaded_image = SimpleUploadedFile("raw_heavy_photo.png", f.read(), content_type="image/png")
+        
+        # Create a new dynamic service upload
+        service = Service.objects.create(
+            title="WebP Compressed Treatment",
+            summary="This service has a compressed photo.",
+            image=uploaded_image,
+            is_published=True,
+        )
+        
+        # Refresh from database and assert WebP formatting and scaling occurred
+        service.refresh_from_db()
+        self.assertTrue(service.image.name.endswith(".webp"))
+        
+        # Assert image dimensions were scaled successfully down below responsive threshold (800px)
+        img = Image.open(service.image.file)
+        self.assertEqual(img.format, "WEBP")
+        self.assertLessEqual(img.width, 800)
+        self.assertLessEqual(img.height, 800)
+
+    def test_webp_image_compression_signal_for_team_member(self):
+        # Create a mock heavy raw image (RGBA)
+        f = BytesIO()
+        image = Image.new("RGBA", (1000, 1000), (0, 255, 0, 255))
+        image.save(f, "PNG")
+        f.seek(0)
+        uploaded_image = SimpleUploadedFile("team_raw_photo.png", f.read(), content_type="image/png")
+        
+        # Create a new dynamic team member upload
+        member = TeamMember.objects.create(
+            name="Dr. Jane Smith",
+            role="Orthodontist",
+            bio="Dynamic orthodontist bio details.",
+            photo=uploaded_image,
+            is_published=True,
+        )
+        
+        # Refresh from database and assert WebP formatting and scaling occurred
+        member.refresh_from_db()
+        self.assertTrue(member.photo.name.endswith(".webp"))
+        
+        # Assert image dimensions were scaled successfully down below responsive threshold (600px)
+        img = Image.open(member.photo.file)
+        self.assertEqual(img.format, "WEBP")
+        self.assertLessEqual(img.width, 600)
+        self.assertLessEqual(img.height, 600)
+
+    def test_homepage_shows_clinical_team_members(self):
+        TeamMember.objects.create(
+            name="Dr. Paul Foster",
+            role="Founder & Chief Dentist",
+            bio="Dynamic founder bio.",
+            is_published=True,
+            sort_order=1
+        )
+        response = self.client.get(reverse("home"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Dr. Paul Foster")
+        self.assertContains(response, "Founder &amp; Chief Dentist")
+
 
 

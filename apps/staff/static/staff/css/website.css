@@ -1572,3 +1572,114 @@ body.delete-modal-open {
   box-shadow: 0 6px 16px rgba(220, 53, 69, 0.25);
   transform: translateY(-1px);
 }
+
+/* Zero-Loss Safety, Toast notifications, and Spinners */
+.website-toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: #0f172a;
+  color: #fff;
+  padding: 0.85rem 1.5rem;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.16);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 500;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  animation: slideInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.website-toast--danger {
+  background: #ef4444;
+  color: #fff;
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.website-action-spinner {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 0.8s linear infinite;
+  margin-right: 0.35rem;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.website-save-button:disabled,
+.website-action-button--primary:disabled {
+  background: #f1f5f9 !important;
+  color: #94a3b8 !important;
+  border-color: #e2e8f0 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Character Counters styling */
+.website-char-counter {
+  display: block;
+  text-align: right;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 0.25rem;
+}
+
+.website-char-counter.is-near-limit {
+  color: #f59e0b;
+}
+
+/* Shared and Guidance callouts */
+.website-section--shared {
+  border: 1px dashed #f59e0b !important;
+  background: #fffbef !important;
+  transition: all 0.25s ease;
+}
+
+.website-guidance-callout {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 20px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.website-guidance-callout .website-kicker {
+  color: #64748b;
+}
+
+.website-guidance-callout h5 {
+  font-size: 1.15rem;
+  color: #334155;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.website-guidance-callout .website-meta {
+  color: #64748b;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  margin-bottom: 1rem;
+}

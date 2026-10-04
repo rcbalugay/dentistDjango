@@ -20,10 +20,14 @@
 
       .about-doctor-card {
         padding: 1.1rem;
+        max-width: 440px;
+        margin: 0 auto;
       }
 
       .about-doctor-card img {
         width: 100%;
+        height: 380px;
+        object-fit: cover;
         border-radius: 22px;
         border: 1px solid rgba(218, 226, 247, 0.95);
         display: block;
@@ -33,6 +37,7 @@
         padding: 2rem 2rem 2.1rem;
         height: 100%;
       }
+
 
       .about-doctor-kicker {
         display: inline-flex;
@@ -142,13 +147,52 @@
               <div class="about-doctor-title">{{ site_content.doctor_title }}</div>
               <p>{{ site_content.doctor_bio|linebreaksbr }}</p>
               <div class="about-doctor-actions">
-                <a href="{% url 'appointment_form' %}" class="btn btn-primary py-3 px-4">Book an Appointment</a>
+                <a href="{% url 'appointment_form' %}" class="btn btn-dark py-3 px-4">Book an Appointment</a>
                 <a href="{% url 'contact' %}" class="btn btn-outline-dark py-3 px-4">Send a Question</a>
               </div>
+
             </div>
           </div>
         </div>
       </div>
     </section>
+
+    {% if team_members %}
+    <section class="ftco-section bg-light">
+      <div class="container">
+        <div class="row justify-content-center mb-5 pb-2">
+          <div class="col-md-8 text-center heading-section ftco-animate">
+            <span class="subheading">Our Specialists</span>
+            <h2 class="mb-4">Meet Our Specialist & Support Team</h2>
+            <p>A collaborative team of experienced professionals dedicated to making your dental care comfortable, clear, and comprehensive.</p>
+          </div>
+        </div>
+
+        <div class="row justify-content-center">
+          {% for member in team_members %}
+          <div class="col-12 col-md-6 col-lg-4 mb-4 ftco-animate d-flex align-items-stretch">
+            <div class="doctor-card-wrap w-100">
+              <div class="card doctor-card text-center p-3 p-md-4 h-100 d-flex flex-column" style="border-radius: 28px; border: 1px solid rgba(219, 227, 244, 0.95); background: #ffffff; box-shadow: 0 15px 35px rgba(45, 57, 92, 0.05); overflow: hidden;">
+                <div class="doctor-card-media" style="border-radius: 22px; overflow: hidden; margin-bottom: 1rem;">
+                  {% if member.photo %}
+                    <img src="{{ member.photo.url }}" alt="{{ member.name }}" style="width: 100%; border-radius: 22px; border: 1px solid rgba(218, 226, 247, 0.95); display: block; object-fit: cover; height: 300px;">
+                  {% else %}
+                    <img src="{% static 'website/images/doc-4.jpg' %}" alt="{{ member.name }}" style="width: 100%; border-radius: 22px; border: 1px solid rgba(218, 226, 247, 0.95); display: block; object-fit: cover; height: 300px;">
+                  {% endif %}
+                </div>
+                <h3 class="mb-1" style="font-size: 1.35rem; font-weight: 700; color: #27314e;">{{ member.name }}</h3>
+                <div class="doctor-role" style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: #5a54d1; font-weight: 700; margin-bottom: 0.75rem;">{{ member.role }}</div>
+
+                <p class="doctor-summary flex-grow-1" style="color: #657390; font-size: 0.92rem; line-height: 1.7;">
+                  {{ member.bio }}
+                </p>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+    {% endif %}
 
 {% endblock %}

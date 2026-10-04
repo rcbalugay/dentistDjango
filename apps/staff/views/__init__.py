@@ -20,5 +20,10 @@ from .content import (
     service_edit,
     service_delete,
     service_toggle_publish,
+    team_members,
+    team_member_create,
+    team_member_edit,
+    team_member_delete,
+    team_member_toggle_publish,
 )
 from .pages import inquiries, message, profile, settings_page, website

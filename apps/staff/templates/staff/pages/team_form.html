@@ -1,0 +1,284 @@
+{% extends "staff/base.html" %}
+{% block title %}Clinical Team | {{ page_title }}{% endblock %}
+
+{% block extra_head %}
+<style>
+  .form-card {
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 10px 28px rgba(34, 51, 84, 0.05);
+    background: #ffffff;
+    max-width: 800px;
+  }
+  .form-kicker {
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #8d99bd;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+  .form-group label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #7c89ad;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+  .form-group input[type="text"],
+  .form-group input[type="number"],
+  .form-group input[type="file"],
+  .form-group textarea,
+  .form-group select {
+    border-radius: 14px;
+    border: 1px solid #d8e1fb;
+    min-height: 48px;
+    box-shadow: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+    background: #fbfcff;
+    padding: 0.75rem 1rem;
+    width: 100%;
+    color: #2d355a;
+    font-size: 0.92rem;
+  }
+  .form-group input[type="text"]:focus,
+  .form-group input[type="number"]:focus,
+  .form-group textarea:focus,
+  .form-group select:focus {
+    border-color: #8a84ec;
+    box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.08);
+    background: #fff;
+    outline: none;
+  }
+  .form-group textarea {
+    min-height: 120px;
+    resize: vertical;
+  }
+  .form-group input[type="file"] {
+    min-height: auto;
+    padding: 0.65rem 0.85rem;
+    background: #fff;
+  }
+  .image-preview-container {
+    margin-top: 1rem;
+    border-radius: 14px;
+    border: 1px dashed #d8e1fb;
+    background: #fbfcff;
+    padding: 0.75rem;
+    display: inline-block;
+    max-width: 100%;
+  }
+  .image-preview-label {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #8d99bd;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+  .website-file-dropzone {
+    border: 2px dashed #cbd5e1;
+    border-radius: 14px;
+    padding: 1.5rem;
+    text-align: center;
+    background: #f8fafc;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+  .website-file-dropzone:hover, .website-file-dropzone.is-dragover {
+    border-color: #5a54d1;
+    background: #f1f0fe;
+  }
+  .website-file-dropzone input[type="file"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 10;
+  }
+  .website-dropzone-icon {
+    color: #8d99bd;
+    margin-bottom: 0.5rem;
+  }
+  .website-file-dropzone:hover .website-dropzone-icon {
+    color: #5a54d1;
+  }
+  .website-dropzone-text {
+    font-size: 0.9rem;
+    color: #475569;
+    margin-bottom: 0.25rem;
+  }
+  .website-dropzone-hint {
+    font-size: 0.75rem;
+    color: #94a3b8;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{% url 'dashboard:team' %}" class="text-muted text-decoration-none mb-2 d-inline-block" style="font-weight: 600;">
+        &larr; Back to Clinical Team
+    </a>
+    <div class="form-kicker">Operations</div>
+    <h3 class="font-weight-bold mb-1">{{ page_title }}</h3>
+    <p class="text-muted mb-0">{{ page_subtitle }}</p>
+</div>
+
+<div class="card form-card">
+    <div class="card-body p-4">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="form-group mb-4">
+                <label>Staff Name</label>
+                {{ form.name }}
+            </div>
+
+            <div class="form-group mb-4">
+                <label>Clinic Role / Specialty</label>
+                {{ form.role }}
+                <small class="text-muted mt-2 d-block" style="font-size: 0.8rem; line-height: 1.4;">e.g. Lead Surgeon, Pediatric Dentist, Clinic Coordinator.</small>
+            </div>
+
+            <div class="form-group mb-4">
+                <label>Professional Bio / Summary</label>
+                {{ form.bio }}
+                <small class="text-muted mt-2 d-block" style="font-size: 0.8rem; line-height: 1.4;">A short professional history, qualifications, or philosophical care statement.</small>
+            </div>
+
+            <div class="form-group mb-4">
+                <label>Profile Photo</label>
+                <div class="website-file-dropzone" id="dropzone">
+                    <div class="website-dropzone-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                    </div>
+                    <div class="website-dropzone-text">Drag and drop or <strong>browse</strong> profile photo</div>
+                    <div class="website-dropzone-hint">Support PNG, JPG, or WEBP (max. 10MB)</div>
+                    {{ form.photo }}
+                </div>
+                
+                <div class="image-preview-container" id="preview-box">
+                    <span class="image-preview-label">Live Photo Preview</span>
+                    <img id="image-preview" src="{% if form.instance.photo %}{{ form.instance.photo.url }}{% else %}#{% endif %}" 
+                         alt="Photo Preview" class="img-fluid" 
+                         style="max-height: 200px; border-radius: 10px; {% if not form.instance.photo %}display: none;{% endif %} object-fit: cover;">
+                    {% if not form.instance.photo %}
+                        <div id="preview-placeholder" class="text-muted" style="font-size: 0.85rem; padding: 1.5rem; text-align: center; border-radius: 10px; background: #f0f2f5; border: 1px dashed #d8e1fb;">
+                            <i class="icon-image mr-1" style="font-size: 1.25rem; vertical-align: middle;"></i> No profile photo selected.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6 form-group">
+                    <label>Display Order</label>
+                    {{ form.sort_order }}
+                    <small class="text-muted mt-2 d-block" style="font-size: 0.8rem; line-height: 1.4;">Lower numbers appear first on the website (e.g. 0, 1, 2).</small>
+                </div>
+                <div class="col-md-6 form-group">
+                    <div class="form-check mt-md-4 pt-md-3">
+                        <label class="form-check-label font-weight-bold" style="text-transform: none; font-size: 0.9rem; letter-spacing: 0; color: #2d355a; display: inline-flex; align-items: center; cursor: pointer;">
+                            {{ form.is_published }}
+                            <span class="ml-2">Show immediately on website</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4" style="border-top: 1px solid #edf1f9;">
+
+            <div class="d-flex justify-content-end align-items-center">
+                <a href="{% url 'dashboard:team' %}" class="btn btn-light mr-3 rounded-pill px-4 py-2" style="font-weight: 600;">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-primary rounded-pill px-4 py-2" style="font-weight: 700;">
+                    Save Team Member
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var fileInput = document.querySelector('input[type="file"]');
+    var imgPreview = document.getElementById('image-preview');
+    var placeholder = document.getElementById('preview-placeholder');
+    var dropzone = document.getElementById('dropzone');
+    
+    if (fileInput && imgPreview) {
+      fileInput.addEventListener('change', function(e) {
+        var file = e.target.files[0];
+        if (file) {
+          var reader = new FileReader();
+          reader.onload = function(event) {
+            imgPreview.src = event.target.result;
+            imgPreview.style.display = 'block';
+            if (placeholder) {
+              placeholder.style.display = 'none';
+            }
+          };
+          reader.readAsDataURL(file);
+        } else {
+          // If cleared
+          {% if form.instance.photo %}
+            imgPreview.src = '{{ form.instance.photo.url }}';
+            imgPreview.style.display = 'block';
+            if (placeholder) {
+              placeholder.style.display = 'none';
+            }
+          {% else %}
+            imgPreview.src = '#';
+            imgPreview.style.display = 'none';
+            if (placeholder) {
+              placeholder.style.display = 'block';
+            }
+          {% endif %}
+        }
+      });
+    }
+
+    if (dropzone && fileInput) {
+      ["dragenter", "dragover"].forEach(function (eventName) {
+        dropzone.addEventListener(eventName, function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.classList.add("is-dragover");
+        }, false);
+      });
+
+      ["dragleave", "drop"].forEach(function (eventName) {
+        dropzone.addEventListener(eventName, function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.classList.remove("is-dragover");
+        }, false);
+      });
+
+      dropzone.addEventListener("drop", function (e) {
+        var dt = e.dataTransfer;
+        var files = dt.files;
+        if (files && files.length > 0) {
+          fileInput.files = files;
+          fileInput.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+      }, false);
+    }
+  });
+</script>
+{% endblock %}

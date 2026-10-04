@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.http import JsonResponse
 
-from apps.public.models import BlogPost, SiteContent, Testimonial, ClinicSettings, Service
+from apps.public.models import BlogPost, SiteContent, Testimonial, ClinicSettings, Service, TeamMember
 from apps.staff.forms import HomepageForm, AboutForm, ClinicSettingsForm
 
 from .auth import staff_only
@@ -57,6 +57,7 @@ def website(request):
                 })
             return redirect(f"{request.path}?tab={post_active_tab}&saved=1")
         else:
+            messages.error(request, "Some changes could not be saved. Please inspect the marked fields below.")
             if is_ajax:
                 return JsonResponse({
                     "success": False,
@@ -83,6 +84,8 @@ def website(request):
             "published_blog_post_count": BlogPost.objects.filter(is_published=True).count(),
             "service_count": Service.objects.count(),
             "published_service_count": Service.objects.filter(is_published=True).count(),
+            "team_count": TeamMember.objects.count(),
+            "published_team_count": TeamMember.objects.filter(is_published=True).count(),
         },
     )
 

@@ -31,6 +31,11 @@ from .views import (
     service_edit,
     service_delete,
     service_toggle_publish,
+    team_members,
+    team_member_create,
+    team_member_edit,
+    team_member_delete,
+    team_member_toggle_publish,
 )
 
 app_name = "dashboard"
@@ -49,6 +54,11 @@ urlpatterns = [
     path("services/<int:pk>/edit/", service_edit, name="service_edit"),
     path("services/<int:pk>/delete/", service_delete, name="service_delete"),
     path("services/<int:pk>/toggle/", service_toggle_publish, name="service_toggle"),
+    path("team/", team_members, name="team"),
+    path("team/new/", team_member_create, name="team_create"),
+    path("team/<int:pk>/edit/", team_member_edit, name="team_edit"),
+    path("team/<int:pk>/delete/", team_member_delete, name="team_delete"),
+    path("team/<int:pk>/toggle/", team_member_toggle_publish, name="team_toggle"),
     path("testimonials/", testimonials, name="testimonials"),
     path("testimonials/new/", testimonial_create, name="testimonial_create"),
     path("testimonials/<int:pk>/edit/", testimonial_edit, name="testimonial_edit"),

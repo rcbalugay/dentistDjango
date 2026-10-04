@@ -229,7 +229,7 @@
           </div>
         </section>
 
-        <section class="website-card mb-4 website-section" data-website-section="homepage">
+        <section class="website-guidance-callout website-section" data-website-section="homepage">
           <div class="website-kicker">Homepage Dynamic Content</div>
           <h5>Services, Testimonials, and Blog</h5>
           <p class="website-meta">
@@ -282,6 +282,37 @@
                 <a href="{% url 'dashboard:blog_create' %}" class="btn btn-primary btn-sm">Add blog post</a>
               </div>
             </article>
+
+            <article class="website-lock-card">
+              <div>
+                <strong>Clinical Team</strong>
+                <span>Manage specialist doctors, surgeons, hygienists, and receptionist staff dynamically.</span>
+                <div class="website-lock-stats">
+                  <span class="website-lock-stat">{{ team_count }} total</span>
+                  <span class="website-lock-stat">{{ published_team_count }} published</span>
+                </div>
+              </div>
+              <div class="website-lock-actions">
+                <a href="{% url 'dashboard:team' %}" class="btn btn-outline-primary btn-sm">Manage team</a>
+                <a href="{% url 'dashboard:team_create' %}" class="btn btn-primary btn-sm">Add member</a>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="website-card mb-4 website-section" data-website-section="homepage">
+          <div class="website-kicker">SEO Metadata</div>
+          <h5>Homepage SEO & Indexing</h5>
+          <p class="website-meta">Configure custom search engine tags to optimize how your home page ranks and previews in Google.</p>
+
+          <div class="form-group">
+            <label for="{{ homepage_form.meta_description.id_for_label }}">Meta Description</label>
+            {{ homepage_form.meta_description }}
+          </div>
+
+          <div class="form-group mb-0">
+            <label for="{{ homepage_form.meta_keywords.id_for_label }}">Meta Keywords</label>
+            {{ homepage_form.meta_keywords }}
           </div>
         </section>
       </form>
@@ -686,6 +717,20 @@
     </svg>
   </button>
 
+<script id="django-errors-homepage" type="application/json">
+  {% if homepage_form.errors %}
+    {{ homepage_form.errors.as_json|safe }}
+  {% else %}
+    {}
+  {% endif %}
+</script>
+<script id="django-errors-about" type="application/json">
+  {% if about_form.errors %}
+    {{ about_form.errors.as_json|safe }}
+  {% else %}
+    {}
+  {% endif %}
+</script>
 <script>
   window.websiteActiveTab = "{{ active_tab }}";
 </script>

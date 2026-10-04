@@ -2,7 +2,7 @@ from django import forms
 from django.utils import timezone
 from django.utils.text import slugify
 
-from apps.public.models import BlogPost, SiteContent, Testimonial, ClinicSettings, Service
+from apps.public.models import BlogPost, SiteContent, Testimonial, ClinicSettings, Service, TeamMember
 from apps.public.richtext import normalize_rich_text
 
 
@@ -30,8 +30,19 @@ class HomepageForm(forms.ModelForm):
             "doctor_name",
             "doctor_title",
             "doctor_bio",
+            "meta_description",
+            "meta_keywords",
         ]
         widgets = {
+            "meta_description": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 3,
+                "placeholder": "Enter home page meta description (recommended: 150-160 characters)..."
+            }),
+            "meta_keywords": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "dental, Porac dentist, pediatric dentistry..."
+            }),
             "hero_title": forms.TextInput(attrs={
                 "class": "form-control",
                 "placeholder": "We're Here for You. Gentle & Compassionate Care."
@@ -225,8 +236,19 @@ class BlogPostForm(forms.ModelForm):
             "author_name",
             "published_at",
             "is_published",
+            "meta_description",
+            "meta_keywords",
         ]
         widgets = {
+            "meta_description": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 3,
+                "placeholder": "Enter blog post meta description (recommended: 150-160 characters)..."
+            }),
+            "meta_keywords": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "oral health, dental tips, kids dental care..."
+            }),
             "title": forms.TextInput(attrs={"class": "form-control"}),
             "category": forms.Select(attrs={"class": "form-control"}),
             "excerpt": forms.Textarea(attrs={"class": "form-control", "rows": 4}),
@@ -278,4 +300,24 @@ class ServiceForm(forms.ModelForm):
             "sort_order": forms.NumberInput(attrs={"class": "form-control", "min": 0}),
             "is_published": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
+
+
+class TeamMemberForm(forms.ModelForm):
+    class Meta:
+        model = TeamMember
+        fields = ["name", "role", "bio", "photo", "sort_order", "is_published"]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-control", "placeholder": "Dr. Jane Smith"}),
+            "role": forms.TextInput(attrs={"class": "form-control", "placeholder": "Orthodontist / Oral Surgeon"}),
+            "bio": forms.Textarea(attrs={"class": "form-control", "rows": 4, "placeholder": "Provide a brief medical bio and care philosophy..."}),
+            "photo": forms.ClearableFileInput(attrs={"class": "form-control"}),
+            "sort_order": forms.NumberInput(attrs={"class": "form-control", "min": 0}),
+            "is_published": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            if hasattr(field, "max_length") and field.max_length is not None:
+                field.widget.attrs["maxlength"] = str(field.max_length)
 

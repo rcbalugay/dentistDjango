@@ -331,6 +331,23 @@
             <div class="field-error">{{ error }}</div>
           {% endfor %}
         </div>
+        <div class="form-group">
+          <label for="{{ form.meta_description.id_for_label }}">Meta Description</label>
+          {{ form.meta_description }}
+          {% for error in form.meta_description.errors %}
+            <div class="field-error">{{ error }}</div>
+          {% endfor %}
+          <p class="form-hint">Highly recommended for Google results (150-160 characters).</p>
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.meta_keywords.id_for_label }}">Meta Keywords</label>
+          {{ form.meta_keywords }}
+          {% for error in form.meta_keywords.errors %}
+            <div class="field-error">{{ error }}</div>
+          {% endfor %}
+          <p class="form-hint">Comma-separated SEO keywords for this post.</p>
+        </div>
 
         <div class="form-group">
           <div class="form-check">

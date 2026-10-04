@@ -3,11 +3,12 @@ import logging
 from django.conf import settings
 from django.contrib import messages
 from django.core.mail import EmailMessage
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from .forms import ContactForm
-from .models import BlogPost, SiteContent, Testimonial, Service, ClinicSettings
+from .models import BlogPost, SiteContent, Testimonial, Service, ClinicSettings, TeamMember
 
 logger = logging.getLogger(__name__)
 
@@ -125,6 +126,10 @@ def get_published_blog_posts():
     return BlogPost.objects.filter(is_published=True, published_at__lte=timezone.now())
 
 
+def get_published_team_members():
+    return TeamMember.objects.filter(is_published=True).order_by("sort_order", "id")
+
+
 def home(request):
     return render(
         request,
@@ -135,12 +140,23 @@ def home(request):
             "services": Service.objects.filter(is_published=True).order_by("sort_order"),
             "testimonials": get_published_testimonials()[:4],
             "featured_posts": get_published_blog_posts()[:3],
+            "team_members": get_published_team_members(),
         },
     )
 
 
+
 def about(request):
-    return render(request, "public/pages/about.html", {"site_content": get_site_content(), "settings": get_clinic_settings(), "services": Service.objects.filter(is_published=True).order_by("sort_order")})
+    return render(
+        request,
+        "public/pages/about.html",
+        {
+            "site_content": get_site_content(),
+            "settings": get_clinic_settings(),
+            "services": Service.objects.filter(is_published=True).order_by("sort_order"),
+            "team_members": get_published_team_members(),
+        },
+    )
 
 
 def blog(request):
@@ -233,3 +249,46 @@ def contact(request):
             "services": Service.objects.filter(is_published=True).order_by("sort_order"),
         },
     )
+
+def sitemap_xml(request):
+    host = request.build_absolute_uri('/')
+    urls = []
+    
+    # Core static pages
+    core_urls = [
+        "",
+        "about/",
+        "services/",
+        "blog/",
+        "contact/",
+        "appointment/",
+    ]
+    for rel_url in core_urls:
+        urls.append(f"{host}{rel_url}")
+        
+    # Dynamic blog posts
+    blog_qs = BlogPost.objects.filter(is_published=True, published_at__lte=timezone.now())
+    for post in blog_qs:
+        urls.append(f"{host}blog/{post.slug}/")
+        
+    # Render XML
+    xml_content = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    xml_content += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    for url in urls:
+        xml_content += '  <url>\n'
+        xml_content += f'    <loc>{url}</loc>\n'
+        xml_content += '    <changefreq>daily</changefreq>\n'
+        xml_content += '    <priority>0.80</priority>\n'
+        xml_content += '  </url>\n'
+    xml_content += '</urlset>'
+    
+    return HttpResponse(xml_content, content_type="application/xml")
+
+def robots_txt(request):
+    host = request.build_absolute_uri('/')
+    content = (
+        "User-agent: *\n"
+        "Allow: /\n"
+        f"Sitemap: {host}sitemap.xml\n"
+    )
+    return HttpResponse(content, content_type="text/plain")

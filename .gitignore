@@ -73,3 +73,7 @@ htmlcov/
 pytest_cache/
 protected_media/
 dashboard.mkv
+ARCHITECTURE.md
+architecture1.md
+dentist_implementation_plan.md
+Artifacts/

@@ -64,6 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const columns = Array.from(document.querySelectorAll("[data-website-column]"));
   const statusMessage = document.querySelector("[data-website-status-message]");
   const saveButton = document.querySelector("[data-website-save-button]");
+  const originalSaveButtonHtml = saveButton ? saveButton.innerHTML : "";
   const storageKey = "websiteManagementActiveTab";
   const fallbackTab = "homepage";
 
@@ -121,6 +122,9 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".website-field-error").forEach(function (el) {
       el.remove();
     });
+    document.querySelectorAll(".website-alert-banner").forEach(function (el) {
+      el.remove();
+    });
   }
 
   function handleValidationErrors(errors) {
@@ -159,6 +163,25 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     if (firstInvalidInput) {
+      const activeForm = firstInvalidInput.closest("form");
+      if (activeForm) {
+        let banner = activeForm.querySelector(".website-alert-banner");
+        if (!banner) {
+          banner = document.createElement("div");
+          banner.className = "alert alert-danger d-flex align-items-center mb-4 website-alert-banner";
+          banner.setAttribute("role", "alert");
+          banner.innerHTML = `
+            <svg class="mr-2" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink: 0; min-width: 20px;">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <span>Some changes could not be saved. Please inspect the marked fields below.</span>
+          `;
+          activeForm.insertBefore(banner, activeForm.firstChild);
+        }
+      }
+
       const section = firstInvalidInput.closest("[data-website-section]");
       if (section) {
         const tabName = section.dataset.websiteSection;
@@ -588,6 +611,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
   activateTab(initialTab);
 
+  // Check for server-side errors on load
+  try {
+    const homepageErrorsEl = document.getElementById("django-errors-homepage");
+    const aboutErrorsEl = document.getElementById("django-errors-about");
+
+    if (homepageErrorsEl) {
+      const errors = JSON.parse(homepageErrorsEl.textContent);
+      if (errors && Object.keys(errors).length) {
+        handleValidationErrors(errors);
+      }
+    }
+    if (aboutErrorsEl) {
+      const errors = JSON.parse(aboutErrorsEl.textContent);
+      if (errors && Object.keys(errors).length) {
+        handleValidationErrors(errors);
+      }
+    }
+  } catch (err) {
+    console.error("Failed to parse server-side validation errors:", err);
+  }
+
   buttons.forEach(function (button) {
     button.addEventListener("click", function () {
       activateTab(button.dataset.websiteTab);
@@ -952,6 +996,10 @@ document.addEventListener("DOMContentLoaded", function () {
         saveButton.classList.remove("is-dirty");
         saveButton.classList.remove("is-saved");
         saveButton.disabled = true;
+        saveButton.innerHTML = `
+          <span class="website-action-spinner"></span>
+          <span>Saving...</span>
+        `;
       }
 
       const formData = new FormData(currentForm);
@@ -971,6 +1019,7 @@ document.addEventListener("DOMContentLoaded", function () {
           if (saveButton) {
             saveButton.disabled = false;
             saveButton.classList.add("is-dirty");
+            saveButton.innerHTML = originalSaveButtonHtml;
           }
           if (statusMessage) {
             statusMessage.textContent = "Session expired. Your changes are preserved — please copy your edits, reload the page, and try again.";
@@ -1000,6 +1049,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (saveButton) {
               saveButton.disabled = false;
               saveButton.classList.add("is-dirty");
+              saveButton.innerHTML = originalSaveButtonHtml;
             }
             if (statusMessage) {
               statusMessage.textContent = "Some fields have validation errors. Please fix them before saving.";
@@ -1009,6 +1059,11 @@ document.addEventListener("DOMContentLoaded", function () {
           });
         } else {
           isSubmitting = false;
+          if (saveButton) {
+            saveButton.disabled = false;
+            saveButton.classList.add("is-dirty");
+            saveButton.innerHTML = originalSaveButtonHtml;
+          }
           throw new Error("Server responded with status: " + response.status);
         }
       })
@@ -1027,6 +1082,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (saveButton) {
           saveButton.disabled = false;
           saveButton.classList.add("is-dirty");
+          saveButton.innerHTML = originalSaveButtonHtml;
         }
         if (statusMessage) {
           statusMessage.textContent = "An error occurred while saving. Please check your network and try again.";

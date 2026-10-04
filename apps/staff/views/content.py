@@ -3,8 +3,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from apps.public.models import BlogPost, Testimonial, Service
-from apps.staff.forms import BlogPostForm, TestimonialForm, ServiceForm
+from apps.public.models import BlogPost, Testimonial, Service, TeamMember
+from apps.staff.forms import BlogPostForm, TestimonialForm, ServiceForm, TeamMemberForm
 
 from .auth import staff_only
 
@@ -331,3 +331,84 @@ def service_toggle_publish(request, pk):
         service.save(update_fields=["is_published", "updated_at"])
         messages.success(request, "Service published." if service.is_published else "Service hidden.")
     return redirect("dashboard:services")
+
+
+@login_required(login_url="dashboard:login")
+@user_passes_test(staff_only)
+def team_members(request):
+    items = TeamMember.objects.all().order_by("sort_order", "id")
+    return render(
+        request,
+        "staff/pages/team.html",
+        {
+            "active_page": "website",
+            "team_members": items,
+            "team_count": items.count(),
+            "published_team_count": items.filter(is_published=True).count(),
+        },
+    )
+
+
+@login_required(login_url="dashboard:login")
+@user_passes_test(staff_only)
+def team_member_create(request):
+    if request.method == "POST":
+        form = TeamMemberForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Team member added.")
+            return redirect("dashboard:team")
+    else:
+        form = TeamMemberForm()
+
+    return _render_content_form(
+        request,
+        "staff/pages/team_form.html",
+        form,
+        "Add Team Member",
+        "Add a new doctor or staff member to the clinical team list.",
+    )
+
+
+@login_required(login_url="dashboard:login")
+@user_passes_test(staff_only)
+def team_member_edit(request, pk):
+    member = get_object_or_404(TeamMember, pk=pk)
+
+    if request.method == "POST":
+        form = TeamMemberForm(request.POST, request.FILES, instance=member)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Team member updated.")
+            return redirect("dashboard:team")
+    else:
+        form = TeamMemberForm(instance=member)
+
+    return _render_content_form(
+        request,
+        "staff/pages/team_form.html",
+        form,
+        "Edit Team Member",
+        "Update roles, bios, and publishing states.",
+    )
+
+
+@login_required(login_url="dashboard:login")
+@user_passes_test(staff_only)
+def team_member_delete(request, pk):
+    member = get_object_or_404(TeamMember, pk=pk)
+    if request.method == "POST":
+        member.delete()
+        messages.success(request, "Team member deleted.")
+    return redirect("dashboard:team")
+
+
+@login_required(login_url="dashboard:login")
+@user_passes_test(staff_only)
+def team_member_toggle_publish(request, pk):
+    member = get_object_or_404(TeamMember, pk=pk)
+    if request.method == "POST":
+        member.is_published = not member.is_published
+        member.save(update_fields=["is_published", "updated_at"])
+        messages.success(request, "Team member shown." if member.is_published else "Team member hidden.")
+    return redirect("dashboard:team")
