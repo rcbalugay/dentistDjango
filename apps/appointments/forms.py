@@ -4,6 +4,7 @@ from django.db import transaction
 from django.utils import timezone
 from datetime import datetime, timedelta
 from apps.appointments.models import Appointment
+from apps.patients.selectors import resolve_patient_identity, PatientConflictError
 from apps.patients.services import get_or_create_patient_record
 from .constants import (
     APPOINTMENT_SERVICES,
@@ -79,6 +80,20 @@ class BaseAppointmentForm(forms.ModelForm):
         if len(digits) < 10:
             raise forms.ValidationError("Enter a valid phone number.")
         return digits
+
+    def clean(self):
+        cleaned = super().clean()
+        phone = cleaned.get("phone", "")
+        email = cleaned.get("email", "")
+        if phone and email:
+            try:
+                resolve_patient_identity(phone=phone, email=email)
+            except PatientConflictError:
+                raise forms.ValidationError(
+                    "The provided phone number and email address belong to different existing patients. "
+                    "Please verify your contact information."
+                )
+        return cleaned
 
     @transaction.atomic
     def save(self, commit=True, status=None):

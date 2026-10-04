@@ -5,6 +5,14 @@ from django.urls import reverse
 from django.db import IntegrityError, connection
 from django.core.files.uploadedfile import SimpleUploadedFile
 from apps.patients.models import Patient, PatientDocument, AuditLog
+from apps.patients.services import get_or_create_patient_record
+from apps.patients.selectors import (
+    resolve_patient_identity,
+    find_patient_by_phone,
+    find_patient_by_email,
+    PatientConflictError,
+)
+from apps.patients.normalization import normalize_phone, normalize_email
 from apps.appointments.models import Appointment
 
 class PatientFieldEncryptionTests(TestCase):
@@ -75,6 +83,79 @@ class PatientDocumentProtectedStorageAndDownloadTests(TestCase):
         response = client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers.get("Content-Type"), "application/pdf")
+
+
+class PatientIdentityResolutionTests(TestCase):
+    def test_new_patient_creation(self):
+        patient = get_or_create_patient_record(name="John Doe", phone="09171112233", email="john@example.com")
+        self.assertIsNotNone(patient)
+        self.assertEqual(patient.name, "John Doe")
+        self.assertEqual(patient.phone, "09171112233")
+        self.assertEqual(patient.email, "john@example.com")
+    def test_creation_requires_at_least_one_contact_identifier(self):
+        patient = get_or_create_patient_record(name="Ghost Patient", phone="", email="")
+        self.assertIsNone(patient)
+        self.assertEqual(Patient.objects.filter(name="Ghost Patient").count(), 0)
+    def test_existing_patient_by_phone(self):
+        original = Patient.objects.create(name="Alice", phone="09170001111", email="alice@test.com")
+        resolved = resolve_patient_identity(phone="09170001111", email="")
+        self.assertEqual(resolved.pk, original.pk)
+    def test_existing_patient_by_email(self):
+        original = Patient.objects.create(name="Bob", phone="09170002222", email="bob@test.com")
+        resolved = resolve_patient_identity(phone="", email="bob@test.com")
+        self.assertEqual(resolved.pk, original.pk)
+    def test_existing_patient_by_both_identifiers(self):
+        original = Patient.objects.create(name="Charlie", phone="09170003333", email="charlie@test.com")
+        resolved = resolve_patient_identity(phone="09170003333", email="charlie@test.com")
+        self.assertEqual(resolved.pk, original.pk)
+    def test_phone_and_email_conflict_raises_error(self):
+        p1 = Patient.objects.create(name="Patient One", phone="09171111111", email="one@test.com")
+        p2 = Patient.objects.create(name="Patient Two", phone="09172222222", email="two@test.com")
+        with self.assertRaises(PatientConflictError):
+            resolve_patient_identity(phone="09171111111", email="two@test.com")
+    def test_conflict_exception_does_not_leak_patient_ids(self):
+        p1 = Patient.objects.create(name="Patient One", phone="09171111111", email="one@test.com")
+        p2 = Patient.objects.create(name="Patient Two", phone="09172222222", email="two@test.com")
+        with self.assertRaises(PatientConflictError) as cm:
+            resolve_patient_identity(phone="09171111111", email="two@test.com")
+        error_message = str(cm.exception)
+        self.assertNotIn(str(p1.pk), error_message)
+        self.assertNotIn(str(p2.pk), error_message)
+    def test_phone_formatting_normalization(self):
+        original = Patient.objects.create(name="Diana", phone="09171234567", email="diana@test.com")
+        resolved = resolve_patient_identity(phone="+63 917-123-4567", email="diana@test.com")
+        self.assertEqual(resolved.pk, original.pk)
+    def test_email_case_normalization(self):
+        original = Patient.objects.create(name="Edward", phone="09173334444", email="edward@test.com")
+        resolved = resolve_patient_identity(phone="09173334444", email="EDWARD@TEST.COM")
+        self.assertEqual(resolved.pk, original.pk)
+    def test_sequential_duplicate_submission_reuses_patient(self):
+        p1 = get_or_create_patient_record(name="Frank", phone="09175556666", email="frank@test.com")
+        p2 = get_or_create_patient_record(name="Frank", phone="09175556666", email="frank@test.com")
+        self.assertEqual(p1.pk, p2.pk)
+        self.assertEqual(Patient.objects.count(), 1)
+    def test_existing_patient_does_not_overwrite_populated_phone(self):
+        original = Patient.objects.create(name="Grace", phone="09171110000", email="grace@test.com")
+        updated = get_or_create_patient_record(name="Grace", phone="09179999999", email="grace@test.com")
+        original.refresh_from_db()
+        self.assertEqual(original.phone, "09171110000")
+    def test_existing_patient_does_not_overwrite_populated_email(self):
+        original = Patient.objects.create(name="Henry", phone="09172220000", email="henry@test.com")
+        # Submitting matching phone with a different email should not overwrite Henry's existing email
+        updated = get_or_create_patient_record(name="Henry", phone="09172220000", email="newhenry@test.com")
+        original.refresh_from_db()
+        self.assertEqual(original.email, "henry@test.com")
+    def test_existing_patient_fills_missing_phone(self):
+        original = Patient.objects.create(name="Iris", phone="", email="iris@test.com")
+        updated = get_or_create_patient_record(name="Iris", phone="09173330000", email="iris@test.com")
+        original.refresh_from_db()
+        self.assertEqual(original.phone, "09173330000")
+    def test_existing_patient_fills_missing_email(self):
+        original = Patient.objects.create(name="Jack", phone="09174440000", email="")
+        updated = get_or_create_patient_record(name="Jack", phone="09174440000", email="jack@test.com")
+        original.refresh_from_db()
+        self.assertEqual(original.email, "jack@test.com")
+
 
 class SchedulingConcurrencyTests(TestCase):
     def test_concurrency_collision_integrity_error(self):
