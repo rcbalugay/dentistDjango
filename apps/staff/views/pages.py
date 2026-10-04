@@ -29,7 +29,9 @@ def message(request):
 @login_required(login_url="dashboard:login")
 @user_passes_test(staff_only)
 def website(request):
-    content, _ = SiteContent.objects.get_or_create(pk=1)
+    content = SiteContent.objects.first()
+    if not content:
+        content, _ = SiteContent.objects.get_or_create(pk=1)
 
     active_tab = request.GET.get("tab", "homepage")
 

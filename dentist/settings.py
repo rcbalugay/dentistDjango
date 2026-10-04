@@ -101,7 +101,7 @@ DATABASES = {
     }
 }
 
-DATABASE_URL = None if RUNNING_TESTS else os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("DATABASE_URL")
 if DATABASE_URL:
     DATABASES["default"] = dj_database_url.parse(DATABASE_URL, conn_max_age=600) # Change the age value as needed
 
