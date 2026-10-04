@@ -77,3 +77,10 @@ ARCHITECTURE.md
 architecture1.md
 dentist_implementation_plan.md
 Artifacts/
+
+# Backup files and virtualenvs
+*.bak
+virtual/
+
+# Whitelist template env file
+!.env.example
