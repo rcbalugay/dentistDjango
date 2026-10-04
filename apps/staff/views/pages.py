@@ -5,11 +5,9 @@ from django.http import JsonResponse
 
 from apps.public.models import BlogPost, SiteContent, Testimonial, ClinicSettings, Service, TeamMember
 from apps.staff.forms import HomepageForm, AboutForm, ClinicSettingsForm
+from apps.staff.permissions import receptionist_or_admin_required, admin_required, active_staff_required
 
-from .auth import staff_only
-
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@receptionist_or_admin_required
 def inquiries(request):
     return render(
         request,
@@ -20,14 +18,12 @@ def inquiries(request):
     )
 
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@receptionist_or_admin_required
 def message(request):
     return redirect("dashboard:inquiries")
 
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@admin_required
 def website(request):
     content = SiteContent.objects.first()
     if not content:
@@ -92,14 +88,12 @@ def website(request):
     )
 
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@active_staff_required
 def blog(request):
     return redirect("dashboard:blog")
 
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@active_staff_required
 def profile(request):
     return render(
         request,
@@ -110,8 +104,7 @@ def profile(request):
     )
 
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@admin_required
 def settings_page(request):
     settings, _ = ClinicSettings.objects.get_or_create(pk=1)
     

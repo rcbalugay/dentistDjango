@@ -8,11 +8,12 @@ from django.utils import timezone
 from apps.appointments.models import Appointment
 from apps.staff.services.time_utils import parse_date
 from apps.appointments.forms import StaffAppointmentForm
+from apps.staff.permissions import active_staff_required
 
 from .auth import staff_only
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+
+@active_staff_required
 def appointments(request):
     q = request.GET.get("q", "").strip()
     today = timezone.localdate()
@@ -150,8 +151,8 @@ def appointments(request):
     }
     return render(request, "staff/pages/dappointments.html", ctx)
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+
+@active_staff_required
 def appointments_form(request):
     if request.method == 'POST':
         form = StaffAppointmentForm(request.POST)

@@ -115,7 +115,10 @@ class PatientFieldEncryptionTests(TestCase):
 
 class PatientDocumentProtectedStorageAndDownloadTests(TestCase):
     def setUp(self):
+        from apps.staff.services.role_service import assign_staff_role, setup_roles_and_permissions
+        setup_roles_and_permissions()
         self.staff_user = User.objects.create_user(username="staff", password="password", is_staff=True)
+        assign_staff_role(self.staff_user, "Dentist")
         self.regular_user = User.objects.create_user(username="patient", password="password", is_staff=False)
         self.patient = Patient.objects.create(name="Jane Doe", phone="09171234567", email="jane@doe.com")
         
@@ -130,15 +133,15 @@ class PatientDocumentProtectedStorageAndDownloadTests(TestCase):
 
     def test_unauthorized_download_redirects_or_denies(self):
         client = Client()
-        # Not logged in should redirect to login or deny
+        # Not logged in should redirect to login
         url = reverse("dashboard:download_patient_document", args=[self.document.id])
         response = client.get(url)
-        self.assertEqual(response.status_code, 302)  # Redirects to login
+        self.assertEqual(response.status_code, 302)
         
-        # Logged in but non-staff user should deny with 403 or redirect
+        # Logged in but non-staff user receives 403
         client.login(username="patient", password="password")
         response = client.get(url)
-        self.assertEqual(response.status_code, 302)  # staff_only decorator redirects to login by default if not staff
+        self.assertEqual(response.status_code, 403)
 
     def test_authorized_download_succeeds(self):
         client = Client()

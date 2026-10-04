@@ -5,6 +5,7 @@ from django.utils import timezone
 
 from apps.public.models import BlogPost, Testimonial, Service, TeamMember
 from apps.staff.forms import BlogPostForm, TestimonialForm, ServiceForm, TeamMemberForm
+from apps.staff.permissions import admin_required
 
 from .auth import staff_only
 
@@ -31,8 +32,7 @@ def _parse_selected_ids(raw_ids):
     return selected_ids
 
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@admin_required
 def testimonials(request):
     items = Testimonial.objects.all()
     return render(
@@ -47,8 +47,7 @@ def testimonials(request):
     )
 
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@admin_required
 def testimonial_create(request):
     if request.method == "POST":
         form = TestimonialForm(request.POST, request.FILES)
@@ -68,8 +67,7 @@ def testimonial_create(request):
     )
 
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@admin_required
 def testimonial_edit(request, pk):
     testimonial = get_object_or_404(Testimonial, pk=pk)
 
@@ -91,8 +89,7 @@ def testimonial_edit(request, pk):
     )
 
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@admin_required
 def testimonial_delete(request, pk):
     testimonial = get_object_or_404(Testimonial, pk=pk)
     if request.method == "POST":
@@ -101,8 +98,7 @@ def testimonial_delete(request, pk):
     return redirect("dashboard:testimonials")
 
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@admin_required
 def testimonial_bulk_action(request):
     if request.method == "POST":
         selected_ids = _parse_selected_ids(request.POST.get("selected_ids"))
@@ -130,8 +126,7 @@ def testimonial_bulk_action(request):
     return redirect("dashboard:testimonials")
 
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@admin_required
 def testimonial_toggle_publish(request, pk):
     testimonial = get_object_or_404(Testimonial, pk=pk)
     if request.method == "POST":
@@ -144,8 +139,7 @@ def testimonial_toggle_publish(request, pk):
     return redirect("dashboard:testimonials")
 
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@admin_required
 def blog_posts(request):
     items = BlogPost.objects.all()
     return render(
@@ -160,8 +154,7 @@ def blog_posts(request):
     )
 
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@admin_required
 def blog_post_create(request):
     if request.method == "POST":
         form = BlogPostForm(request.POST, request.FILES)
@@ -181,8 +174,7 @@ def blog_post_create(request):
     )
 
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@admin_required
 def blog_post_edit(request, pk):
     post = get_object_or_404(BlogPost, pk=pk)
 
@@ -204,8 +196,7 @@ def blog_post_edit(request, pk):
     )
 
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@admin_required
 def blog_post_delete(request, pk):
     post = get_object_or_404(BlogPost, pk=pk)
     if request.method == "POST":
@@ -214,8 +205,7 @@ def blog_post_delete(request, pk):
     return redirect("dashboard:blog")
 
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@admin_required
 def blog_post_bulk_action(request):
     if request.method == "POST":
         selected_ids = _parse_selected_ids(request.POST.get("selected_ids"))
@@ -243,8 +233,7 @@ def blog_post_bulk_action(request):
     return redirect("dashboard:blog")
 
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@admin_required
 def blog_post_toggle_publish(request, pk):
     post = get_object_or_404(BlogPost, pk=pk)
     if request.method == "POST":
@@ -256,8 +245,7 @@ def blog_post_toggle_publish(request, pk):
         )
     return redirect("dashboard:blog")
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@admin_required
 def services(request):
     items = Service.objects.all()
     return render(
@@ -271,8 +259,7 @@ def services(request):
         },
     )
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@admin_required
 def service_create(request):
     if request.method == "POST":
         form = ServiceForm(request.POST, request.FILES)
@@ -291,8 +278,7 @@ def service_create(request):
         "Create a new clinic service.",
     )
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@admin_required
 def service_edit(request, pk):
     service = get_object_or_404(Service, pk=pk)
 
@@ -313,8 +299,7 @@ def service_edit(request, pk):
         "Update service details.",
     )
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@admin_required
 def service_delete(request, pk):
     service = get_object_or_404(Service, pk=pk)
     if request.method == "POST":
@@ -322,8 +307,7 @@ def service_delete(request, pk):
         messages.success(request, "Service deleted.")
     return redirect("dashboard:services")
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@admin_required
 def service_toggle_publish(request, pk):
     service = get_object_or_404(Service, pk=pk)
     if request.method == "POST":
@@ -333,8 +317,7 @@ def service_toggle_publish(request, pk):
     return redirect("dashboard:services")
 
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@admin_required
 def team_members(request):
     items = TeamMember.objects.all().order_by("sort_order", "id")
     return render(
@@ -349,8 +332,7 @@ def team_members(request):
     )
 
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@admin_required
 def team_member_create(request):
     if request.method == "POST":
         form = TeamMemberForm(request.POST, request.FILES)
@@ -370,8 +352,7 @@ def team_member_create(request):
     )
 
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@admin_required
 def team_member_edit(request, pk):
     member = get_object_or_404(TeamMember, pk=pk)
 
@@ -393,8 +374,7 @@ def team_member_edit(request, pk):
     )
 
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@admin_required
 def team_member_delete(request, pk):
     member = get_object_or_404(TeamMember, pk=pk)
     if request.method == "POST":
@@ -403,8 +383,7 @@ def team_member_delete(request, pk):
     return redirect("dashboard:team")
 
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@admin_required
 def team_member_toggle_publish(request, pk):
     member = get_object_or_404(TeamMember, pk=pk)
     if request.method == "POST":

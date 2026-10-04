@@ -190,7 +190,7 @@
             </a>
           </li>
 
-           <li class="nav-item {% if active_page == 'appointments' %}active{% endif %}">
+          <li class="nav-item {% if active_page == 'appointments' %}active{% endif %}">
             <a href="{% url 'dashboard:appointments' %}" class="nav-link">
               <i class="icon-book menu-icon"></i>
               <span class="menu-title">Appointments</span>
@@ -204,13 +204,16 @@
             </a>
           </li>
 
+          {% if is_admin or is_receptionist %}
           <li class="nav-item {% if active_page == 'inquiries' %}active{% endif %}">
             <a href="{% url 'dashboard:inquiries' %}" class="nav-link">
               <i class="icon-mail menu-icon"></i>
               <span class="menu-title">Inquiries</span>
             </a>
           </li>
+          {% endif %}
 
+          {% if is_admin %}
           <li class="nav-item {% if active_page == 'website' %}active{% endif %}">
             <a href="{% url 'dashboard:website' %}" class="nav-link">
               <i class="icon-paper menu-icon"></i>
@@ -224,6 +227,7 @@
               <span class="menu-title">Settings</span>
             </a>
           </li>
+          {% endif %}
         </ul>
       </nav>
       <!-- End of the Sidebar -->

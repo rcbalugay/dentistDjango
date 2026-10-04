@@ -7,10 +7,9 @@ from apps.staff.services.dashboard import get_cached_weather, get_latest_appoint
 from django.utils import timezone
 from apps.staff.services.chart_utils import build_appointment_chart
 from apps.appointments.models import Appointment
-from .auth import staff_only
+from apps.staff.permissions import active_staff_required
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@active_staff_required
 def index(request):
     wx = get_cached_weather(request)
     # enable when needed, does the same as the line of code above this
@@ -130,8 +129,8 @@ def index(request):
     }
     return render(request, "staff/index.html", ctx)
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+
+@active_staff_required
 def appointments_chart(request):
     today = timezone.localdate()
 

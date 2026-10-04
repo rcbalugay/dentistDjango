@@ -3,6 +3,7 @@ from urllib.parse import urlencode
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Max, Min, Q
 from django.http import JsonResponse, FileResponse, Http404
 from django.shortcuts import redirect, render
@@ -12,6 +13,12 @@ from django.utils import timezone
 from apps.appointments.models import Appointment
 from apps.patients.forms import PatientDocumentForm
 from apps.patients.models import Patient, PatientDocument
+from apps.staff.permissions import (
+    active_staff_required,
+    dentist_or_admin_required,
+    can_view_patient_documents,
+    can_upload_patient_documents,
+)
 
 from .auth import staff_only
 
@@ -89,8 +96,7 @@ def get_patient_documents(selected_patient):
     return insurance_document, document_items
 
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@active_staff_required
 def patients(request):
     q = ((request.POST.get("q") if request.method == "POST" else request.GET.get("q", "")) or "").strip()
     sort = ((request.POST.get("sort") if request.method == "POST" else request.GET.get("sort", "all")) or "all").strip().lower()
@@ -104,6 +110,16 @@ def patients(request):
         selected_key = request.POST.get("patient_id", "").strip() or selected_key
         target_patient = Patient.objects.filter(id=selected_key).first() if selected_key.isdigit() else None
         action = request.POST.get("document_action", "")
+
+        # Guard against unauthorized document uploads
+        if action in ["upload_insurance", "upload_document"]:
+            if not can_upload_patient_documents(request.user):
+                if request.headers.get("x-requested-with") == "XMLHttpRequest":
+                    return JsonResponse(
+                        {"success": False, "error": "Permission denied. Only dental and admin staff may upload documents."},
+                        status=403,
+                    )
+                raise PermissionDenied("You do not have permission to upload patient documents.")
 
         if not target_patient:
             if request.headers.get("x-requested-with") == "XMLHttpRequest":
@@ -218,7 +234,13 @@ def patients(request):
         visit_history = list(selected_appointments[:8])
 
         quick_stats = get_patient_appointment_stats(selected_patient, selected_appointments)
-        insurance_document, document_items = get_patient_documents(selected_patient)
+
+        # Only query documents if user is authorized (Dentist or Admin)
+        if can_view_patient_documents(request.user):
+            insurance_document, document_items = get_patient_documents(selected_patient)
+        else:
+            insurance_document, document_items = None, []
+
 
         # Log VIEW action in AuditLog
         from apps.patients.models import AuditLog
@@ -248,8 +270,7 @@ def patients(request):
     })
 
 
-@login_required(login_url="dashboard:login")
-@user_passes_test(staff_only)
+@dentist_or_admin_required
 def download_patient_document(request, pk):
     """
     Securely streams a patient document file after verifying authentication

@@ -192,6 +192,7 @@
                   <div class="card-body">
                     <div class="section-kicker">Insurance Record</div>
                     <h6 class="section-title mb-3">Coverage Document</h6>
+                    {% if can_view_documents %}
                     <div class="insurance-panel">
                       <form method="post" enctype="multipart/form-data" class="insurance-upload js-async-upload-form" id="insuranceUploadForm">
                         {% csrf_token %}
@@ -250,6 +251,12 @@
                         </div>
                       </form>
                     </div>
+                    {% else %}
+                    <div class="text-center text-muted py-4">
+                      <i class="ti-lock d-block mb-2" style="font-size: 1.5rem;"></i>
+                      <small>Insurance files are restricted to clinical staff.</small>
+                    </div>
+                    {% endif %}
                   </div>
                 </div>
               </div>
@@ -311,6 +318,7 @@
                 </div>
               </div>
 
+              {% if can_view_documents %}
               <div class="col-lg-4 mb-3">
                 <div class="card docs-card h-100">
                   <div class="card-body">
@@ -391,6 +399,7 @@
                   </div>
                 </div>
               </div>
+              {% endif %}
             </div>
           {% else %}
             <div class="card">

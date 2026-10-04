@@ -11,6 +11,8 @@ from django.urls import reverse
 from apps.appointments.models import Appointment
 from apps.patients.models import Patient, PatientDocument
 from apps.public.models import BlogPost, SiteContent, Testimonial, ClinicSettings
+from apps.staff.services.role_service import assign_staff_role, setup_roles_and_permissions
+
 
 # Create your tests here.
 @override_settings(WEATHERAPI_KEY="", SECURE_SSL_REDIRECT=False)
@@ -23,8 +25,10 @@ class DashboardAccessSmokeTests(TestCase):
         return today + timedelta(days=days_ahead)
 
     def setUp(self):
+        setup_roles_and_permissions()
         User = get_user_model()
         self.staff = User.objects.create_user("staff", password="pass12345", is_staff=True)
+        assign_staff_role(self.staff, "Administrator")
         self.user = User.objects.create_user("user", password="pass12345", is_staff=False)
         self.protected_urls = [
             reverse("dashboard:home"),
@@ -48,8 +52,7 @@ class DashboardAccessSmokeTests(TestCase):
         self.client.login(username="user", password="pass12345")
         for url in self.protected_urls:
             response = self.client.get(url)
-            self.assertEqual(response.status_code, 302)
-            self.assertIn(reverse("dashboard:login"), response.url)
+            self.assertEqual(response.status_code, 403)
 
     def test_staff_can_access(self):
         self.client.login(username="staff", password="pass12345")
@@ -108,8 +111,10 @@ class PatientWorkspaceDocumentTests(TestCase):
         super().tearDownClass()
 
     def setUp(self):
+        setup_roles_and_permissions()
         User = get_user_model()
         self.staff = User.objects.create_user("docstaff", password="pass12345", is_staff=True)
+        assign_staff_role(self.staff, "Administrator")
         self.patient = Patient.objects.create(
             name="Patient Workspace",
             phone="09175550000",
@@ -376,12 +381,14 @@ class PatientWorkspaceDocumentTests(TestCase):
 @override_settings(WEATHERAPI_KEY="", SECURE_SSL_REDIRECT=False)
 class WebsiteManagementTests(TestCase):
     def setUp(self):
+        setup_roles_and_permissions()
         User = get_user_model()
         self.staff = User.objects.create_user(
             "webstaff",
             password="pass12345",
             is_staff=True,
         )
+        assign_staff_role(self.staff, "Administrator")
         self.content = SiteContent.objects.create(
             hero_title="Original Hero",
             hero_subtitle="Original subtitle",
@@ -500,8 +507,11 @@ class WebsiteManagementTests(TestCase):
 @override_settings(WEATHERAPI_KEY="", SECURE_SSL_REDIRECT=False)
 class ContentManagerTests(TestCase):
     def setUp(self):
+        setup_roles_and_permissions()
         User = get_user_model()
         self.staff = User.objects.create_user("contentstaff", password="pass12345", is_staff=True)
+        assign_staff_role(self.staff, "Administrator")
+
 
     def test_staff_can_create_testimonial(self):
         self.client.login(username="contentstaff", password="pass12345")
