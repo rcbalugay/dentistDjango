@@ -1,7 +1,13 @@
+import logging
+from django.db import transaction
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from apps.shared.middleware import get_current_user, get_current_request
 from .models import Patient, PatientDocument, AuditLog
+from .storage import get_protected_storage
+
+logger = logging.getLogger(__name__)
+
 
 def get_client_ip(request):
     if not request:
@@ -12,6 +18,19 @@ def get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
+
+
+def _delete_storage_file(storage, file_name):
+    """Safely delete a file from protected storage, logging errors without crashing."""
+    if not file_name:
+        return
+    try:
+        if storage.exists(file_name):
+            storage.delete(file_name)
+            logger.info("Successfully deleted protected file from storage: %s", file_name)
+    except Exception as exc:
+        logger.warning("Failed to delete protected file '%s' from storage: %s", file_name, exc)
+
 
 @receiver(post_save, sender=Patient)
 def audit_patient_save(sender, instance, created, **kwargs):
@@ -40,6 +59,7 @@ def audit_patient_save(sender, instance, created, **kwargs):
         ip_address=ip
     )
 
+
 @receiver(post_delete, sender=Patient)
 def audit_patient_delete(sender, instance, **kwargs):
     user = get_current_user()
@@ -57,34 +77,61 @@ def audit_patient_delete(sender, instance, **kwargs):
         ip_address=ip
     )
 
+
 @receiver(post_save, sender=PatientDocument)
-def audit_document_save(sender, instance, created, **kwargs):
-    if not created:
+def patient_document_post_save(sender, instance, created, **kwargs):
+    # 1. Audit log on creation
+    if created:
+        user = get_current_user()
+        request = get_current_request()
+        ip = get_client_ip(request)
+        patient_name = (
+            getattr(instance.patient, "name", "unknown")
+            if hasattr(instance, "patient") and instance.patient
+            else "unknown"
+        )
+        desc = f"Patient document uploaded: {instance.title} ({instance.get_document_type_display()}) for patient {patient_name}"
+        AuditLog.objects.create(
+            user=user,
+            action=AuditLog.ACTION_CREATE,
+            model_name="PatientDocument",
+            object_id=instance.id,
+            description=desc,
+            ip_address=ip
+        )
+
+    # 2. File replacement cleanup
+    update_fields = kwargs.get("update_fields")
+    if update_fields is not None and "file" not in update_fields:
         return
-        
-    user = get_current_user()
-    request = get_current_request()
-    ip = get_client_ip(request)
-    
-    desc = f"Patient document uploaded: {instance.title} ({instance.get_document_type_display()}) for patient {instance.patient.name}"
-    
-    AuditLog.objects.create(
-        user=user,
-        action=AuditLog.ACTION_CREATE,
-        model_name="PatientDocument",
-        object_id=instance.id,
-        description=desc,
-        ip_address=ip
-    )
+
+    old_file_name = getattr(instance, "_original_file_name", None)
+    new_file_name = instance.file.name if instance.file else None
+
+    if old_file_name and new_file_name and old_file_name != new_file_name:
+        storage = get_protected_storage()
+        using = kwargs.get("using")
+
+        def _cleanup():
+            _delete_storage_file(storage, old_file_name)
+
+        transaction.on_commit(_cleanup, using=using)
+        # Update remembered key to prevent duplicate cleanup on repeated saves
+        instance._original_file_name = new_file_name
+
 
 @receiver(post_delete, sender=PatientDocument)
-def audit_document_delete(sender, instance, **kwargs):
+def patient_document_post_delete(sender, instance, **kwargs):
+    # 1. Audit log on deletion
     user = get_current_user()
     request = get_current_request()
     ip = get_client_ip(request)
-    
-    desc = f"Patient document deleted: {instance.title} for patient {instance.patient.name}"
-    
+    patient_name = (
+        getattr(instance.patient, "name", "unknown")
+        if hasattr(instance, "patient") and instance.patient
+        else "unknown"
+    )
+    desc = f"Patient document deleted: {instance.title} for patient {patient_name}"
     AuditLog.objects.create(
         user=user,
         action=AuditLog.ACTION_DELETE,
@@ -93,3 +140,14 @@ def audit_document_delete(sender, instance, **kwargs):
         description=desc,
         ip_address=ip
     )
+
+    # 2. Physical file cleanup on commit (covers single, queryset, and patient cascade delete)
+    if instance.file and instance.file.name:
+        file_name = instance.file.name
+        storage = get_protected_storage()
+        using = kwargs.get("using")
+
+        def _cleanup():
+            _delete_storage_file(storage, file_name)
+
+        transaction.on_commit(_cleanup, using=using)

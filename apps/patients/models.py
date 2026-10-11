@@ -1,11 +1,28 @@
 from pathlib import Path
+import uuid
 from django.db import models
 from .storage import protected_storage
 from apps.shared.fields import EncryptedCharField, EncryptedTextField, compute_lookup_hash
 from apps.patients.normalization import normalize_phone, normalize_email
 
 def patient_document_upload_to(instance, filename):
-    return f"patient_documents/{instance.patient_id}/{filename}"
+    """Generate an opaque, collision-resistant storage key.
+
+    Format: patients/<patient_id>/<document_type>/<uuid4hex>.<ext>
+    Never exposes patient names, contact details, or original filenames
+    in the storage paths."""
+    patient_id = instance.patient_id or "unassigned"
+
+    doc_type = getattr(instance, "document_type", "other")
+    if doc_type not in {"insurance", "agreement", "consent", "id_copy", "other"}:
+        doc_type = "other"
+
+    ext = Path(filename).suffix.lstrip(".").lower()
+    if ext not in {"pdf", "png", "jpg", "jpeg", "webp"}:
+        ext = "bin"
+
+    unique_id = uuid.uuid4().hex
+    return f"patients/{patient_id}/{doc_type}/{unique_id}.{ext}"
 
 
 class Patient(models.Model):
@@ -91,6 +108,11 @@ class PatientDocument(models.Model):
         on_delete=models.CASCADE,
     )
     title = models.CharField(max_length=150, blank=True)
+    original_filename = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Sanitized original filename for staff display only; never used in storage paths.",
+    )
     document_type = models.CharField(
         max_length=20,
         choices=TYPE_CHOICES,
@@ -101,15 +123,33 @@ class PatientDocument(models.Model):
 
     class Meta:
         ordering = ["-uploaded_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["patient"],
+                condition=models.Q(document_type="insurance"),
+                name="uniq_insurance_document_per_patient",
+            ),
+        ]
+
+
+    @classmethod
+    def from_db(cls, db, field_names, values):
+        instance = super().from_db(db, field_names, values)
+        instance._original_file_name = instance.file.name if instance.file else None
+        return instance
 
     def save(self, *args, **kwargs):
         if not self.title and self.file:
-            self.title = Path(self.file.name).name
+            display_name = self.original_filename or Path(self.file.name).name or "Document"
+            self.title = display_name[:150]
         super().save(*args, **kwargs)
+        # Keep remembered file key in sync after successful persistence
+        if self.file:
+            self._original_file_name = self.file.name
 
     @property
     def filename(self):
-        return Path(self.file.name).name
+        return self.original_filename or Path(self.file.name).name
 
     @property
     def is_image(self):

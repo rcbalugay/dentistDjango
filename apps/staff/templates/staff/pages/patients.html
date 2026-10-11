@@ -205,7 +205,7 @@
                         
                         <label class="insurance-preview insurance-preview-trigger js-drag-zone" for="insuranceFile" data-input-id="insuranceFile" id="insurancePreviewContainer">
                           {% if insurance_document and insurance_document.is_image %}
-                            <img src="{{ insurance_document.file.url }}" alt="{{ insurance_document.title }}" id="insurancePreviewImg">
+                            <img src="{% url 'dashboard:download_patient_document' insurance_document.id %}" alt="{{ insurance_document.title }}" id="insurancePreviewImg">
                           {% elif insurance_document %}
                             <div class="insurance-placeholder" id="insurancePlaceholder">
                               <i class="ti-files"></i>

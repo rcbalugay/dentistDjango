@@ -13,6 +13,7 @@ from django.utils import timezone
 from apps.appointments.models import Appointment
 from apps.patients.forms import PatientDocumentForm
 from apps.patients.models import Patient, PatientDocument
+from apps.patients.services import save_patient_document
 from apps.staff.permissions import (
     active_staff_required,
     dentist_or_admin_required,
@@ -144,9 +145,14 @@ def patients(request):
                 }
                 insurance_form = PatientDocumentForm(form_data, form_files)
                 if insurance_form.is_valid():
-                    doc = insurance_form.save(commit=False)
-                    doc.patient = target_patient
-                    doc.save()
+                    insurance_file = insurance_form.cleaned_data["file"]
+                    doc = save_patient_document(
+                        patient=target_patient,
+                        file=insurance_file,
+                        title=insurance_form.cleaned_data.get("title") or "Insurance attachment",
+                        document_type=PatientDocument.TYPE_INSURANCE,
+                        original_filename=getattr(insurance_file, "name", ""),
+                    )
                     if request.headers.get("x-requested-with") == "XMLHttpRequest":
                         return JsonResponse({
                             "success": True,
@@ -168,9 +174,14 @@ def patients(request):
         if action == "upload_document":
             document_form = PatientDocumentForm(request.POST, request.FILES, prefix="doc")
             if document_form.is_valid():
-                document = document_form.save(commit=False)
-                document.patient = target_patient
-                document.save()
+                doc_file = document_form.cleaned_data["file"]
+                document = save_patient_document(
+                    patient=target_patient,
+                    file=doc_file,
+                    title=document_form.cleaned_data.get("title") or "",
+                    document_type=document_form.cleaned_data.get("document_type", PatientDocument.TYPE_OTHER),
+                    original_filename=getattr(doc_file, "name", ""),
+                )
                 if request.headers.get("x-requested-with") == "XMLHttpRequest":
                     from django.template.defaultfilters import filesizeformat
                     return JsonResponse({

@@ -1,16 +1,29 @@
+import os
+import shutil
+import tempfile
 from datetime import date, time, timedelta
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.db import IntegrityError, connection
+from django.core.files.base import ContentFile
+from django.core.files.storage import storages
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.management import call_command
+from django.test import override_settings
 from apps.patients.models import Patient, PatientDocument, AuditLog
-from apps.patients.services import get_or_create_patient_record
+from apps.patients.services import get_or_create_patient_record, save_patient_document
 from apps.patients.selectors import (
     resolve_patient_identity,
     find_patient_by_phone,
     find_patient_by_email,
     PatientConflictError,
+)
+from apps.patients.storage import (
+    ProtectedFileSystemStorage,
+    ProtectedStorageProxy,
+    get_protected_storage,
+    protected_storage,
 )
 from apps.patients.normalization import normalize_phone, normalize_email
 from apps.appointments.models import Appointment
@@ -252,8 +265,10 @@ class SchedulingConcurrencyTests(TestCase):
                 status=Appointment.STATUS_CONFIRMED,
             )
 
+
 class AuditLogSignalsTests(TestCase):
     def test_patient_signals_creates_audit_log(self):
+
         # Clearing existing log records to isolate this test
         AuditLog.objects.all().delete()
         
@@ -268,3 +283,243 @@ class AuditLogSignalsTests(TestCase):
         logs = AuditLog.objects.filter(model_name="Patient", object_id=patient.id)
         self.assertTrue(logs.exists())
         self.assertEqual(logs.first().action, AuditLog.ACTION_CREATE)
+
+
+class ProtectedStorageAndProxyTests(TestCase):
+    def test_get_protected_storage_returns_protected_backend(self):
+        backend = get_protected_storage()
+        self.assertIsInstance(backend, ProtectedFileSystemStorage)
+    def test_direct_url_raises_not_implemented_error(self):
+        with self.assertRaises(NotImplementedError):
+            protected_storage.url("patients/1/insurance/test.pdf")
+    def test_proxy_resolves_dynamically_under_override_settings(self):
+        temp_dir = tempfile.mkdtemp()
+        try:
+            with override_settings(
+                STORAGES={
+                    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+                    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+                    "protected": {
+                        "BACKEND": "apps.patients.storage.ProtectedFileSystemStorage",
+                        "OPTIONS": {"location": temp_dir},
+                    },
+                }
+            ):
+                self.assertEqual(protected_storage.base_location, temp_dir)
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+class PatientDocumentModelAndKeyTests(TestCase):
+    def setUp(self):
+        self.patient = Patient.objects.create(name="Storage Test Patient", phone="09170001122")
+    def test_opaque_key_format_and_uuid(self):
+        doc = PatientDocument.objects.create(
+            patient=self.patient,
+            document_type=PatientDocument.TYPE_INSURANCE,
+            file=SimpleUploadedFile("my_real_card.pdf", b"test pdf content", content_type="application/pdf"),
+        )
+        self.assertTrue(doc.file.name.startswith(f"patients/{self.patient.id}/insurance/"))
+        self.assertTrue(doc.file.name.endswith(".pdf"))
+        # Verify original filename is NOT in storage key
+        self.assertNotIn("my_real_card", doc.file.name)
+        # Verify original filename is stored as metadata
+        self.assertEqual(doc.original_filename, "")
+    def test_unknown_document_type_and_extension_fallback(self):
+        doc = PatientDocument.objects.create(
+            patient=self.patient,
+            document_type="unrecognized_type",
+            file=SimpleUploadedFile("script.exe", b"binary content", content_type="application/octet-stream"),
+        )
+        # Type defaults to 'other' and extension defaults to 'bin'
+        self.assertTrue(doc.file.name.startswith(f"patients/{self.patient.id}/other/"))
+        self.assertTrue(doc.file.name.endswith(".bin"))
+    def test_insurance_unique_constraint_enforced_in_postgresql(self):
+        PatientDocument.objects.create(
+            patient=self.patient,
+            document_type=PatientDocument.TYPE_INSURANCE,
+            file=SimpleUploadedFile("card1.pdf", b"card1 content"),
+        )
+        # Attempting to create a second active insurance document for the same patient must raise IntegrityError
+        with self.assertRaises(IntegrityError):
+            PatientDocument.objects.create(
+                patient=self.patient,
+                document_type=PatientDocument.TYPE_INSURANCE,
+                file=SimpleUploadedFile("card2.pdf", b"card2 content"),
+            )
+class PatientDocumentLifecycleTests(TestCase):
+    def setUp(self):
+        self.temp_storage_dir = tempfile.mkdtemp()
+        self.patient = Patient.objects.create(name="Lifecycle Patient", phone="09173334455")
+    def tearDown(self):
+        shutil.rmtree(self.temp_storage_dir, ignore_errors=True)
+    def test_document_deletion_cleans_up_storage_file_on_commit(self):
+        with override_settings(
+            STORAGES={
+                "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+                "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+                "protected": {
+                    "BACKEND": "apps.patients.storage.ProtectedFileSystemStorage",
+                    "OPTIONS": {"location": self.temp_storage_dir},
+                },
+            }
+        ):
+            with self.captureOnCommitCallbacks(execute=True):
+                doc = PatientDocument.objects.create(
+                    patient=self.patient,
+                    document_type=PatientDocument.TYPE_AGREEMENT,
+                    file=SimpleUploadedFile("agreement.pdf", b"agreement content"),
+                )
+            file_path = os.path.join(self.temp_storage_dir, doc.file.name)
+            self.assertTrue(os.path.exists(file_path))
+            # Delete document and verify physical file is deleted upon commit
+            with self.captureOnCommitCallbacks(execute=True):
+                doc.delete()
+            self.assertFalse(os.path.exists(file_path))
+    def test_patient_cascade_deletion_cleans_up_document_files(self):
+        with override_settings(
+            STORAGES={
+                "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+                "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+                "protected": {
+                    "BACKEND": "apps.patients.storage.ProtectedFileSystemStorage",
+                    "OPTIONS": {"location": self.temp_storage_dir},
+                },
+            }
+        ):
+            with self.captureOnCommitCallbacks(execute=True):
+                doc = PatientDocument.objects.create(
+                    patient=self.patient,
+                    document_type=PatientDocument.TYPE_AGREEMENT,
+                    file=SimpleUploadedFile("doc.pdf", b"doc content"),
+                )
+            file_path = os.path.join(self.temp_storage_dir, doc.file.name)
+            self.assertTrue(os.path.exists(file_path))
+            # Delete the patient (cascading delete)
+            with self.captureOnCommitCallbacks(execute=True):
+                self.patient.delete()
+            self.assertFalse(os.path.exists(file_path))
+    def test_file_replacement_cleans_up_old_file_on_commit(self):
+        with override_settings(
+            STORAGES={
+                "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+                "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+                "protected": {
+                    "BACKEND": "apps.patients.storage.ProtectedFileSystemStorage",
+                    "OPTIONS": {"location": self.temp_storage_dir},
+                },
+            }
+        ):
+            with self.captureOnCommitCallbacks(execute=True):
+                doc = PatientDocument.objects.create(
+                    patient=self.patient,
+                    document_type=PatientDocument.TYPE_AGREEMENT,
+                    file=SimpleUploadedFile("initial.pdf", b"initial content"),
+                )
+            old_file_path = os.path.join(self.temp_storage_dir, doc.file.name)
+            self.assertTrue(os.path.exists(old_file_path))
+            # Replace file
+            with self.captureOnCommitCallbacks(execute=True):
+                doc.file = SimpleUploadedFile("replacement.pdf", b"replacement content")
+                doc.save()
+            new_file_path = os.path.join(self.temp_storage_dir, doc.file.name)
+            self.assertTrue(os.path.exists(new_file_path))
+            self.assertFalse(os.path.exists(old_file_path))
+class PatientDocumentServiceTests(TestCase):
+    def setUp(self):
+        self.patient = Patient.objects.create(name="Service Patient", phone="09176667788")
+    def test_save_patient_document_insurance_replacement(self):
+        f1 = SimpleUploadedFile("card1.jpg", b"card1 image content")
+        doc1 = save_patient_document(
+            patient=self.patient,
+            file=f1,
+            title="Card 1",
+            document_type=PatientDocument.TYPE_INSURANCE,
+            original_filename="card1.jpg",
+        )
+        self.assertEqual(PatientDocument.objects.filter(patient=self.patient).count(), 1)
+        self.assertEqual(doc1.original_filename, "card1.jpg")
+        # Upload a second insurance document via save_patient_document
+        f2 = SimpleUploadedFile("card2.jpg", b"card2 image content")
+        doc2 = save_patient_document(
+            patient=self.patient,
+            file=f2,
+            title="Card 2",
+            document_type=PatientDocument.TYPE_INSURANCE,
+            original_filename="card2.jpg",
+        )
+        # Verify only 1 active insurance record exists and it is doc2
+        self.assertEqual(PatientDocument.objects.filter(patient=self.patient).count(), 1)
+        self.assertEqual(PatientDocument.objects.get(patient=self.patient).id, doc2.id)
+    def test_save_patient_document_non_insurance_does_not_replace(self):
+        doc1 = save_patient_document(
+            patient=self.patient,
+            file=SimpleUploadedFile("agreement1.pdf", b"a1"),
+            document_type=PatientDocument.TYPE_AGREEMENT,
+        )
+        doc2 = save_patient_document(
+            patient=self.patient,
+            file=SimpleUploadedFile("agreement2.pdf", b"a2"),
+            document_type=PatientDocument.TYPE_AGREEMENT,
+        )
+        # Both agreements remain active
+        self.assertEqual(PatientDocument.objects.filter(patient=self.patient).count(), 2)
+class PatientDocumentManagementCommandTests(TestCase):
+    def setUp(self):
+        self.temp_media = tempfile.mkdtemp()
+        self.temp_protected = tempfile.mkdtemp()
+        self.patient = Patient.objects.create(name="Command Test Patient", phone="09178889900")
+    def tearDown(self):
+        shutil.rmtree(self.temp_media, ignore_errors=True)
+        shutil.rmtree(self.temp_protected, ignore_errors=True)
+    def test_migrate_documents_to_protected_copies_and_verifies(self):
+        with override_settings(
+            MEDIA_ROOT=self.temp_media,
+            PROTECTED_MEDIA_ROOT=self.temp_protected,
+            STORAGES={
+                "default": {
+                    "BACKEND": "django.core.files.storage.FileSystemStorage",
+                    "OPTIONS": {"location": self.temp_media},
+                },
+                "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+                "protected": {
+                    "BACKEND": "apps.patients.storage.ProtectedFileSystemStorage",
+                    "OPTIONS": {"location": self.temp_protected},
+                },
+            },
+        ):
+            # Create a file in default (public media) storage
+            default_storage = storages["default"]
+            test_key = "patient_documents/99/test_record.pdf"
+            default_storage.save(test_key, ContentFile(b"sample file for migration"))
+            doc = PatientDocument.objects.create(
+                patient=self.patient,
+                document_type=PatientDocument.TYPE_OTHER,
+                file=test_key,
+            )
+            # Run migration command with --copy
+            call_command("migrate_documents_to_protected", "--copy")
+            # Verify destination storage has the file
+            dest_storage = storages["protected"]
+            self.assertTrue(dest_storage.exists(test_key))
+            # Verify source is still preserved when --delete-source was not passed
+            self.assertTrue(default_storage.exists(test_key))
+    def test_prune_orphaned_documents_command(self):
+        with override_settings(
+            PROTECTED_MEDIA_ROOT=self.temp_protected,
+            STORAGES={
+                "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+                "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+                "protected": {
+                    "BACKEND": "apps.patients.storage.ProtectedFileSystemStorage",
+                    "OPTIONS": {"location": self.temp_protected},
+                },
+            },
+        ):
+            dest_storage = storages["protected"]
+            orphan_key = "patients/99/other/orphan_test.pdf"
+            dest_storage.save(orphan_key, ContentFile(b"orphan content"))
+            # Dry run: file should NOT be deleted
+            call_command("prune_orphaned_documents", "--min-age-minutes", "0")
+            self.assertTrue(dest_storage.exists(orphan_key))
+            # With --delete: file should be deleted
+            call_command("prune_orphaned_documents", "--delete", "--min-age-minutes", "0")
+            self.assertFalse(dest_storage.exists(orphan_key))

@@ -3,6 +3,7 @@ import os
 import sys
 import dj_database_url
 from decouple import config
+from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 RUNNING_TESTS = "test" in sys.argv
@@ -150,11 +151,36 @@ STATICFILES_DIRS = [
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-PROTECTED_MEDIA_URL = "/protected/"
 PROTECTED_MEDIA_ROOT = BASE_DIR / "protected_media"
 
-# Whitenoise storage
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Protected Storage Configuration
+PROTECTED_STORAGE_BACKEND = os.getenv(
+    "PROTECTED_STORAGE_BACKEND",
+    "filesystem",
+).strip().lower()
+
+if PROTECTED_STORAGE_BACKEND != "filesystem":
+    raise ImproperlyConfigured(
+        f"Invalid PROTECT_STORAGE_BACKEND '{PROTECTED_STORAGE_BACKEND}. "
+        "Only 'filesystem' is supported in Milestone 8. S3 support is deferred to Milestone 17."
+    )
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": (
+            "django.contrib.staticfiles.storage.StaticFilesStorage"
+            if RUNNING_TESTS
+            else "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        ),
+    },
+    "protected": {
+        "BACKEND": "apps.patients.storage.ProtectedFileSystemStorage",
+    },
+}
+
 
 # myaccount.google.com/lesssecureapps
 # accounts.google.com/DisplayUnlockCaptcha
